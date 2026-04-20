@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Core">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\shapez 2\shapez 2_Data\Managed\Core.dll</HintPath>
+	  <Private>false</Private>
+    </Reference>
+    <Reference Include="Game.Core">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\shapez 2\shapez 2_Data\Managed\Game.Core.dll</HintPath>
+	  <Private>false</Private>
+    </Reference>
+    <Reference Include="Game.Core.Modding">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\shapez 2\shapez 2_Data\Managed\Game.Core.Modding.dll</HintPath>
+	  <Private>false</Private>
+    </Reference>
+    <Reference Include="Game.Orchestration">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\shapez 2\shapez 2_Data\Managed\Game.Orchestration.dll</HintPath>
+	  <Private>false</Private>
+    </Reference>
+    <Reference Include="SPZGameAssembly">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\shapez 2\shapez 2_Data\Managed\SPZGameAssembly.dll</HintPath>
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="UnityEngine.CoreModule">
+	  <HintPath>C:\Program Files (x86)\Steam\steamapps\common\shapez 2\shapez 2_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+	  <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+    <PropertyGroup>
+	    <OutputPath>C:\Users\Zackbot\AppData\LocalLow\tobspr Games\shapez 2\mods\TestMod</OutputPath>
+	    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    </PropertyGroup>
+
+	<ItemGroup>
+		<None Update="manifest.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+</Project>
