@@ -7,33 +7,36 @@
 
   <ItemGroup>
     <Reference Include="Core">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\shapez 2\shapez 2_Data\Managed\Core.dll</HintPath>
+      <HintPath>$(SPZ2_PATH)\Core.dll</HintPath>
 	  <Private>false</Private>
     </Reference>
     <Reference Include="Game.Core">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\shapez 2\shapez 2_Data\Managed\Game.Core.dll</HintPath>
+      <HintPath>$(SPZ2_PATH)\Game.Core.dll</HintPath>
 	  <Private>false</Private>
     </Reference>
     <Reference Include="Game.Core.Modding">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\shapez 2\shapez 2_Data\Managed\Game.Core.Modding.dll</HintPath>
+      <HintPath>$(SPZ2_PATH)\Game.Core.Modding.dll</HintPath>
 	  <Private>false</Private>
     </Reference>
     <Reference Include="Game.Orchestration">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\shapez 2\shapez 2_Data\Managed\Game.Orchestration.dll</HintPath>
+      <HintPath>$(SPZ2_PATH)\Game.Orchestration.dll</HintPath>
 	  <Private>false</Private>
     </Reference>
+    <Reference Include="ShapezShifter">
+      <HintPath>$(SPZ2_SHIFTER)</HintPath>
+    </Reference>
     <Reference Include="SPZGameAssembly">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\shapez 2\shapez 2_Data\Managed\SPZGameAssembly.dll</HintPath>
+      <HintPath>$(SPZ2_PATH)\SPZGameAssembly.dll</HintPath>
 	  <Private>false</Private>
 	</Reference>
 	<Reference Include="UnityEngine.CoreModule">
-	  <HintPath>C:\Program Files (x86)\Steam\steamapps\common\shapez 2\shapez 2_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+	  <HintPath>$(SPZ2_PATH)\UnityEngine.CoreModule.dll</HintPath>
 	  <Private>false</Private>
     </Reference>
   </ItemGroup>
 
     <PropertyGroup>
-	    <OutputPath>C:\Users\Zackbot\AppData\LocalLow\tobspr Games\shapez 2\mods\TestMod</OutputPath>
+	    <OutputPath>$(SPZ2_PERSISTENT)\mods\TestMod</OutputPath>
 	    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     </PropertyGroup>
 

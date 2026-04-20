@@ -3,5 +3,11 @@
   "Author": "Zackbot",
   "Assemblies": [
     "TestMod.dll"
+  ],
+  "Dependencies": [
+    {
+      "ModId": "steam:3542611357",
+      "Version": "<1.0.0"
+    }
   ]
 }
