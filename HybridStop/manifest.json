@@ -1,0 +1,20 @@
+{
+  "Version": "0.0.1",
+  "Author": "Zackbot",
+  "Description": "Adds a hybrid train stop that combines the functionality of both the Quick Stop and the Wait Stop.",
+  "AffectsSaveGames": true,
+  "DisablesAchievements": false,
+  "SaveGameCompabilityRange": "*",
+  "GameVersionSupportRange": ">=1.0.0",
+  "Conflicts": [],
+  "Assemblies": [
+    "HybridStop.dll"
+  ],
+  "Dependencies": [
+    {
+      "ModId": "steam:3542611357",
+      "ModTitle": "Shapez Shifter",
+      "Version": "1.0.*"
+    }
+  ]
+}
