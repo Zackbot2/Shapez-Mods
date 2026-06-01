@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HybridStopFactoryBuil
+namespace HybridStop
 {
-    internal class FluidTrashFactoryBuilder : IBuildingSimulationFactoryBuilder<HybridStopSimulation>
+    internal class HybridStopFactoryBuilder : IBuildingSimulationFactoryBuilder<HybridStopSimulation>
     {
         public IFactory<HybridStopSimulation> BuildFactory(SimulationSystemsDependencies dependencies)
         {

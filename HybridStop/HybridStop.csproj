@@ -36,6 +36,10 @@
 	  <HintPath>$(SPZ2_PATH)\UnityEngine.CoreModule.dll</HintPath>
 	  <Private>false</Private>
     </Reference>
+	  <Reference Include="Game.Content">
+		  <HintPath>$(SPZ2_PATH)\Game.Content.dll</HintPath>
+		  <Private>False</Private>
+	  </Reference>
 	  <Reference Include="Game.Content.Features">
 		  <HintPath>$(SPZ2_PATH)\Game.Content.Features.dll</HintPath>
 		  <Private>False</Private>
