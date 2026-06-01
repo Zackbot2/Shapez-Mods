@@ -1,0 +1,20 @@
+{
+  "Version": "0.0.1",
+  "Author": "Zackbot",
+  "Description": "Removes the Wait Stop's 60 second limit for waiting trains. They now wait forever!",
+  "AffectsSaveGames": false,
+  "DisablesAchievements": false,
+  "SaveGameCompabilityRange": "*",
+  "GameVersionSupportRange": ">=1.0.0",
+  "Conflicts": [],
+  "Assemblies": [
+    "HybridStop.dll"
+  ],
+  "Dependencies": [
+    {
+      "ModId": "steam:3542611357",
+      "ModTitle": "Shapez Shifter",
+      "Version": "1.0.*"
+    }
+  ]
+}
