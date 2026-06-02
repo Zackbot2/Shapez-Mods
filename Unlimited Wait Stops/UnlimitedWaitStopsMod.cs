@@ -1,8 +1,6 @@
 ﻿using Game.Core.Trains;
 using MonoMod.RuntimeDetour;
-using System;
-using System.Linq;
-using System.Reflection;
+using ShapezShifter.SharpDetour;
 using ILogger = Core.Logging.ILogger;
 
 namespace Unlimited_Wait_Stops
@@ -13,8 +11,6 @@ namespace Unlimited_Wait_Stops
 
         // store the hook so it doesn't get GCed
         private readonly Hook shouldTrainLeaveHook;
-        private static MethodInfo? _trainExchangeCompletedMethod;
-        private static MethodInfo? _trainCouldExchangeMethod;
 
         public UnlimitedWaitStopsMod(ILogger logger)
         {
@@ -29,46 +25,24 @@ namespace Unlimited_Wait_Stops
 
         private Hook CreateHook()
         {
-            _logger.Info?.Log("Creating hook for Game.Core.Trains.WaitStopDecider.ShouldTrainLeave...");
-            var waitStopDecider = AppDomain.CurrentDomain.GetAssemblies()
-                .Select(a => a.GetType("Game.Core.Trains.WaitStopDecider", false))
-                .FirstOrDefault(t => t != null);
-
-            if (waitStopDecider == null) throw new InvalidOperationException("WaitStopDecider class not found");
-
-            _logger.Info?.Log("WaitStopDecider class found: " + waitStopDecider.FullName);
-
-            var shouldTrainLeave = waitStopDecider.GetMethod("ShouldTrainLeave", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance);
-            if (shouldTrainLeave == null) throw new InvalidOperationException("ShouldTrainLeave method not found");
-            
-            _logger.Info?.Log("ShouldTrainLeave method found: " + shouldTrainLeave.Name);
-
-            MethodInfo detour = typeof(UnlimitedWaitStopsMod).GetMethod(nameof(WaitStop_ShouldTrainLeave), BindingFlags.NonPublic | BindingFlags.Static);
-            if (detour == null) throw new InvalidOperationException("Detour method not found");
-            
-            _logger.Info?.Log("Detour method found: " + detour.Name);
-
-            return new Hook(shouldTrainLeave, detour);
+            return DetourHelper.Replace<WaitStopDecider, TrainId, TrainSimulationData, bool>(
+                (waitStopDecider, id, trainSimulationData) => waitStopDecider.ShouldTrainLeave(id, trainSimulationData),
+                WaitStop_ShouldTrainLeave);
         }
 
-        private static bool WaitStop_ShouldTrainLeave(object deciderInstance, TrainId id, TrainSimulationData trainSimulationData)
+        private static bool WaitStop_ShouldTrainLeave(WaitStopDecider deciderInstance, TrainId id, TrainSimulationData trainSimulationData)
         {
             if (deciderInstance == null)
             {
                 return false;
             }
 
-            var deciderType = deciderInstance.GetType();
-            _trainExchangeCompletedMethod = deciderType.GetMethod("TrainExchangeCompleted", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
-            if (!(bool)_trainExchangeCompletedMethod.Invoke(deciderInstance, new object[] { trainSimulationData }))
+            if (!deciderInstance.TrainExchangeCompleted(trainSimulationData))
             {
                 return false;
             }
 
-            _trainCouldExchangeMethod = deciderType.GetMethod("TrainCouldExchange", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
-            return !(bool)_trainCouldExchangeMethod.Invoke(deciderInstance, new object[] { id, trainSimulationData });
+            return !deciderInstance.TrainCouldExchange(id, trainSimulationData);
         }
 
         public void Dispose() { }

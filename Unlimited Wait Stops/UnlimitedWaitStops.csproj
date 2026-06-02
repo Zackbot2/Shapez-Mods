@@ -20,6 +20,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Publicize Include="Game.Content"/>
+	</ItemGroup>
+
+	<ItemGroup>
 		<Reference Include="Core">
 			<HintPath>$(SPZ2_PATH)\Core.dll</HintPath>
 			<Private>false</Private>
