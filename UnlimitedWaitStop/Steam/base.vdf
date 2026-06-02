@@ -1,0 +1,9 @@
+"workshopitem"
+{
+	"appid"		"2162800"
+	"publishedfileid"		"0"
+	"contentfolder"		"${CONTENT_PATH}"
+	"previewfile"		"${PREVIEW_IMG}"
+	"visibility"		"2"
+	"title"		"Unlimited Wait Stop"
+}

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.37012.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HybridStop", "HybridStop\HybridStop.csproj", "{E77C1A08-2658-7154-3EC3-01C1534BE55C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnlimitedWaitStops", "Unlimited Wait Stops\UnlimitedWaitStops.csproj", "{3861439C-7AC6-49BE-AE76-44C24F3CF0D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnlimitedWaitStop", "Unlimited Wait Stops\UnlimitedWaitStop.csproj", "{3861439C-7AC6-49BE-AE76-44C24F3CF0D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -3,16 +3,16 @@ using MonoMod.RuntimeDetour;
 using ShapezShifter.SharpDetour;
 using ILogger = Core.Logging.ILogger;
 
-namespace Unlimited_Wait_Stops
+namespace UnlimitedWaitStop
 {
-    public class UnlimitedWaitStopsMod : IMod
+    public class UnlimitedWaitStopMod : IMod
     {
         private readonly ILogger _logger;
 
         // store the hook so it doesn't get GCed
         private readonly Hook shouldTrainLeaveHook;
 
-        public UnlimitedWaitStopsMod(ILogger logger)
+        public UnlimitedWaitStopMod(ILogger logger)
         {
             _logger = logger;
 

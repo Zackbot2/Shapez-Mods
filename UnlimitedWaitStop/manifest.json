@@ -1,14 +1,14 @@
 {
-  "Version": "0.0.1",
+  "Version": "1.0.0",
   "Author": "Zackbot",
-  "Description": "Removes the Wait Stop's 60 second limit for waiting trains. They now wait forever!",
+  "Description": "Removes the Wait Stop's 60 second limit for waiting trains. They now wait forever! Or... until they're full.",
   "AffectsSaveGames": false,
   "DisablesAchievements": false,
   "SaveGameCompabilityRange": "*",
   "GameVersionSupportRange": ">=1.0.0",
   "Conflicts": [],
   "Assemblies": [
-    "UnlimitedWaitStops.dll"
+    "UnlimitedWaitStop.dll"
   ],
   "Dependencies": [
     {
