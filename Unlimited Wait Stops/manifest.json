@@ -8,7 +8,7 @@
   "GameVersionSupportRange": ">=1.0.0",
   "Conflicts": [],
   "Assemblies": [
-    "HybridStop.dll"
+    "Unlimited Wait Stops.dll"
   ],
   "Dependencies": [
     {

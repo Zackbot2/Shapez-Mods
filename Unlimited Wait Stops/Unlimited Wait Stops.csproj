@@ -7,6 +7,14 @@
   </PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.0" />
+		<PackageReference Include="Krafs.Publicizer" Version="2.3.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
 		<Reference Include="Core">
 			<HintPath>$(SPZ2_PATH)\Core.dll</HintPath>
 			<Private>false</Private>
@@ -77,6 +85,11 @@
 		</Reference>
 	</ItemGroup>
 
+	<PropertyGroup>
+		<OutputPath>$(SPZ2_PERSISTENT)\mods\Unlimited Wait stops</OutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	</PropertyGroup>
+	
 	<ItemGroup>
 	  <None Update="manifest.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
