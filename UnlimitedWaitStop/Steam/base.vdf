@@ -4,8 +4,12 @@
 	"publishedfileid"	"3737723464"
 	"contentfolder"		"${CONTENT_PATH}"
 	"previewfile"		"${PREVIEW_IMG}"
-	"visibility"		"2"
+	"visibility"		"0"
 	"title"				"Unlimited Wait Stop"
-	"changenote"		"Initial release"
-	"description"		"Disables the 60 second cap for Wait Stops, resulting in trains never leaving a station with a Wait Stop until they're completely full."
+	"changenote"		"Update description"
+	"description"		"
+	Disables the 60 second cap for Wait Stops, resulting in trains never leaving a station with a Wait Stop until they're completely full.
+	
+	Source: https://github.com/Zackbot2/Shapez-Mods
+	"
 }
