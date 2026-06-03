@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.37012.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HybridStop", "HybridStop\HybridStop.csproj", "{E77C1A08-2658-7154-3EC3-01C1534BE55C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnlimitedWaitStop", "Unlimited Wait Stops\UnlimitedWaitStop.csproj", "{3861439C-7AC6-49BE-AE76-44C24F3CF0D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnlimitedWaitStop", "UnlimitedWaitStop\UnlimitedWaitStop.csproj", "{B6B3507B-0950-D619-9167-2032A9BCE72E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{E77C1A08-2658-7154-3EC3-01C1534BE55C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E77C1A08-2658-7154-3EC3-01C1534BE55C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E77C1A08-2658-7154-3EC3-01C1534BE55C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3861439C-7AC6-49BE-AE76-44C24F3CF0D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3861439C-7AC6-49BE-AE76-44C24F3CF0D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3861439C-7AC6-49BE-AE76-44C24F3CF0D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3861439C-7AC6-49BE-AE76-44C24F3CF0D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6B3507B-0950-D619-9167-2032A9BCE72E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6B3507B-0950-D619-9167-2032A9BCE72E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6B3507B-0950-D619-9167-2032A9BCE72E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6B3507B-0950-D619-9167-2032A9BCE72E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

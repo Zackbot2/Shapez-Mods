@@ -1,9 +1,11 @@
 "workshopitem"
 {
-	"appid"		"2162800"
-	"publishedfileid"		"0"
+	"appid"				"2162800"
+	"publishedfileid"	"3737723464"
 	"contentfolder"		"${CONTENT_PATH}"
 	"previewfile"		"${PREVIEW_IMG}"
 	"visibility"		"2"
-	"title"		"Unlimited Wait Stop"
+	"title"				"Unlimited Wait Stop"
+	"changenote"		"Initial release"
+	"description"		"Disables the 60 second cap for Wait Stops, resulting in trains never leaving a station with a Wait Stop until they're completely full."
 }

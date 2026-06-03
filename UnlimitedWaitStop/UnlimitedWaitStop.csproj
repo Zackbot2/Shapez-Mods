@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<OutputPath>$(SPZ2_PERSISTENT)\mods\UnlimitedWaitStops</OutputPath>
+		<OutputPath>$(SPZ2_PERSISTENT)\mods\UnlimitedWaitStop</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 
