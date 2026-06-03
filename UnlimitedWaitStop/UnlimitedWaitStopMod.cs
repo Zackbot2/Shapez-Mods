@@ -16,11 +16,9 @@ namespace UnlimitedWaitStop
         {
             _logger = logger;
 
-            _logger.Info?.Log("Hello, Shapez 2!");
-
             shouldTrainLeaveHook = CreateHook();
 
-            _logger.Info?.Log("Mod loaded successfully!");
+            _logger.Info?.Log("UnlimitedWaitStop loaded successfully.");
         }
 
         private Hook CreateHook()

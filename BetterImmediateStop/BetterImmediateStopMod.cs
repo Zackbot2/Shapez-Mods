@@ -17,9 +17,10 @@ namespace BetterImmediateStop
         public BetterImmediateStopMod(ILogger logger)
         {
             _logger = logger;
-            _logger.Info?.Log("Hello, Shapez 2!");
+
             shouldTrainLeaveHook = CreateHook();
-            _logger.Info?.Log("Mod loaded successfully!");
+
+            _logger.Info?.Log("BetterImmediateStop loaded successfully.");
         }
 
         private Hook CreateHook()
