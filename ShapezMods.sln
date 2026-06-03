@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HybridStop", "HybridStop\Hy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnlimitedWaitStop", "UnlimitedWaitStop\UnlimitedWaitStop.csproj", "{B6B3507B-0950-D619-9167-2032A9BCE72E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterImmediateStop", "BetterImmediateStop\BetterImmediateStop.csproj", "{C21D191D-076A-51E9-0E5E-C28CFA3F9CCD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{B6B3507B-0950-D619-9167-2032A9BCE72E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6B3507B-0950-D619-9167-2032A9BCE72E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6B3507B-0950-D619-9167-2032A9BCE72E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C21D191D-076A-51E9-0E5E-C28CFA3F9CCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C21D191D-076A-51E9-0E5E-C28CFA3F9CCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C21D191D-076A-51E9-0E5E-C28CFA3F9CCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C21D191D-076A-51E9-0E5E-C28CFA3F9CCD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

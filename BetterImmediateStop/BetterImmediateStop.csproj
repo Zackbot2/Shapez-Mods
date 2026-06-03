@@ -20,7 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Publicize Include="Game.Content"/>
+		<Publicize Include="Game.Content" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -52,8 +52,24 @@
 			<HintPath>$(SPZ2_PATH)\Game.Content.Features.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="Game.Core.Map.Simulation">
+			<HintPath>$(SPZ2_PATH)\Game.Core.Map.Simulation.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Game.Core.Coordinates">
+			<HintPath>$(SPZ2_PATH)\Game.Core.Coordinates.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 		<Reference Include="Game.Core.Simulation">
 			<HintPath>$(SPZ2_PATH)\Game.Core.Simulation.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Unity.Collections">
+			<HintPath>$(SPZ2_PATH)\Unity.Collections.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>$(SPZ2_PATH)\UnityEngine.CoreModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
