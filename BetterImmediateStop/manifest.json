@@ -1,5 +1,5 @@
 {
-  "Version": "1.0.0",
+  "Version": "1.0.1",
   "Author": "Zackbot",
   "Description": "Properly applies a 5 second maximum stop time to the Immediate Stop. If this time is exceeded, the train will leave the station even if it's mid-transfer. No packages are lost in the process, the animation just looks a bit funny.",
   "AffectsSaveGames": false,

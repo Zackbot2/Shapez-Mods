@@ -6,7 +6,7 @@
 	"previewfile"		"${PREVIEW_IMG}"
 	"visibility"		"2"
 	"title"				"Better Immediate Stop"
-	"changenote"		"Initial release"
+	"changenote"		"fixed a bug that would cause exception spam when an immediate stop reached the 5 second limit"
 	"description"		"
 Properly applies a 5 second maximum stop time to the Immediate Stop. If this time is exceeded, the train will leave the station even if it's mid-transfer.
 No packages are lost in the process, the animation just looks a bit funny.

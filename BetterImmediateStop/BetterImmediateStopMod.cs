@@ -43,7 +43,7 @@ namespace BetterImmediateStop
                 for (int i = 1; i < trainSimulationData.Wagons.Length; i++)
                 {
                     GlobalChunkCoordinate position = trainSimulationData.Wagons[i].Outgoing.Position;
-                    if (!deciderInstance.CargoSimulator.TryGetExchanger(position, out ICargoExchanger cargoExchanger) 
+                    if (deciderInstance.CargoSimulator.TryGetExchanger(position, out ICargoExchanger cargoExchanger) 
                         && cargoExchanger.IsActivelyExchangingWithTrain())
                     {
                         cargoExchanger.CancelExchange();
