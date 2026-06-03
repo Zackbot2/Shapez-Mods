@@ -25,8 +25,9 @@ namespace BetterImmediateStop
         private Hook CreateHook()
         {
             return DetourHelper.Replace<QuickStopDecider, TrainId, TrainSimulationData, bool>(
-                (quickStopDecider, id, trainSimulationData) => quickStopDecider.ShouldTrainLeave(id, trainSimulationData),
-                QuickStop_ShouldTrainLeave);
+                (quickStopDecider, id, trainSimulationData) => 
+                    quickStopDecider.ShouldTrainLeave(id, trainSimulationData)
+                    , QuickStop_ShouldTrainLeave);
         }
 
         private static bool QuickStop_ShouldTrainLeave(QuickStopDecider deciderInstance, TrainId id, TrainSimulationData trainSimulationData)
@@ -42,11 +43,8 @@ namespace BetterImmediateStop
                 for (int i = 1; i < trainSimulationData.Wagons.Length; i++)
                 {
                     GlobalChunkCoordinate position = trainSimulationData.Wagons[i].Outgoing.Position;
-                    if (!deciderInstance.CargoSimulator.TryGetExchanger(position, out ICargoExchanger cargoExchanger))
-                    {
-                        break;
-                    }
-                    if (cargoExchanger.IsActivelyExchangingWithTrain())
+                    if (!deciderInstance.CargoSimulator.TryGetExchanger(position, out ICargoExchanger cargoExchanger) 
+                        && cargoExchanger.IsActivelyExchangingWithTrain())
                     {
                         cargoExchanger.CancelExchange();
                     }
@@ -55,7 +53,8 @@ namespace BetterImmediateStop
                 return true;
             }
 
-            return deciderInstance.TrainExchangeCompleted(trainSimulationData) || !deciderInstance.TrainCanExchangeImmediately(id, trainSimulationData);
+            return deciderInstance.TrainExchangeCompleted(trainSimulationData) 
+                && !deciderInstance.TrainCanExchangeImmediately(id, trainSimulationData);
         }
 
         public void Dispose() { }
