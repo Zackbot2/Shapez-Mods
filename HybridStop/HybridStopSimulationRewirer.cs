@@ -1,12 +1,16 @@
-﻿using Core.Logging;
+﻿using Core.Collections.Scoped;
+using Core.Logging;
+using Game.Core.Map.Simulation;
 using Game.Core.Rendering.Islands;
 using Game.Core.Trains;
 using Game.Core.Trains.Stations;
 using ShapezShifter.Hijack;
+using ShapezShifter.Kit;
+using ShapezShifter.Textures;
 using System;
 using System.Collections.Generic;
-using Game.Core.Map.Simulation;
-using Core.Collections.Scoped;
+using System.Linq;
+using UnityEngine;
 
 namespace HybridStop
 {
@@ -15,12 +19,14 @@ namespace HybridStop
         private readonly IslandDefinitionId _islandDefinitionId;
         private readonly IslandDefinitionGroupId _groupDefinitionId;
         private readonly HybridStopDeciderRef _deciderRef;
+        private readonly Sprite _icon;
 
-        public HybridStopSimulationRewirer(IslandDefinitionId islandId, IslandDefinitionGroupId groupId, HybridStopDeciderRef deciderRef)
+        public HybridStopSimulationRewirer(IslandDefinitionId islandId, IslandDefinitionGroupId groupId, HybridStopDeciderRef deciderRef, string iconPath)
         {
             _islandDefinitionId = islandId;
             _groupDefinitionId = groupId;
             _deciderRef = deciderRef;
+            _icon = FileTextureLoader.LoadTextureAsSprite(iconPath, out _);
         }
 
         public void ModifySimulationSystems(ICollection<ISimulationSystem> simulationSystems, SimulationSystemsDependencies dependencies)
@@ -36,17 +42,16 @@ namespace HybridStop
             }
             if (trainSystem == null)
             {
-                ILogChannel warning = dependencies.Logger.Warning;
-                warning?.Log("HybridStop: TrainSystem not found — hybrid stop coordinator NOT registered.");
+                dependencies.Logger.Warning?.Log("HybridStop: TrainSystem not found — hybrid stop coordinator NOT registered.");
             }
             else
             {
                 TrainsSimulation trainsSimulation = trainSystem.TrainsSimulation;
                 HybridStopDecider decider = new(trainsSimulation, trainsSimulation.TrainsWagonCargo, trainsSimulation.TrainSimulationTimeTracker);
                 _deciderRef.Current = decider;
+                // trainsSimulation.BuiltInWagonStates is obsolete, and the new one is private. not sure what they want us to do, so i'm just using the old one.
                 TrainStationCoordinator coordinator = new(_islandDefinitionId, trainsSimulation.BuiltInWagonStates.Moving, decider, decider);
                 trainsSimulation.AddCustomNavigationCoordinatorAfter<TrainStationCoordinator, TrainStationCoordinator>(coordinator);
-                dependencies.Logger.Info?.Log("HybridStop: registered TrainStationCoordinator for island ID '" + _islandDefinitionId.Name + "'.");
 
                 simulationSystems.Add(new HybridStopIslandSystem(this._islandDefinitionId, decider));
                 PatchVisuals(dependencies);
@@ -55,60 +60,60 @@ namespace HybridStop
 
         private void PatchVisuals(SimulationSystemsDependencies dependencies)
         {
-            dependencies.Logger.Info?.Log("HybridStop: Patching visuals for island ID '" + _islandDefinitionId.Name + "'...");
             GameIslands islands = dependencies.Mode.Islands;
 
-            if (!islands.TryGetDefinition(_islandDefinitionId, out IIslandDefinition rawOurIsland))
+            if (!islands.TryGetDefinition(_islandDefinitionId, out IIslandDefinition rawHybridStopIsland))
             {
                 dependencies.Logger.Error?.Log("HybridStop: Island definition with ID '" + _islandDefinitionId.Name + "' not found — visual patch skipped.");
                 return;
             }
-            IslandDefinition ourIsland = (IslandDefinition)rawOurIsland;
-            IslandDefinition waitIsland = (IslandDefinition)islands.Trains.Navigation.WaitStation;
 
             // yoink the visuals from the wait stop
 
-            if (waitIsland.CustomData.TryGet(out IslandMeshDrawer.Data meshData))
+            IslandDefinition hybridStopIsland = (IslandDefinition)rawHybridStopIsland;
+            IslandDefinition waitStopIsland = (IslandDefinition)islands.Trains.Navigation.WaitStation;
+
+            if (waitStopIsland.CustomData.TryGet(out IslandMeshDrawer.Data meshData))
             {
-                ourIsland.CustomData.AttachOrReplace(meshData);
+                hybridStopIsland.CustomData.AttachOrReplace(meshData);
+            }
+            if (waitStopIsland.CustomData.TryGet(out IslandOverviewDrawer.Data overviewData))
+            {
+                hybridStopIsland.CustomData.AttachOrReplace(overviewData);
+            }
+            if (waitStopIsland.CustomData.TryGet(out IslandFrameDrawData frameData))
+            {
+                hybridStopIsland.CustomData.AttachOrReplace(frameData);
+            }
+            if (waitStopIsland.CustomData.TryGet(out IRailIslandColorPredictionDrawDataProvider railPred))
+            {
+                hybridStopIsland.CustomData.AttachOrReplace(railPred);
+            }
+            if (waitStopIsland.CustomData.TryGet(out ModularIslandMeshDrawer.Data modData))
+            {
+                hybridStopIsland.CustomData.AttachOrReplace(modData);
             }
 
-            if (waitIsland.CustomData.TryGet(out IslandOverviewDrawer.Data overviewData))
-            {
-                ourIsland.CustomData.AttachOrReplace(overviewData);
-            }
+            // patch the group's custom data
+            // (i'm still not sure what a group is)
 
-            if (waitIsland.CustomData.TryGet(out IslandFrameDrawData frameData))
-            {
-                ourIsland.CustomData.AttachOrReplace(frameData);
-            }
+            IIslandDefinitionGroup waitStopGroup = islands.Groups.TrainWaitStationsGroup;
 
-            if (waitIsland.CustomData.TryGet(out IRailIslandColorPredictionDrawDataProvider railPred))
+            if (waitStopGroup.CustomData.TryGet(out IPresentationData waitGroupPres))
             {
-                ourIsland.CustomData.AttachOrReplace(railPred);
-            }
+                IslandDefinitionGroup hybridStopGroup = islands.AllDefinitionGroups
+                    .OfType<IslandDefinitionGroup>()
+                    .FirstOrDefault(g => g.Id == _groupDefinitionId);
 
-            if (waitIsland.CustomData.TryGet(out ModularIslandMeshDrawer.Data modData))
-            {
-                ourIsland.CustomData.AttachOrReplace(modData);
-            }
-
-            IIslandDefinitionGroup waitStationsGroup = islands.Groups.TrainWaitStationsGroup;
-                
-            if (waitStationsGroup.CustomData.TryGet(out IPresentationData waitGroupPres))
-            {
-                IslandDefinition ourGroup = (IslandDefinition)islands.AllDefinitionGroups.FirstOrDefault(g => g.Id == _groupDefinitionId);
-                if (ourGroup != null && ourGroup.CustomData.TryGet(out IPresentationData ourGroupPres))
+                if (hybridStopGroup != null && hybridStopGroup.CustomData.TryGet(out IPresentationData ourGroupPres))
                 {
-                    ourGroup.CustomData.AttachOrReplace<IPresentationData>(new GroupPresentationData(
-                        waitGroupPres.Icon, 
-                        ourGroupPres.Title, 
+                    hybridStopGroup.CustomData.AttachOrReplace<IPresentationData>(new GroupPresentationData(
+                        _icon,
+                        ourGroupPres.Title,
                         ourGroupPres.Description,
                         shouldShowAsReward: false));
                 }
             }
-
-            dependencies.Logger.Info?.Log("HybridStop visual patch complete.");
         }
     }
 }

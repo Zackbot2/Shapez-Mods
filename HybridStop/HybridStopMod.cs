@@ -34,16 +34,18 @@ namespace HybridStop
             IslandDefinitionGroupId groupId = new("HybridStop");
             HybridStopDeciderRef deciderRef = new();
 
+
+            ModFolderLocator modResourcesLocator = ModDirectoryLocator.CreateLocator<HybridStopMod>().SubLocator("Resources");
+            string iconPath = modResourcesLocator.SubPath("HybridStopIcon.png");
+
             // add the rewirer - this patches the simulation and the visuals when a hybrid stop is placed.
-            GameRewirers.AddRewirer(new HybridStopSimulationRewirer(islandId, groupId, deciderRef));
+            GameRewirers.AddRewirer(new HybridStopSimulationRewirer(islandId, groupId, deciderRef, iconPath));
 
             string titleId = "HybridStop.title";
             string descriptionId = "HybridStop.description";
 
-            ModFolderLocator modResourcesLocator =
-                ModDirectoryLocator.CreateLocator<HybridStopMod>().SubLocator("Resources");
+            
 
-            string iconPath = modResourcesLocator.SubPath("HybridStopIcon.png");
 
             // create the layout
             ChunkLayoutLookup<ChunkVector, IslandChunkData> layout = new(new KeyValuePair<ChunkVector, IslandChunkData>[]
@@ -52,6 +54,7 @@ namespace HybridStop
             });
 
             // create connectors
+            // these are east and west because so are the quick and wait stops
             LocalChunkPivot inputPivot = new(ChunkVector.Zero, ChunkDirection.West);
             LocalChunkPivot outputPivot = new(ChunkVector.Zero, ChunkDirection.East);
 
@@ -63,6 +66,7 @@ namespace HybridStop
 
             IslandConnectorData connectorData = new(connectors, new ChunkVector[] {ChunkVector.Zero});
 
+            // using ShapezShifter, we can now add the island in the standard way
             IIslandGroupBuilder groupBuilder = IslandGroup.Create(groupId)
                .WithPresentation(titleId.T(), descriptionId.T(), null)
                .AsTransportableIsland()
@@ -83,8 +87,6 @@ namespace HybridStop
                    removable: true)
                .WithDefaultChunkCost()
                .WithRenderingOptions(new HomogeneousChunkDrawing(ChunkPlatformDrawingContext.DrawAll()), drawPlayingField: false);
-
-            ((IslandBuilder)islandBuilder).IslandDefinition.CustomData.AttachOrReplace<IFactory<IIslandConfiguration>>(new LambdaFactory<IIslandConfiguration>(() => new HybridStopIslandConfiguration()));
 
             HybridStopModuleProvider provider = new(deciderRef);
 

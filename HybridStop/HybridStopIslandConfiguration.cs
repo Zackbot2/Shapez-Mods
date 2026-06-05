@@ -3,17 +3,17 @@ using System;
 
 namespace HybridStop
 {
-    internal class HybridStopIslandConfiguration : IIslandConfiguration, IEntityConfiguration, IEquatable<IEntityConfiguration>
-    {
-        public bool Equals(IEntityConfiguration other)
-        {
-            HybridStopIslandConfiguration otherConfig = other as HybridStopIslandConfiguration;
-            return otherConfig != null;
-        }
+    //internal class HybridStopIslandConfiguration : IIslandConfiguration, IEntityConfiguration, IEquatable<IEntityConfiguration>
+    //{
+    //    public bool Equals(IEntityConfiguration other)
+    //    {
+    //        HybridStopIslandConfiguration otherConfig = other as HybridStopIslandConfiguration;
+    //        return otherConfig != null;
+    //    }
 
-        public void Sync(ISerializationVisitor visitor)
-        {
-            return;
-        }
-    }
+    //    public void Sync(ISerializationVisitor visitor)
+    //    {
+    //        return;
+    //    }
+    //}
 }

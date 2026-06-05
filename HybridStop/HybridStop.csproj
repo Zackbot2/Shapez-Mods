@@ -15,7 +15,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Publicize Include="ShapezShifter" />
 		<Publicize Include="SPZGameAssembly" />
 	</ItemGroup>
 
@@ -76,6 +75,10 @@
 		  <HintPath>$(SPZ2_PATH)\Game.Core.Rendering.dll</HintPath>
 		  <Private>False</Private>
 	  </Reference>
+	  <Reference Include="Game.Core.Rendering.Islands">
+		  <HintPath>$(SPZ2_PATH)\Game.Core.Rendering.Islands.dll</HintPath>
+		  <Private>False</Private>
+	  </Reference>
 	  <Reference Include="Core.Localization">
 		  <HintPath>$(SPZ2_PATH)\Core.Localization.dll</HintPath>
 		  <Private>False</Private>
@@ -86,10 +89,6 @@
 	  </Reference>
 	  <Reference Include="Game.Core.Coordinates">
 		  <HintPath>$(SPZ2_PATH)\Game.Core.Coordinates.dll</HintPath>
-		  <Private>False</Private>
-	  </Reference>
-	  <Reference Include="Game.Core.Rendering.Islands">
-		  <HintPath>$(SPZ2_PATH)\Game.Core.Rendering.Islands.dll</HintPath>
 		  <Private>False</Private>
 	  </Reference>
   </ItemGroup>
