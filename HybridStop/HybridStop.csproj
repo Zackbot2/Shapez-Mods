@@ -7,6 +7,18 @@
 	<RootNamespace>HybridStop</RootNamespace>
   </PropertyGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Krafs.Publicizer" Version="2.3.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Publicize Include="ShapezShifter" />
+		<Publicize Include="SPZGameAssembly" />
+	</ItemGroup>
+
   <ItemGroup>
     <Reference Include="Core">
       <HintPath>$(SPZ2_PATH)\Core.dll</HintPath>
@@ -74,6 +86,10 @@
 	  </Reference>
 	  <Reference Include="Game.Core.Coordinates">
 		  <HintPath>$(SPZ2_PATH)\Game.Core.Coordinates.dll</HintPath>
+		  <Private>False</Private>
+	  </Reference>
+	  <Reference Include="Game.Core.Rendering.Islands">
+		  <HintPath>$(SPZ2_PATH)\Game.Core.Rendering.Islands.dll</HintPath>
 		  <Private>False</Private>
 	  </Reference>
   </ItemGroup>
