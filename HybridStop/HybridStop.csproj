@@ -16,6 +16,7 @@
 
 	<ItemGroup>
 		<Publicize Include="SPZGameAssembly" />
+		<Publicize Include="Game.Content.Trains" />
 	</ItemGroup>
 
   <ItemGroup>

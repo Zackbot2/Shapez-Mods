@@ -12,23 +12,29 @@ using System.Collections.Generic;
 using ILogger = Core.Logging.ILogger;
 
 namespace HybridStop
-
 {
     public class HybridStopMod : IMod
     {
+        private readonly ILogger _logger;
+
         public HybridStopMod(ILogger logger)
         {
-            AddHybridStop(logger);
+            _logger = logger;
+            AddHybridStop();
 
             logger.Info?.Log("Mod loaded successfully!");
         }
 
         public void Dispose() 
         {
-            // remove hybrid stop
+            RemoveHybridStop();
         }
 
-        private void AddHybridStop(ILogger logger)
+        /// <summary>
+        /// Add the hybrid stop island to the game.
+        /// Rewires the simulation and uses ShapezShifter.Flow.
+        /// </summary>
+        private void AddHybridStop()
         {
             IslandDefinitionId islandId = new("HybridStop");
             IslandDefinitionGroupId groupId = new("HybridStop");
@@ -43,9 +49,6 @@ namespace HybridStop
 
             string titleId = "HybridStop.title";
             string descriptionId = "HybridStop.description";
-
-            
-
 
             // create the layout
             ChunkLayoutLookup<ChunkVector, IslandChunkData> layout = new(new KeyValuePair<ChunkVector, IslandChunkData>[]
@@ -85,7 +88,7 @@ namespace HybridStop
                    selectable: true,
                    buildable: true,
                    removable: true)
-               .WithDefaultChunkCost()
+               .WithCustomChunkCost(ChunkLimitCurrency.Zero)    // FREE!!!!
                .WithRenderingOptions(new HomogeneousChunkDrawing(ChunkPlatformDrawingContext.DrawAll()), drawPlayingField: false);
 
             HybridStopModuleProvider provider = new(deciderRef);
@@ -95,10 +98,15 @@ namespace HybridStop
                .WithIsland(islandBuilder, groupBuilder)
                .UnlockedAtMilestone(new ByIdMilestoneSelector(new Game.Core.Research.ResearchUpgradeId("Milestone_ShapeTrains")))
                .WithDefaultPlacement()
-               .InToolbar(ToolbarElementLocator.Root().ChildAt(5).ChildAt(5).ChildAt(^1).InsertAfter())
+               .InToolbar(ToolbarElementLocator.Root().ChildAt(5).ChildAt(5).ChildAt(2).InsertAfter())
                .WithoutSimulation()
                .WithCustomModules(provider)
                .Build();
+        }
+    
+        private void RemoveHybridStop()
+        {
+            
         }
     }
 }
