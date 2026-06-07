@@ -8,6 +8,7 @@
   </PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.0" />
 		<PackageReference Include="Krafs.Publicizer" Version="2.3.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,8 +17,6 @@
 
 	<ItemGroup>
 		<Publicize Include="SPZGameAssembly" />
-		<Publicize Include="Game.Content.Trains" />
-		<Publicize Include="Game.Content" />
 	</ItemGroup>
 
   <ItemGroup>

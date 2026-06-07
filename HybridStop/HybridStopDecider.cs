@@ -37,13 +37,6 @@ namespace HybridStop
             if (TrainCanExchangeImmediately(trainId, trainSimulationData) || !TrainExchangeCompleted(trainSimulationData))
                 return false;
 
-            // keep the base wait stop logic for 4 seconds
-            //if (TrainSimulationTimeProvider.SimulationTime - trainSimulationData.StopTime < Ticks.FromSeconds(4f))
-            //{
-            //    return !TrainCouldExchange(trainId, trainSimulationData);
-            //}
-
-            // leave as soon as a single floor of a car cannot exchange, but only for exchangers that are enabled. if they're disabled, ignore.
             return !TrainCouldExchange(trainId, trainSimulationData) || TrainHasCompleteExchanges(trainId, trainSimulationData);
         }
 
@@ -76,8 +69,7 @@ namespace HybridStop
             for (int i = 1; i < trainSimulationData.Wagons.Length; i++)
             {
                 GlobalChunkCoordinate position = trainSimulationData.Wagons[i].Outgoing.Position;
-                ICargoExchanger cargoExchanger;
-                if (!this.CargoSimulator.TryGetExchanger(position, out cargoExchanger))
+                if (!this.CargoSimulator.TryGetExchanger(position, out ICargoExchanger cargoExchanger))
                 {
                     break;
                 }
@@ -96,19 +88,14 @@ namespace HybridStop
                 WagonNavigationData wagonNavigationData = trainSimulationData.Wagons[i];
                 if (!wagonNavigationData.UpsideDown)
                 {
-                    GlobalChunkCoordinate position = wagonNavigationData.Outgoing.Position;
-                    ICargoExchanger cargoExchanger;
-                    if (!this.CargoSimulator.TryGetExchanger(position, out cargoExchanger))
-                    {
+                    if (!CargoSimulator.TryGetExchanger(wagonNavigationData.Outgoing.Position, out ICargoExchanger cargoExchanger))
                         break;
-                    }
-                    TrainWagonId wagonId = this.Simulation.FindTrainWagonByIndex_Slow(trainId, i);
-                    IWagonCargoData wagonCargo;
-                    this.CargoSimulator.TryGetCargo(wagonId, out wagonCargo);
+                    
+                    TrainWagonId wagonId = Simulation.FindTrainWagonByIndex_Slow(trainId, i);
+                    CargoSimulator.TryGetCargo(wagonId, out IWagonCargoData wagonCargo);
+
                     if (cargoExchanger.CanExchangeImmediatelyWithCargo(wagonCargo))
-                    {
                         return true;
-                    }
                 }
             }
             return false;
@@ -139,11 +126,6 @@ namespace HybridStop
 
                 TrainWagonId trainWagonId = Simulation.FindTrainWagonByIndex_Slow(trainId, wagonNumber);
                 CargoSimulator.TryGetCargo(trainWagonId, out IWagonCargoData wagonCargoData);
-                
-                Type wagonType = wagonCargoData.GetType();                  // gets LayeredWagonCargo<CargoContainer<ShapeId>>
-                Type containerType = wagonType.GetGenericArguments()[0];    // gets CargoContainer<ShapeId>
-                Type itemType = containerType.GetGenericArguments()[0];         // gets ShapeId
-                Logger.Info?.Log($"wagon type: {itemType}");
 
                 // use a tuple pattern-matching switch statement here, for a few reasons:
                 // 1. this is extremely efficient when compiled, something to do with smart decision trees under the hood
@@ -188,7 +170,6 @@ namespace HybridStop
         private bool IsUnloaderBlocked<TItem>(TrainCargoUnloaderSimulation<TItem> unloader, LayeredWagonCargo<CargoContainer<TItem>> wagon)
             where TItem : unmanaged, IEquatable<TItem>
         {
-            Logger.Info?.Log($"is unloader of type {typeof(TItem).Name} blocked?");
             for (int layerNum = 0; layerNum < wagon.Containers.Count; layerNum++)
             {
                 if (wagon.Containers[layerNum].IsEmpty && unloader.IsLayerActive(layerNum))
@@ -208,7 +189,6 @@ namespace HybridStop
         /// <returns></returns>
         private bool IsLoaderBlocked<TItem>(TrainCargoLoaderSimulation<TItem> loader, LayeredWagonCargo<CargoContainer<TItem>> wagon) where TItem : unmanaged, IEquatable<TItem>
         {
-            Logger.Info?.Log($"is loader of type {nameof(TItem)}blocked?");
             for (int layerNum = 0; layerNum < wagon.Containers.Count; layerNum++)
             {
                 CargoContainer<TItem> cargoContainer = wagon.Containers[layerNum];
