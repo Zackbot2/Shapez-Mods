@@ -47,8 +47,8 @@ namespace HybridStop
             // add the rewirer - this patches the simulation and the visuals when a hybrid stop is placed.
             GameRewirers.AddRewirer(new HybridStopSimulationRewirer(islandId, groupId, deciderRef, iconPath));
 
-            string titleId = "HybridStop.title";
-            string descriptionId = "HybridStop.description";
+            string titleId = "HybridStopIsland.title";
+            string descriptionId = "HybridStopIsland.description";
 
             // create the layout
             ChunkLayoutLookup<ChunkVector, IslandChunkData> layout = new(new KeyValuePair<ChunkVector, IslandChunkData>[]
