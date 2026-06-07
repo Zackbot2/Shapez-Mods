@@ -28,6 +28,7 @@ namespace HybridStop
         }
         public bool ShouldTrainStop(TrainId trainId, TrainSimulationData trainSimulationData)
         {
+            // stop like a wait stop
             return TrainCouldExchange(trainId, trainSimulationData);
         }
 
@@ -36,11 +37,11 @@ namespace HybridStop
             if (TrainCanExchangeImmediately(trainId, trainSimulationData) || !TrainExchangeCompleted(trainSimulationData))
                 return false;
 
-            // keep the base wait stop logic for 5 seconds
-            if (TrainSimulationTimeProvider.SimulationTime - trainSimulationData.StopTime < Ticks.FromSeconds(5f))
-            {
-                return !TrainCouldExchange(trainId, trainSimulationData);
-            }
+            // keep the base wait stop logic for 4 seconds
+            //if (TrainSimulationTimeProvider.SimulationTime - trainSimulationData.StopTime < Ticks.FromSeconds(4f))
+            //{
+            //    return !TrainCouldExchange(trainId, trainSimulationData);
+            //}
 
             // leave as soon as a single floor of a car cannot exchange, but only for exchangers that are enabled. if they're disabled, ignore.
             return !TrainCouldExchange(trainId, trainSimulationData) || TrainHasCompleteExchanges(trainId, trainSimulationData);
@@ -113,39 +114,22 @@ namespace HybridStop
             return false;
         }
 
-        private bool TrainHasIdleWagon(TrainId trainId, TrainSimulationData trainSimulationData)
-        {
-            for (int i = 1; i < trainSimulationData.Wagons.Length; i++)
-            {
-                WagonNavigationData wagonNavigationData = trainSimulationData.Wagons[i];
-                if (!wagonNavigationData.UpsideDown)
-                {
-                    GlobalChunkCoordinate position = wagonNavigationData.Outgoing.Position;
-                    if (!CargoSimulator.TryGetExchanger(position, out ICargoExchanger cargoExchanger))
-                    {
-                        break;
-                    }
-                    TrainWagonId trainWagonId = Simulation.FindTrainWagonByIndex_Slow(trainId, i);
-                    CargoSimulator.TryGetCargo(trainWagonId, out IWagonCargoData wagonCargoData);
-
-                    if (!cargoExchanger.CouldExchangeWithCargo(wagonCargoData))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
+        /// <summary>
+        /// Does the train with id <paramref name="trainId"/> have any floors of wagons that have completed exchanging?
+        /// </summary>
+        /// <param name="trainId"></param>
+        /// <param name="trainSimulationData"></param>
+        /// <returns></returns>
         private bool TrainHasCompleteExchanges(TrainId trainId, TrainSimulationData trainSimulationData)
         {
             // return true if there is a layer of any wagon that cannot exchange, and the layer of the exchanger is ENABLED.
             Logger.Info?.Log($"checking if train {trainId} has any complete exchanges");
 
-            for (int wagonIndex = 1; wagonIndex < trainSimulationData.Wagons.Length; wagonIndex++)
+            // start at 1 because the engine is at index 0
+            for (int wagonNumber = 1; wagonNumber < trainSimulationData.Wagons.Length; wagonNumber++)
             {
-                Logger.Info?.Log($"checking wagon {wagonIndex}");
-                WagonNavigationData wagonNavigationData = trainSimulationData.Wagons[wagonIndex];
+                Logger.Info?.Log($"checking wagon {wagonNumber}");
+                WagonNavigationData wagonNavigationData = trainSimulationData.Wagons[wagonNumber];
                 if (wagonNavigationData.UpsideDown)
                     continue;
 
@@ -153,55 +137,61 @@ namespace HybridStop
                 if (!CargoSimulator.TryGetExchanger(position, out ICargoExchanger cargoExchanger))
                     break;
 
-                TrainWagonId trainWagonId = Simulation.FindTrainWagonByIndex_Slow(trainId, wagonIndex);
+                TrainWagonId trainWagonId = Simulation.FindTrainWagonByIndex_Slow(trainId, wagonNumber);
                 CargoSimulator.TryGetCargo(trainWagonId, out IWagonCargoData wagonCargoData);
-                Logger.Info?.Log($"wagonCargoData type: {wagonCargoData.GetType()}");
+                
+                Type wagonType = wagonCargoData.GetType();                  // gets LayeredWagonCargo<CargoContainer<ShapeId>>
+                Type containerType = wagonType.GetGenericArguments()[0];    // gets CargoContainer<ShapeId>
+                Type itemType = containerType.GetGenericArguments()[0];         // gets ShapeId
+                Logger.Info?.Log($"wagon type: {itemType}");
 
-                // capture both typed exchanger and typed cargo in the same pattern-match to avoid repeated casts
-                if (cargoExchanger is TrainCargoUnloaderSimulation<FluidId> fluidUnloader &&
-                    wagonCargoData is LayeredWagonCargo<CargoContainer<FluidId>> fluidWagonCargo)
+                // use a tuple pattern-matching switch statement here, for a few reasons:
+                // 1. this is extremely efficient when compiled, something to do with smart decision trees under the hood
+                // 2. fairly straightforward to expand for different exchanger types and/or cargo types
+                // 3. it's pretty easy to read
+                // 4. inline variable names don't conflict like they would in an if else chain
+                switch (cargoExchanger, wagonCargoData)
                 {
-                    Logger.Info?.Log("wagon is fluid wagon");
-                    Logger.Info?.Log("exchanger is fluid unloader");
-                    if (IsUnloaderBlocking(fluidUnloader, fluidWagonCargo))
-                        return true;
-                }
-                else if (cargoExchanger is TrainCargoLoaderSimulation<FluidId> fluidLoader &&
-                         wagonCargoData is LayeredWagonCargo<CargoContainer<FluidId>> fluidWagonCargo2)
-                {
-                    if (IsLoaderBlocking(fluidLoader, fluidWagonCargo2))
-                        return true;
-                }
-                else if (cargoExchanger is TrainCargoLoaderSimulation<ShapeId> shapeLoader && 
-                    wagonCargoData is LayeredWagonCargo<CargoContainer<ShapeId>> shapeCargo)
-                {
-                    if (IsLoaderBlocking(shapeLoader, shapeCargo))
-                        return true;
-                }
-                else if (cargoExchanger is TrainCargoUnloaderSimulation<ShapeId> shapeUnloader &&
-                    wagonCargoData is LayeredWagonCargo<CargoContainer<ShapeId>> shapeCargo2)
-                {
-                    if (IsUnloaderBlocking(shapeUnloader, shapeCargo2))
-                        return true;
+                    case (TrainCargoUnloaderSimulation<FluidId> fUnloader, LayeredWagonCargo<CargoContainer<FluidId>> fCargo):
+                        // return true if the check passes, but don't return false if it fails. remember that we're in a loop
+                        if (IsUnloaderBlocked(fUnloader, fCargo)) 
+                            return true;
+                        break;
+
+                    case (TrainCargoLoaderSimulation<FluidId> fLoader, LayeredWagonCargo<CargoContainer<FluidId>> fCargo):
+                        if (IsLoaderBlocked(fLoader, fCargo))
+                            return true;
+                        break;
+
+                    case (TrainCargoUnloaderSimulation<ShapeId> sUnloader, LayeredWagonCargo<CargoContainer<ShapeId>> sCargo):
+                        if (IsUnloaderBlocked(sUnloader, sCargo))
+                            return true;
+                        break;
+
+                    case (TrainCargoLoaderSimulation<ShapeId> sLoader, LayeredWagonCargo<CargoContainer<ShapeId>> sCargo):
+                        if (IsLoaderBlocked(sLoader, sCargo))
+                            return true;
+                        break;
                 }
             }
-
+            // if we get here, it means that everything else failed and we don't have any complete exchanges
             return false;
         }
 
-        private bool IsUnloaderBlocking<TItem>(TrainCargoUnloaderSimulation<TItem> unloader, LayeredWagonCargo<CargoContainer<TItem>> wagonCargo)
+        /// <summary>
+        /// Ignoring deactivated layers, is this <paramref name="unloader"/> trying to pull from an empty <paramref name="wagon"/>?
+        /// </summary>
+        /// <typeparam name="TItem">The type of item we're dealing with, typically <see cref="ShapeId"/> or <see cref="FluidId"/></typeparam>
+        /// <param name="unloader"></param>
+        /// <param name="wagon"></param>
+        /// <returns></returns>
+        private bool IsUnloaderBlocked<TItem>(TrainCargoUnloaderSimulation<TItem> unloader, LayeredWagonCargo<CargoContainer<TItem>> wagon)
             where TItem : unmanaged, IEquatable<TItem>
         {
-            for (int j = 0; j < wagonCargo.Containers.Count; j++)
+            Logger.Info?.Log($"is unloader of type {typeof(TItem).Name} blocked?");
+            for (int layerNum = 0; layerNum < wagon.Containers.Count; layerNum++)
             {
-                Logger.Info?.Log($"container {j}: is active {unloader.IsLayerActive(j)}, is empty {wagonCargo.Containers[j].IsEmpty}, can accept {unloader.BridgeLanes[j].CanAcceptContainer()}");
-                if (unloader.IsLayerActive(j) && !wagonCargo.Containers[j].IsEmpty)
-                {
-                    int num = unloader.BridgeLanes[j].ContainerCount() + unloader.ContainerTracks[j].ContainerCount() + 1;
-                    if (!unloader.BridgeLanes[j].CanAcceptContainer() || num > unloader.ContainerTracks[j].MaxContainersOnTrack)
-                        return true;
-                }
-                else if (wagonCargo.Containers[j].IsEmpty)
+                if (wagon.Containers[layerNum].IsEmpty && unloader.IsLayerActive(layerNum))
                 {
                     return true;
                 }
@@ -209,17 +199,21 @@ namespace HybridStop
             return false;
         }
 
-        private bool IsLoaderBlocking<TItem>(TrainCargoLoaderSimulation<TItem> loader, LayeredWagonCargo<CargoContainer<TItem>> wagonCargo) where TItem : unmanaged, IEquatable<TItem>
+        /// <summary>
+        /// Ignoring deactivated layers, is this <paramref name="loader"/> trying to push into a full <paramref name="wagon"/>?
+        /// </summary>
+        /// <typeparam name="TItem">The type of item we're dealing with, typically <see cref="ShapeId"/> or <see cref="FluidId"/></typeparam>
+        /// <param name="loader"></param>
+        /// <param name="wagon"></param>
+        /// <returns></returns>
+        private bool IsLoaderBlocked<TItem>(TrainCargoLoaderSimulation<TItem> loader, LayeredWagonCargo<CargoContainer<TItem>> wagon) where TItem : unmanaged, IEquatable<TItem>
         {
-            // TODO: does not catch all cases
-            for (int i = 0; i < wagonCargo.Containers.Count; i++)
+            Logger.Info?.Log($"is loader of type {nameof(TItem)}blocked?");
+            for (int layerNum = 0; layerNum < wagon.Containers.Count; layerNum++)
             {
-                CargoContainer<TItem> cargoContainer = wagonCargo.Containers[i];
-                if (cargoContainer.MaxPackages == loader.ContainerCapacityProvider.MaxPackagesPerContainer)
-                {
-                    return true;
-                }
-                if (cargoContainer.IsFull && loader.IsLayerActive(i))
+                CargoContainer<TItem> cargoContainer = wagon.Containers[layerNum];
+
+                if (cargoContainer.IsFull && loader.IsLayerActive(layerNum))
                 {
                     return true;
                 }
