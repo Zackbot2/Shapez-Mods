@@ -1,6 +1,6 @@
 {
   "en-US": {
     "HybridStopIsland.title": "Hybrid Stop",
-    "HybridStopIsland.description": "A hybrid between the <gl>Quick Stop</gl> and the <gl>Wait Stop</gl>. Waits at a station until 1 floor of 1 wagon is completely finished exchanging."
+    "HybridStopIsland.description": "A hybrid between the <gl>Immediate Stop</gl> and the <gl>Wait Stop</gl>. Waits at a station until 1 floor of 1 wagon is completely finished exchanging."
   }
 }
