@@ -1,14 +1,8 @@
 ﻿using Game.Content.Features.Fluids;
-using Game.Content.Features.Signals.Channels;
 using Game.Core.Coordinates;
-using Game.Core.Simulation;
 using Game.Core.Trains;
 using Game.Core.Trains.Stations;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Game.Content.Features;
-using Core.Logging;
 
 namespace HybridStop
 {
@@ -17,14 +11,12 @@ namespace HybridStop
         private readonly TrainsSimulation Simulation;
         private readonly TrainsWagonCargo CargoSimulator;
         private readonly ISimulationTimeProvider TrainSimulationTimeProvider;
-        private readonly ILogger Logger;
 
-        public HybridStopDecider(TrainsSimulation simulation, TrainsWagonCargo cargoSimulator, ISimulationTimeProvider trainSimulationTimeProvider, ILogger logger)
+        public HybridStopDecider(TrainsSimulation simulation, TrainsWagonCargo cargoSimulator, ISimulationTimeProvider trainSimulationTimeProvider)
         {
             Simulation = simulation;
             CargoSimulator = cargoSimulator;
             TrainSimulationTimeProvider = trainSimulationTimeProvider;
-            Logger = logger;
         }
         public bool ShouldTrainStop(TrainId trainId, TrainSimulationData trainSimulationData)
         {
@@ -106,16 +98,12 @@ namespace HybridStop
         /// </summary>
         /// <param name="trainId"></param>
         /// <param name="trainSimulationData"></param>
-        /// <returns></returns>
+        /// <returns>Returns <c>true</c> if there is a layer of any wagon that cannot exchange, and the layer of the exchanger is ENABLED.</returns>
         private bool TrainHasCompleteExchanges(TrainId trainId, TrainSimulationData trainSimulationData)
         {
-            // return true if there is a layer of any wagon that cannot exchange, and the layer of the exchanger is ENABLED.
-            Logger.Info?.Log($"checking if train {trainId} has any complete exchanges");
-
             // start at 1 because the engine is at index 0
             for (int wagonNumber = 1; wagonNumber < trainSimulationData.Wagons.Length; wagonNumber++)
             {
-                Logger.Info?.Log($"checking wagon {wagonNumber}");
                 WagonNavigationData wagonNavigationData = trainSimulationData.Wagons[wagonNumber];
                 if (wagonNavigationData.UpsideDown)
                     continue;
