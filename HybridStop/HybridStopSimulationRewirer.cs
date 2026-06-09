@@ -30,10 +30,10 @@ namespace HybridStop
             // if you're following this as a sort of guide, make sure your mesh only has ONE material. this line will throw an error if you have more.
             _mesh = FileMeshLoader.LoadSingleMeshFromFile(modFolderLocator.SubPath(baseMeshPath));
 
-            Debug.Log($"Verts: {_mesh.vertexCount}");
-            Debug.Log($"Submeshes: {_mesh.subMeshCount}");
-            Debug.Log($"Triangles: {_mesh.triangles.Length / 3}");
-            Debug.Log($"Bounds: {_mesh.bounds}");
+            //Debug.Log($"Verts: {_mesh.vertexCount}");
+            //Debug.Log($"Submeshes: {_mesh.subMeshCount}");
+            //Debug.Log($"Triangles: {_mesh.triangles.Length / 3}");
+            //Debug.Log($"Bounds: {_mesh.bounds}");
         }
 
         public void ModifySimulationSystems(ICollection<ISimulationSystem> simulationSystems, SimulationSystemsDependencies dependencies)
@@ -54,7 +54,7 @@ namespace HybridStop
             else
             {
                 TrainsSimulation trainsSimulation = trainSystem.TrainsSimulation;
-                HybridStopDecider decider = new(trainsSimulation, trainsSimulation.TrainsWagonCargo, trainsSimulation.TrainSimulationTimeTracker);
+                HybridStopDecider decider = new(trainsSimulation, trainsSimulation.TrainsWagonCargo, trainsSimulation.TrainSimulationTimeTracker, dependencies.Logger);
                 _deciderRef.Current = decider;
                 // trainsSimulation.BuiltInWagonStates is obsolete, and the new one is private. not sure what they want us to do, so i'm just using the old one.
                 TrainStationCoordinator coordinator = new(_islandDefinitionId, trainsSimulation.BuiltInWagonStates.Moving, decider, decider);
