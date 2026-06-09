@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<RootNamespace>UnlimitedWaitStop</RootNamespace>
+		<LangVersion>9</LangVersion>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
@@ -82,10 +83,24 @@
 			<HintPath>$(SPZ2_PATH)\Game.Core.Map.Simulation.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="Unity.Core">
+			<HintPath>$(SPZ2_PATH)\Unity.Core.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>$(SPZ2_PATH)\UnityEngine.CoreModule.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Game.Orchestration">
+			<HintPath>$(SPZ2_PATH)\Game.Orchestration.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
+		<Publicize Include="SPZGameAssembly"/>
 		<Publicize Include="Game.Content"/>
+		<Publicize Include="Game.Orchestration"/>
 	</ItemGroup>
 
 </Project>

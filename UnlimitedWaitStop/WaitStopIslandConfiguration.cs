@@ -1,7 +1,5 @@
 ﻿using Game.Core.Serialization;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace UnlimitedWaitStop
 {
