@@ -1,0 +1,24 @@
+"workshopitem"
+{
+	"appid"				"2162800"
+	"publishedfileid"	"3741348037"
+	"contentfolder"		"${CONTENT_PATH}"
+	"previewfile"		"${PREVIEW_IMG}"
+	"visibility"		"0"
+	"title"				"Hybrid Train Stop"
+	"changenote"		"Initial release"
+	"description"		"
+[h1]Overview[/h1]
+Adds a brand new stop, combining the functionality of the Immediate Stop and the Wait Stop.
+
+At a Hybrid Stop, trains will stop and wait like they would at a Wait Stop, but as soon as just 1 floor of 1 wagon is finished exchanging (for example, full at a loader), the train will leave.
+
+[h1]Future changes[/h1]
+[list]
+[*] Map view models
+[*] Train line rendering
+[*] Maximum wait time & configuration
+[/list]
+
+Source: https://github.com/Zackbot2/Shapez-Mods"
+}
