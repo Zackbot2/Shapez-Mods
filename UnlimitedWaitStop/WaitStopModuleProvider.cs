@@ -2,6 +2,7 @@
 using Game.Core.Coordinates;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace UnlimitedWaitStop
 {
@@ -20,7 +21,7 @@ namespace UnlimitedWaitStop
         public IEnumerable<IHUDSidePanelModuleData> GetModules(IslandModel island)
         {
             IIslandConfiguration configuration = island.Configuration;
-            if (!(configuration is WaitStopIslandConfiguration config))
+            if (configuration is not WaitStopIslandConfiguration config)
             {
                 yield break;
             }
@@ -43,6 +44,7 @@ namespace UnlimitedWaitStop
         private void ShowConfigDialog(WaitStopIslandConfiguration config, GlobalChunkCoordinate stationChunk)
         {
             IHUDDialogStack? dialogStack = _deciderRef.DialogStack;
+            Debug.Log($"showing config dialog {dialogStack}{(dialogStack == null ? ". it's null." : dialogStack)}");
             if (dialogStack != null)
             {
                 HUDDialogSimpleInput dialog = dialogStack.Show(Globals.Resources.UIDialogSimpleInputPrefab);
@@ -66,6 +68,15 @@ namespace UnlimitedWaitStop
                 dialog.OnConfirmed.Register(delegate (string text)
                 {
                     text = text.Trim();
+                    if (int.TryParse(text, out int result))
+                    {
+                        if (result < 0)
+                        {
+                            result = -1;
+                        }
+                        config.WaitTimeSeconds = result;
+                        WaitStopRegistry.WaitTimes[stationChunk] = result;
+                    }
                     _deciderRef.RefreshSidePanel?.Invoke();
                 });
             }
