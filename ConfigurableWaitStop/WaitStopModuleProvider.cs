@@ -6,15 +6,14 @@ using UnityEngine;
 
 namespace ConfigurableWaitStop
 {
+    /// <summary>
+    /// Handles providing side panel modules for wait stop islands, as well as their config dialog.
+    /// </summary>
     public class WaitStopModuleProvider : IIslandModuleDataProvider
     {
-        private readonly WaitStopDeciderRef _deciderRef;
         public GlobalChunkCoordinate stationChunk;
 
-        public WaitStopModuleProvider(WaitStopDeciderRef deciderRef)
-        {
-            _deciderRef = deciderRef;
-        }
+        public WaitStopModuleProvider() { }
 
         public IEnumerable<IHUDSidePanelModuleData> GetModules(IslandModel island)
         {
@@ -25,7 +24,7 @@ namespace ConfigurableWaitStop
             //Debug.Log($"Configuration is null: {island.Configuration == null}");
             if (configuration is not WaitStopIslandConfiguration config)
             {
-                //Debug.Log("config mismatch! backing out.");
+                //Debug.LogWarning("config mismatch! backing out.");
                 yield break;
             }
 
@@ -47,17 +46,20 @@ namespace ConfigurableWaitStop
 
         private void ShowConfigDialog(WaitStopIslandConfiguration config, GlobalChunkCoordinate stationChunk)
         {
-            IHUDDialogStack? dialogStack = _deciderRef.DialogStack;
+            IHUDDialogStack? dialogStack = WaitStopData.DialogStack;
             if (dialogStack != null)
             {
                 HUDDialogSimpleInput dialog = dialogStack.Show(Globals.Resources.UIDialogSimpleInputPrefab);
                 int currentWaitTime = config.WaitTimeSeconds;
+
+                // populate the dialog with our title, description, and value.
                 dialog.Init(
                     title: "island.wait-stop.wait-time-dialog-title".T(),
                     description: "island.wait-stop.wait-time-dialog-desc".T(),
                     buttonText: "global.btn-confirm".T(),
                     defaultValue: new RawText(currentWaitTime.ToString()));
 
+                // this triggers when you hit the confirm button. my implementation is pretty simple, it just parses to an int if it can.
                 dialog.OnConfirmed.Register(delegate (string text)
                 {
                     text = text.Trim();
@@ -68,9 +70,9 @@ namespace ConfigurableWaitStop
                             result = -1;
                         }
                         config.WaitTimeSeconds = result;
-                        _deciderRef.SetWaitSeconds(stationChunk, result);
+                        WaitStopData.SetWaitSeconds(stationChunk, result);
                     }
-                    _deciderRef.RefreshSidePanel?.Invoke();
+                    WaitStopData.RefreshSidePanel?.Invoke();
                 });
             }
         }

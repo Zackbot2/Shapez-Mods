@@ -1,7 +1,7 @@
 {
   "Version": "2.0.0",
   "Author": "Zackbot",
-  "Description": "IF YOU PUBLISH WITHOUT FILLING THIS IN I WILL KILL YOU",
+  "Description": "Adds a configuration panel to every Wait Stop, allowing you to set a custom wait time for each station, including waiting forever!",
   "AffectsSaveGames": false,
   "DisablesAchievements": false,
   "SaveGameCompabilityRange": "*",

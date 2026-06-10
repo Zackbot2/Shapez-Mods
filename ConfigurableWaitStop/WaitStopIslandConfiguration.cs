@@ -5,9 +5,12 @@ using UnityEngine;
 
 namespace ConfigurableWaitStop
 {
-    public class WaitStopIslandConfiguration : IIslandConfiguration, IEntityConfiguration, IEquatable<IEntityConfiguration>
+    /// <summary>
+    /// Stores the effective <see cref="WaitTimeSeconds"/>. stored with its respective stop in the save file.
+    /// </summary>
+    public class WaitStopIslandConfiguration : IIslandConfiguration
     {
-        public int WaitTimeSeconds = WaitStopDeciderRef.DEFAULT_WAIT_SECONDS;
+        public int WaitTimeSeconds = WaitStopData.DEFAULT_WAIT_SECONDS;
 
         public Ticks WaitTimeTicks
         {
@@ -23,6 +26,10 @@ namespace ConfigurableWaitStop
             return other is WaitStopIslandConfiguration otherConfig && WaitTimeSeconds == otherConfig.WaitTimeSeconds;
         }
 
+        /// <summary>
+        /// This will be called when a wait stop is saved, loaded, placed or deleted.
+        /// </summary>
+        /// <param name="visitor"></param>
         public void Sync(ISerializationVisitor visitor)
         {
             Debug.Log("Syncing WaitStopIslandConfiguration");

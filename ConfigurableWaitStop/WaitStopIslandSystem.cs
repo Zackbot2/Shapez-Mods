@@ -8,25 +8,20 @@ using UnityEngine;
 
 namespace ConfigurableWaitStop
 {
+    /// <summary>
+    /// Handles the simulation logic for wait stop islands, specifically when a wait stop is placed or removed.
+    /// </summary>
     public class WaitStopIslandSystem : ISimulationSystem, IIslandObserverSimulationSystem
     {
-        private readonly IslandDefinitionId _islandDefinitionId;
-        private readonly WaitStopDeciderRef _deciderRef;
-        private readonly WaitStopDecider _decider;
 
         private readonly MultiRegisterEvent<IConnectableSimulation> _onSimulationCreated = new();
-        private readonly MultiRegisterEvent<IConnectableSimulation> _onBeforeSimulationDestroyed = new();
-
-        public WaitStopIslandSystem(IslandDefinitionId islandDefinitionId, WaitStopDeciderRef deciderRef, WaitStopDecider decider)
-        {
-            _islandDefinitionId = islandDefinitionId;
-            _deciderRef = deciderRef;
-            _decider = decider;
-        }
-
         public IEvent<IConnectableSimulation> OnSimulationCreated => _onSimulationCreated;
+
+        private readonly MultiRegisterEvent<IConnectableSimulation> _onBeforeSimulationDestroyed = new();
         public IEvent<IConnectableSimulation> OnBeforeSimulationDestroyed => _onBeforeSimulationDestroyed;
         public IEnumerable<IConnectableSimulation> ConnectableSimulations => Array.Empty<IConnectableSimulation>();
+
+        public WaitStopIslandSystem() { }
 
         void IIslandObserverSimulationSystem.IslandWasAdded(in IslandInstance island, IReadOnlyMapLayout layout)
         {
@@ -38,21 +33,31 @@ namespace ConfigurableWaitStop
             IslandWillBeRemoved(in island);
         }
 
+        /// <summary>
+        /// Called when an island is placed (including when loading a savegame).
+        /// </summary>
+        /// <param name="island"></param>
         public void IslandWasAdded(in IslandInstance island)
         {
-            if (island.Definition.Id == _islandDefinitionId)
+            // we don't care about anything other than the wait stop island.
+            if (island.Definition.Id == WaitStopData.WaitStationId)
             {
                 GlobalChunkCoordinate stationChunk = GetInputChunk(in island);
-                _deciderRef.SetWaitTicks(stationChunk, _decider.MaxTicksToWait);
+                WaitStopData.SetWaitTicks(stationChunk, ((WaitStopIslandConfiguration)island.Configuration).WaitTimeTicks);
             }
-
         }
+
+        /// <summary>
+        /// Called when an island is being removed (including when exiting a savegame).
+        /// </summary>
+        /// <param name="island"></param>
         public void IslandWillBeRemoved(in IslandInstance island)
         {
-            if (island.Definition.Id == _islandDefinitionId)
+            // we don't care about anything other than the wait stop island.
+            if (island.Definition.Id == WaitStopData.WaitStationId)
             {
                 GlobalChunkCoordinate stationChunk = GetInputChunk(in island);
-                _deciderRef.WaitTimes.Remove(stationChunk, out _);
+                WaitStopData.WaitTimes.Remove(stationChunk, out _);
             }
         }
 

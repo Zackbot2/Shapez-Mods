@@ -1,49 +1,35 @@
 ﻿using Game.Core.Trains;
-using Game.Core.Trains.Stations;
 using ShapezShifter.Hijack;
-using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ConfigurableWaitStop
 {
-    public class WaitStopSimulationRewirer : ISimulationSystemsRewirer, IRewirer
+    /// <summary>
+    /// Rewires the simulation to use <see cref="WaitStopIslandSystem"/>.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="SimulationSystemsInterceptor"/> is in charge of all <see cref="ISimulationSystemsRewirer"/> instances.
+    /// In its constructor, it uses the <see cref="IRewirerProvider"/> to get all of the rewirers of the ISimulationSystemsRewirer type, and calls <see cref="ISimulationSystemsRewirer.ModifySimulationSystems"/> on each one.
+    /// So all we need to do is have this class implement that method, have something else add the rewirer, and that's it.
+    /// </remarks>
+    public class WaitStopSimulationRewirer : ISimulationSystemsRewirer
     {
-        private readonly WaitStopDeciderRef _deciderRef;
-
-        public WaitStopSimulationRewirer(WaitStopDeciderRef deciderRef) 
-        {
-            _deciderRef = deciderRef;
-        }
+        public WaitStopSimulationRewirer() { }
 
         public void ModifySimulationSystems(ICollection<ISimulationSystem> simulationSystems, SimulationSystemsDependencies dependencies)
         {
-            TrainSystem? trainSystem = null;
-            foreach (ISimulationSystem simSystem in simulationSystems)
+            TrainSystem? trainSystem = simulationSystems
+                .OfType<TrainSystem>()
+                .FirstOrDefault();
+
+            if (trainSystem != null)
             {
-                if (simSystem is TrainSystem ts)
-                {
-                    trainSystem = ts;
-                    break;
-                }
-            }
-            if (trainSystem == null)
-            {
-                dependencies.Logger.Warning?.Log("ConfigurableWaitStop: TrainSystem not found — wait stop coordinator NOT registered.");
+                simulationSystems.Add(new WaitStopIslandSystem());
             }
             else
             {
-                GameIslands islands = dependencies.Mode.Islands;
-                TrainsSimulation trainsSimulation = trainSystem.TrainsSimulation;
-
-                WaitStopDecider decider = new(trainsSimulation, trainsSimulation.TrainsWagonCargo, trainsSimulation.TrainSimulationTimeTracker, TimeSpan.FromSeconds(60));
-                _deciderRef.Current = decider;
-                IslandDefinition waitStopIsland = (IslandDefinition)islands.Trains.Navigation.WaitStation;
-
-                // trainsSimulation.BuiltInWagonStates is obsolete, and the new one is private. not sure what they want us to do, so i'm just using the old one.
-                TrainStationCoordinator coordinator = new(waitStopIsland.Id, trainsSimulation.BuiltInWagonStates.Moving, decider, decider);
-                trainsSimulation.AddCustomNavigationCoordinatorAfter<TrainStationCoordinator, TrainStationCoordinator>(coordinator);
-
-                simulationSystems.Add(new WaitStopIslandSystem(waitStopIsland.Id, _deciderRef, decider));
+                dependencies.Logger.Warning?.Log("ConfigurableWaitStop: TrainSystem not found — wait stop coordinator NOT registered.");
             }
         }
     }
