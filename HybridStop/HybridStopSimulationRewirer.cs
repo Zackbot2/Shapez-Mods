@@ -60,7 +60,7 @@ namespace HybridStop
                 TrainStationCoordinator coordinator = new(_islandDefinitionId, trainsSimulation.BuiltInWagonStates.Moving, decider, decider);
                 trainsSimulation.AddCustomNavigationCoordinatorAfter<TrainStationCoordinator, TrainStationCoordinator>(coordinator);
 
-                simulationSystems.Add(new HybridStopIslandSystem(this._islandDefinitionId, decider));
+                simulationSystems.Add(new HybridStopIslandSystem(_islandDefinitionId, decider));
                 PatchVisuals(dependencies);
             }
         }

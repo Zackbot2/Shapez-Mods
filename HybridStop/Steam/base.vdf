@@ -9,7 +9,7 @@
 	"changenote"		"Initial release"
 	"description"		"
 [h1]Overview[/h1]
-Adds a brand new stop, combining the functionality of the Immediate Stop and the Wait Stop.
+Adds a brand new train stop combining the functionality of the Immediate Stop and the Wait Stop.
 
 At a Hybrid Stop, trains will stop and wait like they would at a Wait Stop, but as soon as just 1 floor of 1 wagon is finished exchanging (for example, full at a loader), the train will leave.
 

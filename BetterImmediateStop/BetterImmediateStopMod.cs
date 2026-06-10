@@ -1,5 +1,4 @@
 ﻿using Game.Core.Trains;
-using Game.Core.Simulation;
 using Game.Core.Coordinates;
 using MonoMod.RuntimeDetour;
 using ShapezShifter.SharpDetour;

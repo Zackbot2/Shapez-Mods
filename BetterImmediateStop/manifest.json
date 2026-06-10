@@ -5,7 +5,7 @@
   "AffectsSaveGames": false,
   "DisablesAchievements": false,
   "SaveGameCompabilityRange": "*",
-  "GameVersionSupportRange": ">=1.0.0",
+  "GameVersionSupportRange": "1.*",
   "Conflicts": [],
   "Assemblies": [
     "BetterImmediateStop.dll"
