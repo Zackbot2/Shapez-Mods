@@ -1,0 +1,6 @@
+{
+  "en-US": {
+    "island.wait-stop.wait-time-dialog-title": "Maximum wait time",
+    "island.wait-stop.wait-time-dialog-desc": "Set the maximum wait time for the station, in seconds. A negative value indicates infinite wait time."
+  }
+}

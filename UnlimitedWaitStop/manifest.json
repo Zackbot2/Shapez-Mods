@@ -1,7 +1,7 @@
 {
-  "Version": "1.0.0",
+  "Version": "2.0.0",
   "Author": "Zackbot",
-  "Description": "Removes the Wait Stop's 60 second limit for waiting trains. They now wait forever! Or... until they're full.",
+  "Description": "IF YOU PUBLISH WITHOUT FILLING THIS IN I WILL KILL YOU",
   "AffectsSaveGames": false,
   "DisablesAchievements": false,
   "SaveGameCompabilityRange": "*",
