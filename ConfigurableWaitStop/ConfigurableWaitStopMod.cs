@@ -2,6 +2,7 @@
 using Game.Core.Coordinates;
 using Game.Core.Simulation;
 using Game.Core.Trains;
+using Game.Core.Trains.Stations;
 using MonoMod.RuntimeDetour;
 using ShapezShifter.Hijack;
 using ShapezShifter.SharpDetour;
@@ -13,22 +14,24 @@ namespace ConfigurableWaitStop
     public class ConfigurableWaitStopMod : IMod
     {
         private readonly ILogger _logger;
-        //private static ILogger s_logger;
+        private static ILogger s_logger;
         private readonly RewirerHandle _simulationRewirer;
         private readonly RewirerHandle _modulesRewirer;
         private GameIslands? _islands;
         private static WaitStopDeciderRef _deciderRef;
 
         // store hooks so they don't get GCed
-        private Hook? shouldTrainLeaveHook;
-        private Hook? _dialogStackHook;
+        private Hook? _shouldTrainLeaveHook;
+        private Hook? _initManagersHook;
         private Hook? _panelHook;
         private Hook? _bakeMetadataIntoRuntimeHook;
+        private Hook? _registerIslandHook;
+        private Hook? _unregisterIslandHook;
 
         public ConfigurableWaitStopMod(ILogger logger)
         {
             _logger = logger;
-            //s_logger = logger;
+            s_logger = logger;
 
             _deciderRef = new();
             CreateHooks();
@@ -53,10 +56,12 @@ namespace ConfigurableWaitStop
                 GameRewirers.RemoveRewirer(_modulesRewirer);
             }
 
-            shouldTrainLeaveHook?.Dispose();
-            _dialogStackHook?.Dispose();
+            _shouldTrainLeaveHook?.Dispose();
+            _initManagersHook?.Dispose();
             _panelHook?.Dispose();
             _bakeMetadataIntoRuntimeHook?.Dispose();
+            _registerIslandHook?.Dispose();
+            _unregisterIslandHook?.Dispose();
         }
 
         private void CreateHooks()
@@ -85,7 +90,7 @@ namespace ConfigurableWaitStop
                     return __result;
                 });
 
-            _dialogStackHook = DetourHelper.CreatePostfixHook((orchestrator, kb, cam, iface, data) =>
+            _initManagersHook = DetourHelper.CreatePostfixHook((orchestrator, kb, cam, iface, data) =>
                 orchestrator.Init_4_Managers(kb, cam, iface, data),
                 delegate (GameSessionOrchestrator orchestrator, Keybindings _kb, CameraGameSettings _cam, InterfaceGameSettings _iface, IGameData _data)
                 {
@@ -105,7 +110,36 @@ namespace ConfigurableWaitStop
                     };
                 });
 
-            shouldTrainLeaveHook = DetourHelper.Replace<WaitStopDecider, TrainId, TrainSimulationData, bool>(
+            _registerIslandHook = DetourHelper.CreatePostfixHook((stationCoordinator, island) =>
+                stationCoordinator.RegisterIsland(island), delegate (TrainStationCoordinator stationCoordinator, IslandInstance island, bool __result)
+                {
+                    if (!__result)
+                        return __result;
+
+                    if (island.Configuration is WaitStopIslandConfiguration waitStopConfig)
+                    {
+                        //_logger.Debug?.Log($"Registering wait stop island at {island.Transform.Position} with wait time of {waitStopConfig.WaitTimeTicks}");
+                        _deciderRef.SetWaitSeconds(island.Transform.Position, waitStopConfig.WaitTimeSeconds);
+                    }
+                    return __result;
+                }
+            );
+
+            _unregisterIslandHook = DetourHelper.CreatePostfixHook((stationCoordinator, island) =>
+                stationCoordinator.UnregisterIsland(island), delegate (TrainStationCoordinator stationCoordinator, IslandInstance island, bool __result)
+                {
+                    if (!__result)
+                        return __result;
+
+                    if (island.Configuration is WaitStopIslandConfiguration waitStopConfig)
+                    {
+                        _deciderRef.WaitTimes.TryRemove(island.Transform.Position, out _);
+                    }
+                    return __result;
+                }
+            );
+
+            _shouldTrainLeaveHook = DetourHelper.Replace<WaitStopDecider, TrainId, TrainSimulationData, bool>(
                 (waitStopDecider, id, trainSimulationData) => waitStopDecider.ShouldTrainLeave(id, trainSimulationData),
                 WaitStop_ShouldTrainLeave);
         }

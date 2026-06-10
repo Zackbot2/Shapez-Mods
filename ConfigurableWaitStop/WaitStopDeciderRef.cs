@@ -13,10 +13,10 @@ namespace ConfigurableWaitStop
         public Action? RefreshSidePanel { get; set; }
         public IslandDefinitionId WaitStationId { get; set; }
 
-        private const int DEFAULT_WAIT_SECONDS = -1;
-        private readonly Ticks DefaultWaitTicks;
-
         public readonly ConcurrentDictionary<GlobalChunkCoordinate, Ticks> WaitTimes = new();
+
+        public const int DEFAULT_WAIT_SECONDS = 60;
+        private readonly Ticks DefaultWaitTicks;
 
         public Ticks GetWaitTicks(GlobalChunkCoordinate chunk)
         {

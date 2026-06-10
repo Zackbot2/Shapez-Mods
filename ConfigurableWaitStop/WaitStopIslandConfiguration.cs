@@ -7,24 +7,12 @@ namespace ConfigurableWaitStop
 {
     public class WaitStopIslandConfiguration : IIslandConfiguration, IEntityConfiguration, IEquatable<IEntityConfiguration>
     {
-        private int _waitTimeSeconds = -1;
-        public int WaitTimeSeconds
-        {
-            get => _waitTimeSeconds;
-            set
-            {
-                if (value != _waitTimeSeconds)
-                    WaitTimeTicks = Ticks.FromSeconds(value);
-                
-                _waitTimeSeconds = value;
-            }
-        }
-        
+        public int WaitTimeSeconds = WaitStopDeciderRef.DEFAULT_WAIT_SECONDS;
+
         public Ticks WaitTimeTicks
         {
-            get => Ticks.FromSeconds(_waitTimeSeconds);
-
-            set => _waitTimeSeconds = value.FullSeconds;
+            get => Ticks.FromSeconds(WaitTimeSeconds);
+            set => WaitTimeSeconds = value.FullSeconds;
         }
 
         public WaitStopIslandConfiguration() { }
@@ -39,7 +27,7 @@ namespace ConfigurableWaitStop
         {
             Debug.Log("Syncing WaitStopIslandConfiguration");
             //Debug.Log(Environment.StackTrace);
-            visitor.SyncInt_4(ref _waitTimeSeconds);
+            visitor.SyncInt_4(ref WaitTimeSeconds);
         }
     }
 }
