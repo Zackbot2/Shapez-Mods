@@ -1,7 +1,7 @@
 ﻿using Core.Logging;
 using ShapezShifter.Hijack;
 
-namespace UnlimitedWaitStop
+namespace ConfigurableWaitStop
 {
     public class WaitStopModulesRewirer : IIslandModulesRewirer
     {

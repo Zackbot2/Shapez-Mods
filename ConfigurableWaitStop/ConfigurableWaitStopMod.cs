@@ -8,9 +8,9 @@ using ShapezShifter.SharpDetour;
 using System.Collections.Generic;
 using ILogger = Core.Logging.ILogger;
 
-namespace UnlimitedWaitStop
+namespace ConfigurableWaitStop
 {
-    public class UnlimitedWaitStopMod : IMod
+    public class ConfigurableWaitStopMod : IMod
     {
         private readonly ILogger _logger;
         //private static ILogger s_logger;
@@ -25,7 +25,7 @@ namespace UnlimitedWaitStop
         private Hook? _panelHook;
         private Hook? _bakeMetadataIntoRuntimeHook;
 
-        public UnlimitedWaitStopMod(ILogger logger)
+        public ConfigurableWaitStopMod(ILogger logger)
         {
             _logger = logger;
             //s_logger = logger;
@@ -38,7 +38,7 @@ namespace UnlimitedWaitStop
             // this one is weird - it rewires into ShapezShifter, in order to patch the wait stop's modules.
             _modulesRewirer = GameRewirers.AddRewirer(new WaitStopModulesRewirer(_deciderRef, _logger));
 
-            _logger.Info?.Log("UnlimitedWaitStop loaded successfully!");
+            _logger.Info?.Log("ConfigurableWaitStop loaded successfully!");
         }
 
         public void Dispose()

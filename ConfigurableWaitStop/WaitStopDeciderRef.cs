@@ -4,7 +4,7 @@ using Game.Core.Trains;
 using System;
 using System.Collections.Concurrent;
 
-namespace UnlimitedWaitStop
+namespace ConfigurableWaitStop
 {
     public class WaitStopDeciderRef
     {

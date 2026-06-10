@@ -4,7 +4,7 @@ using ShapezShifter.Hijack;
 using System;
 using System.Collections.Generic;
 
-namespace UnlimitedWaitStop
+namespace ConfigurableWaitStop
 {
     public class WaitStopSimulationRewirer : ISimulationSystemsRewirer, IRewirer
     {
@@ -28,7 +28,7 @@ namespace UnlimitedWaitStop
             }
             if (trainSystem == null)
             {
-                dependencies.Logger.Warning?.Log("UnlimitedWaitStop: TrainSystem not found — wait stop coordinator NOT registered.");
+                dependencies.Logger.Warning?.Log("ConfigurableWaitStop: TrainSystem not found — wait stop coordinator NOT registered.");
             }
             else
             {

@@ -8,7 +8,7 @@
   "GameVersionSupportRange": "1.*",
   "Conflicts": [],
   "Assemblies": [
-    "UnlimitedWaitStop.dll"
+    "ConfigurableWaitStop.dll"
   ],
   "Dependencies": [
     {

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UnlimitedWaitStop
+namespace ConfigurableWaitStop
 {
     public class WaitStopModuleProvider : IIslandModuleDataProvider
     {

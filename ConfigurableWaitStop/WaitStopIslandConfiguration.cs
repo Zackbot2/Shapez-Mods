@@ -3,7 +3,7 @@ using Game.Core.Simulation;
 using System;
 using UnityEngine;
 
-namespace UnlimitedWaitStop
+namespace ConfigurableWaitStop
 {
     public class WaitStopIslandConfiguration : IIslandConfiguration, IEntityConfiguration, IEquatable<IEntityConfiguration>
     {

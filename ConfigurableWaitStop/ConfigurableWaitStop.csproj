@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<RootNamespace>UnlimitedWaitStop</RootNamespace>
+		<RootNamespace>ConfigurableWaitStop</RootNamespace>
 		<LangVersion>9</LangVersion>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
@@ -16,7 +16,7 @@
 	</ItemGroup>
 
 	<PropertyGroup>
-		<OutputPath>$(SPZ2_PERSISTENT)\mods\UnlimitedWaitStop</OutputPath>
+		<OutputPath>$(SPZ2_PERSISTENT)\mods\ConfigurableWaitStop</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 
