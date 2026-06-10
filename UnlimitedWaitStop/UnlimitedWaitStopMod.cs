@@ -4,6 +4,7 @@ using Game.Core.Simulation;
 using Game.Core.Trains;
 using MonoMod.RuntimeDetour;
 using ShapezShifter.Flow;
+using ShapezShifter.Flow.Atomic;
 using ShapezShifter.Hijack;
 using ShapezShifter.SharpDetour;
 using System;
@@ -16,12 +17,14 @@ namespace UnlimitedWaitStop
     {
         private readonly ILogger _logger;
         private static ILogger s_logger;
-        private readonly RewirerHandle _waitStopRewirer;
+        private readonly RewirerHandle _simulationRewirer;
+        private readonly RewirerHandle _modulesRewirer;
+        private GameIslands? _islands;
 
         // store hooks so they don't get GCed
-        private readonly Hook shouldTrainLeaveHook;
-        private IDisposable _dialogStackHook;
-        private IDisposable _panelHook;
+        private Hook? shouldTrainLeaveHook;
+        private Hook? _dialogStackHook;
+        private Hook? _panelHook;
 
         public UnlimitedWaitStopMod(ILogger logger)
         {
@@ -29,17 +32,41 @@ namespace UnlimitedWaitStop
             s_logger = logger;
 
             WaitStopDeciderRef deciderRef = new();
+            CreateHooks(deciderRef);
 
-            IslandDefinition? waitStopIsland = null;
+            _simulationRewirer = GameRewirers.AddRewirer(new WaitStopSimulationRewirer(deciderRef));
+            _modulesRewirer = GameRewirers.AddRewirer(new WaitStopModulesRewirer(deciderRef, _logger));
 
-            _dialogStackHook = DetourHelper.CreatePostfixHook((orchestrator, kb, cam, iface, data) => 
-            orchestrator.Init_4_Managers(kb, cam, iface, data), 
+            _logger.Info?.Log("UnlimitedWaitStop loaded successfully!");
+        }
+
+        public void Dispose()
+        {
+            if (_simulationRewirer != null)
+            {
+                GameRewirers.RemoveRewirer(_simulationRewirer);
+            }
+
+            if (_modulesRewirer != null)
+            {
+                GameRewirers.RemoveRewirer(_modulesRewirer);
+            }
+
+            shouldTrainLeaveHook?.Dispose();
+            _dialogStackHook?.Dispose();
+            _panelHook?.Dispose();
+        }
+
+        private void CreateHooks(WaitStopDeciderRef deciderRef)
+        {
+            _dialogStackHook = DetourHelper.CreatePostfixHook((orchestrator, kb, cam, iface, data) =>
+            orchestrator.Init_4_Managers(kb, cam, iface, data),
             delegate (GameSessionOrchestrator orchestrator, Keybindings _kb, CameraGameSettings _cam, InterfaceGameSettings _iface, IGameData _data)
             {
                 deciderRef.DialogStack = orchestrator.DialogStack;
-                waitStopIsland = (IslandDefinition)orchestrator.Mode.Islands.Trains.Navigation.WaitStation;
+                _islands = orchestrator.Mode.Islands;
+                deciderRef.WaitStationId = _islands.Trains.Navigation.WaitStation.Id;
             });
-
             _panelHook = DetourHelper.CreatePostfixHook((self, sel) => self.OnSelectionChanged(sel), delegate (HUDIslandSelectionDetails self, IEnumerable<IslandModel> _)
             {
                 deciderRef.RefreshSidePanel = delegate
@@ -48,34 +75,7 @@ namespace UnlimitedWaitStop
                 };
             });
 
-            _waitStopRewirer = GameRewirers.AddRewirer(new WaitStopSimulationRewirer(deciderRef));
-
-
-            if (waitStopIsland != null)
-            {
-                waitStopIsland.CustomData.AttachOrReplace<IFactory<IIslandConfiguration>>(new LambdaFactory<IIslandConfiguration>(() => new WaitStopIslandConfiguration()));
-                waitStopIsland.CustomData.AttachOrReplace<IIslandModuleDataProvider>(new WaitStopModuleProvider(deciderRef));
-            }
-
-            shouldTrainLeaveHook = CreateHook();
-
-            _logger.Info?.Log("UnlimitedWaitStop loaded successfully!");
-        }
-
-        public void Dispose()
-        {
-            if (_waitStopRewirer != null)
-            {
-                GameRewirers.RemoveRewirer(_waitStopRewirer);
-            }
-            shouldTrainLeaveHook.Dispose();
-            _dialogStackHook.Dispose();
-            _panelHook.Dispose();
-        }
-
-        private Hook CreateHook()
-        {
-            return DetourHelper.Replace<WaitStopDecider, TrainId, TrainSimulationData, bool>(
+            shouldTrainLeaveHook = DetourHelper.Replace<WaitStopDecider, TrainId, TrainSimulationData, bool>(
                 (waitStopDecider, id, trainSimulationData) => waitStopDecider.ShouldTrainLeave(id, trainSimulationData),
                 WaitStop_ShouldTrainLeave);
         }

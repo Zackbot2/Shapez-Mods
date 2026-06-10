@@ -8,6 +8,7 @@ namespace UnlimitedWaitStop
         public WaitStopDecider? Current { get; set; }
         public IHUDDialogStack? DialogStack { get; set; }
         public Action RefreshSidePanel { get; set; }
+        public IslandDefinitionId WaitStationId { get; set; }
 
         public WaitStopDeciderRef() { }
     }
