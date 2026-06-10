@@ -9,10 +9,9 @@ namespace UnlimitedWaitStop
     public class WaitStopModuleProvider : IIslandModuleDataProvider
     {
         private readonly WaitStopDeciderRef _deciderRef;
-        //public WaitStopIslandConfiguration config;
         public GlobalChunkCoordinate stationChunk;
 
-        public WaitStopModuleProvider(WaitStopDeciderRef deciderRef) 
+        public WaitStopModuleProvider(WaitStopDeciderRef deciderRef)
         {
             _deciderRef = deciderRef;
         }
@@ -26,17 +25,18 @@ namespace UnlimitedWaitStop
             Debug.Log($"Configuration is null: {island.Configuration == null}");
             if (configuration is not WaitStopIslandConfiguration config)
             {
-                Debug.Log("config mismatch, continuing anyway...");
-                //yield break;
+                Debug.Log("config mismatch! backing out.");
+                yield break;
             }
 
             var transform = island.Transform;
             GlobalChunkCoordinate stationChunk = ChunkVector.Zero.ToGlobal(in transform);
+            int currentWaitTime = config.WaitTimeSeconds;
 
-            yield return new HUDSidePanelModuleInfoText.Data(new RawText("Wait Time: " + WaitStopRegistry.Get(stationChunk) + " seconds"));
+            yield return new HUDSidePanelModuleInfoText.Data(new RawText($"Wait Time: {(currentWaitTime >= 0 ? currentWaitTime.ToString() : "Infinite")}"));
             yield return new HUDSidePanelModuleGenericButton.Data("global.btn-configure".T(), () =>
             {
-                ShowConfigDialog(stationChunk);
+                ShowConfigDialog(config, stationChunk);
             });
         }
 
@@ -45,30 +45,19 @@ namespace UnlimitedWaitStop
             yield break;
         }
 
-        private void ShowConfigDialog(GlobalChunkCoordinate stationChunk)
+        private void ShowConfigDialog(WaitStopIslandConfiguration config, GlobalChunkCoordinate stationChunk)
         {
             IHUDDialogStack? dialogStack = _deciderRef.DialogStack;
-            Debug.Log($"showing config dialog with dialogStack {dialogStack}{(dialogStack == null ? ". it's null." : dialogStack)}");
             if (dialogStack != null)
             {
                 HUDDialogSimpleInput dialog = dialogStack.Show(Globals.Resources.UIDialogSimpleInputPrefab);
+                int currentWaitTime = config.WaitTimeSeconds;
                 dialog.Init(
                     title: "island.wait-stop.wait-time-dialog-title".T(),
                     description: "island.wait-stop.wait-time-dialog-desc".T(),
                     buttonText: "global.btn-confirm".T(),
-                    defaultValue: new RawText(WaitStopRegistry.Get(stationChunk).ToString()),
-                    inputCorrector: delegate (string input)
-                    {
-                        if (int.TryParse(input, out int result))
-                        {
-                            if (result < 0)
-                            {
-                                result = -1;
-                            }
-                            return result.ToString();
-                        }
-                        return WaitStopRegistry.Get(stationChunk).ToString();
-                    });
+                    defaultValue: new RawText(currentWaitTime.ToString()));
+
                 dialog.OnConfirmed.Register(delegate (string text)
                 {
                     text = text.Trim();
@@ -78,8 +67,8 @@ namespace UnlimitedWaitStop
                         {
                             result = -1;
                         }
-                        //config.WaitTimeSeconds = result;
-                        WaitStopRegistry.Set(stationChunk, result);
+                        config.WaitTimeSeconds = result;
+                        _deciderRef.SetWaitSeconds(stationChunk, result);
                     }
                     _deciderRef.RefreshSidePanel?.Invoke();
                 });

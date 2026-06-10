@@ -17,7 +17,7 @@ namespace UnlimitedWaitStop
 
         public void ModifySimulationSystems(ICollection<ISimulationSystem> simulationSystems, SimulationSystemsDependencies dependencies)
         {
-            TrainSystem trainSystem = null;
+            TrainSystem? trainSystem = null;
             foreach (ISimulationSystem simSystem in simulationSystems)
             {
                 if (simSystem is TrainSystem ts)
@@ -43,7 +43,7 @@ namespace UnlimitedWaitStop
                 TrainStationCoordinator coordinator = new(waitStopIsland.Id, trainsSimulation.BuiltInWagonStates.Moving, decider, decider);
                 trainsSimulation.AddCustomNavigationCoordinatorAfter<TrainStationCoordinator, TrainStationCoordinator>(coordinator);
 
-                simulationSystems.Add(new WaitStopIslandSystem(waitStopIsland.Id, decider));
+                simulationSystems.Add(new WaitStopIslandSystem(waitStopIsland.Id, _deciderRef, decider));
             }
         }
     }
