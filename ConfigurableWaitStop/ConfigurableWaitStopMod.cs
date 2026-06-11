@@ -76,7 +76,7 @@ namespace ConfigurableWaitStop
                 (factory, islands) => factory.BakeMetadataIntoRuntime(islands),
                 (IslandDefinitionFactory factory, MetaGameModeIslands islands, GameIslands __result) =>
                 {
-                    Logger.Debug?.Log("Injecting WaitStop config factory during bake...");
+                    Logger.Info?.Log("Injecting WaitStop config factory during bake...");
 
                     // IMPORTANT: modify definitions BEFORE islands are used elsewhere
                     foreach (var def in __result.AllDefinitions)
@@ -87,7 +87,7 @@ namespace ConfigurableWaitStop
                                 new LambdaFactory<IIslandConfiguration>(() => new WaitStopIslandConfiguration())
                             );
 
-                            Logger.Debug?.Log("WaitStop config factory attached");
+                            Logger.Info?.Log("WaitStop config factory attached");
                         }
                     }
                     return __result;
@@ -127,7 +127,7 @@ namespace ConfigurableWaitStop
 
                     if (island.Configuration is WaitStopIslandConfiguration waitStopConfig)
                     {
-                        //_logger.Debug?.Log($"Registering wait stop island at {island.Transform.Position} with wait time of {waitStopConfig.WaitTimeTicks}");
+                        Logger.Info?.Log($"Registering wait stop island at {island.Transform.Position} with wait time of {waitStopConfig.WaitTimeTicks}");
                         WaitStopData.SetWaitSeconds(island.Transform.Position, waitStopConfig.WaitTimeSeconds);
                     }
                     return __result;
@@ -177,7 +177,7 @@ namespace ConfigurableWaitStop
             GlobalChunkCoordinate stationChunk = trainSimulationData.Head.Incoming.Position;
             Ticks waitTimeTicks = WaitStopData.GetWaitTicks(stationChunk);
 
-            //s_logger.Info?.Log($"Train {id} has been waiting for {deciderInstance.TrainSimulationTimeProvider.SimulationTime - trainSimulationData.StopTime}. It will wait for {waitTimeTicks}.");
+            //Logger.Info?.Log($"Train {id} has been waiting for {deciderInstance.TrainSimulationTimeProvider.SimulationTime - trainSimulationData.StopTime}. It will wait for {waitTimeTicks}.");
 
             // if it's negative, ignore the max ticks to wait.
             return waitTimeTicks.Value >= 0 && deciderInstance.TrainSimulationTimeProvider.SimulationTime - trainSimulationData.StopTime > waitTimeTicks;

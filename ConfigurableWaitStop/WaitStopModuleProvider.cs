@@ -32,7 +32,7 @@ namespace ConfigurableWaitStop
             GlobalChunkCoordinate stationChunk = ChunkVector.Zero.ToGlobal(in transform);
             int currentWaitSeconds = config.WaitTimeSeconds;
 
-            yield return new HUDSidePanelModuleInfoText.Data(new RawText($"Wait Time: {(currentWaitSeconds >= 0 ? $"{currentWaitSeconds} seconds" : "Infinite")} "));
+            yield return new HUDSidePanelModuleInfoText.Data(new RawText($"Maximum wait time: {(currentWaitSeconds >= 0 ? $"{currentWaitSeconds} seconds" : "Infinite")} "));
             yield return new HUDSidePanelModuleGenericButton.Data("global.btn-configure".T(), () =>
             {
                 ShowConfigDialog(config, stationChunk);

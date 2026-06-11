@@ -66,7 +66,7 @@ namespace ConfigurableWaitStop
         {
             if (waitTicks.Value < 0)
             {
-                waitTicks = DefaultWaitTicks;
+                waitTicks = Ticks.FromSeconds(-1);
             }
             WaitTimes[chunk] = waitTicks;
         }
@@ -80,7 +80,7 @@ namespace ConfigurableWaitStop
         {
             if (waitSeconds < 0)
             {
-                waitSeconds = DEFAULT_WAIT_SECONDS;
+                waitSeconds = -1;
             }
             WaitTimes[chunk] = Ticks.FromSeconds(waitSeconds);
         }
