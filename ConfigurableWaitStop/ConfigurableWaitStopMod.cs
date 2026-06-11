@@ -8,6 +8,7 @@ using ShapezShifter.Hijack;
 using ShapezShifter.SharpDetour;
 using System.Collections.Generic;
 using ILogger = Core.Logging.ILogger;
+using Shapez2ModConfig;
 
 namespace ConfigurableWaitStop
 {
@@ -15,7 +16,13 @@ namespace ConfigurableWaitStop
     {
         // feel free to use this code as a reference for how to make your own mods! i did a lot of digging, and i've done my best to document my code as best i can.
 
-        public static ILogger Logger { get; set; } = null!;
+        public static ILogger Logger { get; private set; } = null!;
+        public static ModConfig Config { get; private set; } = null!;
+
+        // config
+        public static int DefaultWaitSeconds => Config.GetEntry<int>(DEFAULT_WAIT_TIME_ID).Value;
+        private const string DEFAULT_WAIT_TIME_ID = "default wait time";    // DO NOT CHANGE
+        private const string CONFIG_ID = "Zackbot2.ConfigurableWaitStop";   // DO NOT CHANGE
 
         private GameIslands? _islands;
         private readonly RewirerHandle _simulationRewirer;
@@ -28,9 +35,15 @@ namespace ConfigurableWaitStop
         private Hook _registerIslandHook = null!;
         private Hook _unregisterIslandHook = null!;
 
+
         public ConfigurableWaitStopMod(ILogger logger)
         {
             Logger = logger;
+            Config = new(CONFIG_ID, GetType());
+
+            Config.RegisterEntry<int>(DEFAULT_WAIT_TIME_ID, 60).OnChanged.Register(value => Logger.Info?.Log($"Config entry \"{DEFAULT_WAIT_TIME_ID}\" updated to {value}"));
+            Config.Load();
+            Config.Save();
 
             CreateHooks();
 

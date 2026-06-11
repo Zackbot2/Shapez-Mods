@@ -10,7 +10,7 @@ namespace ConfigurableWaitStop
     /// </summary>
     public class WaitStopIslandConfiguration : IIslandConfiguration
     {
-        public int WaitTimeSeconds = WaitStopData.DEFAULT_WAIT_SECONDS;
+        public int WaitTimeSeconds = ConfigurableWaitStopMod.DefaultWaitSeconds;
 
         public Ticks WaitTimeTicks
         {

@@ -22,8 +22,7 @@ namespace ConfigurableWaitStop
         /// This is where that happens.
         /// </remarks>
         public static readonly ConcurrentDictionary<GlobalChunkCoordinate, Ticks> WaitTimes = new();
-        public const int DEFAULT_WAIT_SECONDS = 60;
-        private static readonly Ticks DefaultWaitTicks = Ticks.FromSeconds(DEFAULT_WAIT_SECONDS);
+        private static readonly Ticks DefaultWaitTicks = Ticks.FromSeconds(ConfigurableWaitStopMod.DefaultWaitSeconds);
 
         /// <summary>
         /// Get the wait time in <see cref="Ticks"/> for the wait stop at <paramref name="chunk"/>.
