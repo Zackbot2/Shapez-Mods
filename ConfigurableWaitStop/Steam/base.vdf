@@ -6,10 +6,23 @@
 	"previewfile"		"${PREVIEW_IMG}"
 	"visibility"		"0"
 	"title"				"Configurable Wait Stop"
-	"changenote"		"Update description"
+	"changenote"		"[b]Mod version 2.0.1[/b]
+
+Removed some leftover logging"
 	"description"		"
-Disables the 60 second cap for Wait Stops, resulting in trains never leaving a station with a Wait Stop until they're completely full.
-	
-Source: https://github.com/Zackbot2/Shapez-Mods
-	"
+[h1]Configurable Wait Stop[/h1]
+This mod adds a configuration menu to the wait stop, allowing you to set a custom wait time for each station, including waiting forever! By default, the wait time is 60 seconds.
+When loading a savegame with the mod installed for the first time, all wait stops in the save will be set to the default wait time.
+
+[h1]Save Data[/h1]
+This mod adds a small amount of save data to each Wait Stop, using the exact same system as the vanilla game does. Even if the mod is uninstalled, that save data persists until the next save. After that, it's gone.
+
+[h1]Future changes[/h1]
+[list]
+[*] Configurable default wait time
+[*] Description translation
+[*] Codex entry update
+[/list]
+
+Source: https://github.com/Zackbot2/Shapez-Mods"
 }

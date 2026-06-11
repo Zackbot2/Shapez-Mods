@@ -22,7 +22,7 @@ namespace ConfigurableWaitStop
 
         public bool Equals(IEntityConfiguration other)
         {
-            Debug.Log("Comparing WaitStopIslandConfiguration");
+            //Debug.Log("Comparing WaitStopIslandConfiguration");
             return other is WaitStopIslandConfiguration otherConfig && WaitTimeSeconds == otherConfig.WaitTimeSeconds;
         }
 
@@ -32,7 +32,7 @@ namespace ConfigurableWaitStop
         /// <param name="visitor"></param>
         public void Sync(ISerializationVisitor visitor)
         {
-            Debug.Log("Syncing WaitStopIslandConfiguration");
+            //Debug.Log("Syncing WaitStopIslandConfiguration");
             //Debug.Log(Environment.StackTrace);
             visitor.SyncInt_4(ref WaitTimeSeconds);
         }
