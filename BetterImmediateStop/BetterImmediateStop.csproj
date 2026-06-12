@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<RootNamespace>BetterImmediateStop</RootNamespace>
+		<LangVersion>9</LangVersion>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
@@ -29,6 +30,21 @@
 		<Folder Include="Steam\" />
 	</ItemGroup>
 
+	<PropertyGroup>
+		<SPZ2_WORKSHOP_MOD_PATH>$(SPZ2_SHIFTER)/../..</SPZ2_WORKSHOP_MOD_PATH>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Reference Include="ShapezShifter">
+			<HintPath>$(SPZ2_SHIFTER)</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="Shapez2ModConfig">
+			<HintPath>$(SPZ2_WORKSHOP_MOD_PATH)\3736598408\Shapez2ModConfig.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+
 	<ItemGroup>
 		<Reference Include="Core">
 			<HintPath>$(SPZ2_PATH)\Core.dll</HintPath>
@@ -40,10 +56,6 @@
 		</Reference>
 		<Reference Include="Game.Core.Modding">
 			<HintPath>$(SPZ2_PATH)\Game.Core.Modding.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="ShapezShifter">
-			<HintPath>$(SPZ2_SHIFTER)</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="SPZGameAssembly">

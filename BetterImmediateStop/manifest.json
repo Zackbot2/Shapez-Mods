@@ -1,7 +1,7 @@
 {
   "Version": "1.0.1",
   "Author": "Zackbot",
-  "Description": "Properly applies a 5 second maximum stop time to the Immediate Stop. If this time is exceeded, the train will leave the station even if it's mid-transfer. No packages are lost in the process, the animation just looks a bit funny.",
+  "Description": "Properly applies a (configurable) 5 second maximum stop time to the Immediate Stop. If this time is exceeded, the train will leave the station even if it's mid-transfer. No packages are lost in the process, the animation just looks a bit funny.",
   "AffectsSaveGames": false,
   "DisablesAchievements": false,
   "SaveGameCompabilityRange": "*",
@@ -15,6 +15,11 @@
       "ModId": "steam:3542611357",
       "ModTitle": "Shapez Shifter",
       "Version": "1.0.*"
+    },
+    {
+      "ModId": "steam:3736598408",
+      "ModTitle": "Shapez2ModConfig",
+      "Version": "1.*"
     }
   ]
 }
