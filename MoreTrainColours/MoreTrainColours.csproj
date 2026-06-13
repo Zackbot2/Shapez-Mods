@@ -87,10 +87,19 @@
 			<HintPath>$(SPZ2_PATH)\UnityEngine.CoreModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="Core.Localization">
+			<HintPath>$(SPZ2_PATH)\Core.Localization.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Game.Orchestration">
+			<HintPath>$(SPZ2_PATH)\Game.Orchestration.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
 		<Publicize Include="Game.Content" />
+		<Publicize Include="Game.Orchestration" />
 	</ItemGroup>
 
 </Project>

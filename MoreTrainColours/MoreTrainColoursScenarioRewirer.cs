@@ -11,7 +11,7 @@ namespace MoreTrainColours
             MoreTrainColoursMod.Logger.Info?.Log($"Registering black rail color for scenario {gameScenario.UniqueId}...");
             SerializableRailColor blackSerializableRailColor = new()
             {
-                Id = new SerializableRailColorId("black"),
+                Id = new SerializableRailColorId("Black"),
                 Tint = Color.black
             };
 
