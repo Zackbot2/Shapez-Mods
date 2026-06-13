@@ -42,15 +42,13 @@ namespace HybridStop
         {
             IslandDefinitionId islandId = new("HybridStop");
             IslandDefinitionGroupId groupId = new("HybridStop");
-            HybridStopDeciderRef deciderRef = new();
-
 
             ModFolderLocator modResourcesLocator = ModDirectoryLocator.CreateLocator<HybridStopMod>().SubLocator("Resources");
             string iconPath = modResourcesLocator.SubPath("HybridStopIcon.png");
             string meshPath = modResourcesLocator.SubPath("HybridStop.fbx");
 
             // add the rewirer - this patches the simulation and the visuals when a hybrid stop is placed.
-            _hybridStopRewirer = GameRewirers.AddRewirer(new HybridStopSimulationRewirer(islandId, groupId, deciderRef, modResourcesLocator, iconPath, meshPath));
+            _hybridStopRewirer = GameRewirers.AddRewirer(new HybridStopSimulationRewirer(islandId, groupId, modResourcesLocator, iconPath, meshPath));
 
             string titleId = "HybridStopIsland.title";
             string descriptionId = "HybridStopIsland.description";
@@ -96,8 +94,6 @@ namespace HybridStop
                .WithCustomChunkCost(ChunkLimitCurrency.Zero)    // FREE!!!!
                .WithRenderingOptions(new HomogeneousChunkDrawing(ChunkPlatformDrawingContext.DrawAll()), drawPlayingField: false);
 
-            HybridStopModuleProvider provider = new(deciderRef);
-
             AtomicIslands.Extend()
                .AllScenarios()
                .WithIsland(islandBuilder, groupBuilder)
@@ -105,7 +101,7 @@ namespace HybridStop
                .WithDefaultPlacement()
                .InToolbar(ToolbarElementLocator.Root().ChildAt(5).ChildAt(5).ChildAt(1).InsertAfter())
                .WithoutSimulation()
-               .WithCustomModules(provider)
+               .WithoutModules()
                .Build();
         }
     }

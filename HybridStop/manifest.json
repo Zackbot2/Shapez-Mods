@@ -1,5 +1,5 @@
 {
-  "Version": "1.0.0",
+  "Version": "1.0.1",
   "Author": "Zackbot",
   "Description": "Adds a hybrid train stop that combines the functionality of both the Immediate Stop and the Wait Stop. Trains wait at a Hybrid Stop until 1 floor of 1 car is done exchanging.",
   "AffectsSaveGames": true,

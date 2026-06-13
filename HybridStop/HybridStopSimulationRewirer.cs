@@ -15,16 +15,14 @@ namespace HybridStop
     {
         private readonly IslandDefinitionId _islandDefinitionId;
         private readonly IslandDefinitionGroupId _groupDefinitionId;
-        private readonly HybridStopDeciderRef _deciderRef;
         private readonly Sprite _icon;
         private readonly Mesh _mesh;
 
 
-        public HybridStopSimulationRewirer(IslandDefinitionId islandId, IslandDefinitionGroupId groupId, HybridStopDeciderRef deciderRef, ModFolderLocator modFolderLocator, string iconPath, string baseMeshPath)
+        public HybridStopSimulationRewirer(IslandDefinitionId islandId, IslandDefinitionGroupId groupId, ModFolderLocator modFolderLocator, string iconPath, string baseMeshPath)
         {
             _islandDefinitionId = islandId;
             _groupDefinitionId = groupId;
-            _deciderRef = deciderRef;
             _icon = FileTextureLoader.LoadTextureAsSprite(iconPath, out _);
 
             // if you're following this as a sort of guide, make sure your mesh only has ONE material. this line will throw an error if you have more.
@@ -55,8 +53,8 @@ namespace HybridStop
             {
                 TrainsSimulation trainsSimulation = trainSystem.TrainsSimulation;
                 HybridStopDecider decider = new(trainsSimulation, trainsSimulation.TrainsWagonCargo, trainsSimulation.TrainSimulationTimeTracker, dependencies.Logger);
-                _deciderRef.Current = decider;
-                // trainsSimulation.BuiltInWagonStates is obsolete, and the new one is private. not sure what they want us to do, so i'm just using the old one.
+
+                // trainsSimulation.BuiltInWagonStates is obsolete, and the new one is private. not sure what they want us to do here.
                 TrainStationCoordinator coordinator = new(_islandDefinitionId, trainsSimulation.BuiltInWagonStates.Moving, decider, decider);
                 trainsSimulation.AddCustomNavigationCoordinatorAfter<TrainStationCoordinator, TrainStationCoordinator>(coordinator);
 
@@ -95,8 +93,7 @@ namespace HybridStop
 
                 RuntimeLODMeshMaterial hybridStopMeshMaterial = new(lodMesh, meshData.MeshMaterials[0].LODMaterial);
 
-                hybridStopIsland.CustomData.AttachOrReplace(new IslandMeshDrawer.Data(new ILODMeshMaterial[] { hybridStopMeshMaterial })
-                );
+                hybridStopIsland.CustomData.AttachOrReplace(new IslandMeshDrawer.Data(new ILODMeshMaterial[] { hybridStopMeshMaterial }));
             }
 
             if (waitStopIsland.CustomData.TryGet(out IslandOverviewDrawer.Data overviewData))
