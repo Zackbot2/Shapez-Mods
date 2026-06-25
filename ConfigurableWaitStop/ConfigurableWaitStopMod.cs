@@ -9,6 +9,7 @@ using ShapezShifter.SharpDetour;
 using System.Collections.Generic;
 using ILogger = Core.Logging.ILogger;
 using Shapez2ModConfig;
+using Game.Core.Content.Islands;
 
 namespace ConfigurableWaitStop
 {
@@ -17,12 +18,12 @@ namespace ConfigurableWaitStop
         // feel free to use this code as a reference for how to make your own mods! i did a lot of digging, and i've done my best to document my code as best i can.
 
         public static ILogger Logger { get; private set; } = null!;
-        public static ModConfig Config { get; private set; } = null!;
 
         // config
+        public static ModConfig Config { get; private set; } = null!;
         public static int DefaultWaitSeconds => Config.GetEntry<int>(DEFAULT_WAIT_TIME_ID).Value;
-        private const string DEFAULT_WAIT_TIME_ID = "default wait time";    // DO NOT CHANGE
-        private const string CONFIG_ID = "Zackbot2.ConfigurableWaitStop";   // DO NOT CHANGE
+        private const string DEFAULT_WAIT_TIME_ID = "default wait time";    // DO NOT CHANGE. WILL RESET ALL SUBSCRIBERS' CONFIGS.
+        private const string CONFIG_ID = "Zackbot2.ConfigurableWaitStop";   // DO NOT CHANGE. WILL RESET ALL SUBSCRIBERS' CONFIGS.
 
         private GameIslands? _islands;
         private readonly RewirerHandle _simulationRewirer;
@@ -49,7 +50,7 @@ namespace ConfigurableWaitStop
 
             // rewire the simulation to use WaitStopIslandSystem.
             _simulationRewirer = GameRewirers.AddRewirer(new WaitStopSimulationRewirer());
-            // this one is weird - it rewires into ShapezShifter, in order to patch the wait stop's modules.
+            // this one is weird - it follows the same logic flow as ShapezShifter.Flow.Atomic but bypasses much of the implementation.
             _modulesRewirer = GameRewirers.AddRewirer(new WaitStopModulesRewirer());
 
             Logger.Info?.Log("ConfigurableWaitStop loaded successfully!");
@@ -86,9 +87,11 @@ namespace ConfigurableWaitStop
             // we need to hook this in order for our configurations to be read when a savegame is loaded.
             // the game reads this island data ONCE and never comes back, meaning we can't hook any later than this.
             _bakeMetadataIntoRuntimeHook = DetourHelper.CreatePostfixHook(
-                (factory, islands) => factory.BakeMetadataIntoRuntime(islands),
-                (IslandDefinitionFactory factory, MetaGameModeIslands islands, GameIslands __result) =>
+                (factory, catalogPair, metaIslands) => factory.BakeMetadataIntoRuntime(catalogPair, metaIslands),
+                (IslandDefinitionFactory factory, IIslandCatalogPair catalogPair, AuthoringIslands metaIslands, GameIslands __result) =>
                 {
+                    bool success = false;
+
                     Logger.Info?.Log("Injecting WaitStop config factory during bake...");
 
                     // IMPORTANT: modify definitions BEFORE islands are used elsewhere
@@ -100,9 +103,14 @@ namespace ConfigurableWaitStop
                                 new LambdaFactory<IIslandConfiguration>(() => new WaitStopIslandConfiguration())
                             );
 
+                            success = true;
                             Logger.Info?.Log("WaitStop config factory attached");
                         }
                     }
+
+                    if (!success)
+                        Logger.Warning?.Log("Failed to attach WaitStop config factory");
+
                     return __result;
                 });
 

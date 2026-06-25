@@ -6,21 +6,7 @@
 	"previewfile"		"${PREVIEW_IMG}"
 	"visibility"		"0"
 	"title"				"Configurable Wait Stop"
-	"changenote"		"[b]Mod version 2.1.0[/b]
+	"changenote"		"[b]Mod version 2.2.0[/b]
 
-Added mod configuration to change the default wait time."
-	"description"		"
-[h1]Configurable Wait Stop[/h1]
-This mod adds a configuration menu to the Wait Stop, allowing you to set a custom wait time for each station, including waiting forever! By default, the wait time is 60 seconds, but this can be easily changed in the mod configuration.
-When loading a savegame with the mod installed for the first time, all Wait Stops in the save will be set to the default wait time.
-[h2]Save Data[/h2]
-This mod adds a small amount of save data to each Wait Stop, using the exact same system as the vanilla game does. Even if the mod is uninstalled, that save data persists until the next save. After that, it's gone.
-[h2]Future changes[/h2]
-[list]
-[*] [strike]Configurable default wait time[/strike]
-[*] Description translation
-[*] Codex entry update
-[/list]
-
-Source: https://github.com/Zackbot2/Shapez-Mods"
+Updated to game version 1.1."
 }

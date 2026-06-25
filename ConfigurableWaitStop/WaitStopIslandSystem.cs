@@ -13,7 +13,6 @@ namespace ConfigurableWaitStop
     /// </summary>
     public class WaitStopIslandSystem : ISimulationSystem, IIslandObserverSimulationSystem
     {
-
         private readonly MultiRegisterEvent<IConnectableSimulation> _onSimulationCreated = new();
         public IEvent<IConnectableSimulation> OnSimulationCreated => _onSimulationCreated;
 
@@ -23,21 +22,11 @@ namespace ConfigurableWaitStop
 
         public WaitStopIslandSystem() { }
 
-        void IIslandObserverSimulationSystem.IslandWasAdded(in IslandInstance island, IReadOnlyMapLayout layout)
-        {
-            IslandWasAdded(in island);
-        }
-
-        void IIslandObserverSimulationSystem.IslandWillBeRemoved(in IslandInstance island, IReadOnlyMapLayout layout)
-        {
-            IslandWillBeRemoved(in island);
-        }
-
         /// <summary>
         /// Called when an island is placed (including when loading a savegame).
         /// </summary>
         /// <param name="island"></param>
-        public void IslandWasAdded(in IslandInstance island)
+        public void IslandWasAdded(in IslandInstance island, IReadOnlyMapLayout layout)
         {
             // we don't care about anything other than the wait stop island.
             if (island.Definition.Id == WaitStopData.WaitStationId)
@@ -51,7 +40,7 @@ namespace ConfigurableWaitStop
         /// Called when an island is being removed (including when exiting a savegame).
         /// </summary>
         /// <param name="island"></param>
-        public void IslandWillBeRemoved(in IslandInstance island)
+        public void IslandWillBeRemoved(in IslandInstance island, IReadOnlyMapLayout layout)
         {
             // we don't care about anything other than the wait stop island.
             if (island.Definition.Id == WaitStopData.WaitStationId)
