@@ -6,13 +6,8 @@
 	"previewfile"		"${PREVIEW_IMG}"
 	"visibility"		"0"
 	"title"				"Better Immediate Stop"
-	"changenote"		"fixed a bug that would cause exception spam when an immediate stop reached the 5 second limit"
-	"description"		"
-Properly applies a 5 second maximum stop time to the Immediate Stop. If this time is exceeded, the train will leave the station even if it's mid-transfer.
-No packages are lost in the process, the animation just looks a bit funny.
-	
-In the vanilla game, the Immediate Stop is supposed to stop trains for a maximum of 5 seconds, but due to an oversight they can end up staying much longer. This mod fixes that oversight.
-	
-Source: https://github.com/Zackbot2/Shapez-Mods
-	"
+	"changenote"		"[b]Mod version 2.0.0[/b]
+
+- Updated to game version 1.1.
+- Added mod configuration to change the maximum wait time."
 }

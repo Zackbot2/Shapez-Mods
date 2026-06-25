@@ -15,8 +15,8 @@ namespace BetterImmediateStop
         // config
         public static ModConfig Config { get; private set; } = null!;
         public static int DefaultWaitSeconds => Config.GetEntry<int>(WAIT_TIME_ID).Value;
-        private const string WAIT_TIME_ID = "maximum wait time";    // DO NOT CHANGE
-        private const string CONFIG_ID = "Zackbot2.BetterImmediateStop";   // DO NOT CHANGE
+        private const string WAIT_TIME_ID = "maximum wait time";    // DO NOT CHANGE. WILL RESET ALL SUBSCRIBERS' CONFIGS.
+        private const string CONFIG_ID = "Zackbot2.BetterImmediateStop";   // DO NOT CHANGE. WILL RESET ALL SUBSCRIBERS' CONFIGS.
 
         public static int WaitTimeSeconds => Config.GetEntry<int>(WAIT_TIME_ID).Value;
         public static Ticks WaitTimeTicks => Ticks.FromSeconds(WaitTimeSeconds);
