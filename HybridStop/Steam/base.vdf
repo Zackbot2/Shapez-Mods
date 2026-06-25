@@ -6,7 +6,9 @@
 	"previewfile"		"${PREVIEW_IMG}"
 	"visibility"		"0"
 	"title"				"Hybrid Train Stop"
-	"changenote"		"Initial release"
+	"changenote"		"[b]Mod version 1.1.0[/b]
+
+Updated to game version 1.1.0."
 	"description"		"
 [h1]Overview[/h1]
 Adds a brand new train stop combining the functionality of the Immediate Stop and the Wait Stop.
@@ -20,5 +22,5 @@ At a Hybrid Stop, trains will stop and wait like they would at a Wait Stop, but 
 [*] Maximum wait time & configuration
 [/list]
 
-Source: https://github.com/Zackbot2/Shapez-Mods"
+[hr][/hr]Source: https://github.com/Zackbot2/Shapez-Mods"
 }

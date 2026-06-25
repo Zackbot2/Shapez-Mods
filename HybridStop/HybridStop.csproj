@@ -93,10 +93,6 @@
 			<HintPath>$(SPZ2_PATH)\Game.Core.Rendering.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="Game.Core.Rendering.Islands">
-			<HintPath>$(SPZ2_PATH)\Game.Core.Rendering.Islands.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
 		<Reference Include="Core.Localization">
 			<HintPath>$(SPZ2_PATH)\Core.Localization.dll</HintPath>
 			<Private>False</Private>
@@ -109,11 +105,16 @@
 			<HintPath>$(SPZ2_PATH)\Game.Core.Coordinates.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="Game.Core.Content">
+			<HintPath>$(SPZ2_PATH)\Game.Core.Content.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
 		<Publicize Include="SPZGameAssembly" />
 		<Publicize Include="Game.Content" />
+		<Publicize Include="Game.Core.Map.Simulation" />
 	</ItemGroup>
 
 </Project>

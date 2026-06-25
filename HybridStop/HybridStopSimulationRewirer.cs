@@ -1,4 +1,5 @@
-﻿using Game.Core.Rendering.Islands;
+﻿using Game.Core.Content.Islands;
+using Game.Core.Rendering.Islands;
 using Game.Core.Trains;
 using Game.Core.Trains.Stations;
 using ShapezShifter.Hijack;
@@ -59,6 +60,18 @@ namespace HybridStop
                 trainsSimulation.AddCustomNavigationCoordinatorAfter<TrainStationCoordinator, TrainStationCoordinator>(coordinator);
 
                 simulationSystems.Add(new HybridStopIslandSystem(_islandDefinitionId, decider));
+
+                foreach(ITrainSimulationCoordinator predCoordinator in trainsSimulation.TrainSimulationCoordinators)
+                {
+                    HybridStopMod.Logger.Info?.Log($"Found train simulation coordinator: {predCoordinator.GetType().FullName}");
+
+                    if (predCoordinator is TrainStationCoordinator stationCoordinator)
+                    {
+                        HybridStopMod.Logger.Info?.Log($"ITrainStopDecider type: {stationCoordinator.TrainStopRule.GetType().FullName}");
+                        HybridStopMod.Logger.Info?.Log($"TrainWaitStationId type: {stationCoordinator.TrainWaitStationId.Name}");
+                    }
+                }
+
                 PatchVisuals(dependencies);
             }
         }
@@ -96,6 +109,31 @@ namespace HybridStop
                 hybridStopIsland.CustomData.AttachOrReplace(new IslandMeshDrawer.Data(new ILODMeshMaterial[] { hybridStopMeshMaterial }));
             }
 
+            // Custom data types on the wait stop:
+            // Core.Factory.LambdaFactory`1[[IIslandConfiguration, Game.Core.Map.Simulation, Version = 0.0.0.0, Culture = neutral, PublicKeyToken = null]]
+            // IslandDefinitionGroup
+            // IslandDefinitionGroupId
+            // DefaultPreferredPlacementMode
+            // IslandPlacementRequirementsProvider
+            // IslandPlacementHelpersProvider
+            // IslandConnectorData
+            // TrainStationMetadata
+            // EntityReplacementPreferenceData
+            // ChunkCostProvider
+            // IslandPresentationData
+            // Game.Core.Rendering.Islands.ModularIslandMeshDrawer
+            // Game.Core.Rendering.Islands.IslandMeshDrawer
+            // Game.Core.Rendering.Islands.IslandOverviewDrawer
+            // IslandFrameDrawData
+            // IslandInteractionConfig
+            // IslandCollisionData
+
+            HybridStopMod.Logger.Info?.Log("Custom data types on the wait stop:");
+            foreach (var customData in waitStopIsland.CustomData.CustomData)
+            {
+                HybridStopMod.Logger.Info?.Log($"{customData.GetType().FullName}");
+            }
+
             if (waitStopIsland.CustomData.TryGet(out IslandOverviewDrawer.Data overviewData))
             {
                 hybridStopIsland.CustomData.AttachOrReplace(overviewData);
@@ -108,6 +146,28 @@ namespace HybridStop
             {
                 hybridStopIsland.CustomData.AttachOrReplace(railPred);
             }
+
+            if (waitStopIsland.CustomData.TryGet(out ModularIslandMeshDrawer modularIslandMeshDrawer))
+            {
+                hybridStopIsland.CustomData.AttachOrReplace(modularIslandMeshDrawer);
+            }
+            if (waitStopIsland.CustomData.TryGet(out IslandPresentationData presentationData))
+            {
+                hybridStopIsland.CustomData.AttachOrReplace(presentationData);
+            }
+            if (waitStopIsland.CustomData.TryGet(out TrainStationMetadata stationMetadata))
+            {
+                hybridStopIsland.CustomData.AttachOrReplace(stationMetadata);
+            }
+            if (waitStopIsland.CustomData.TryGet(out IslandInteractionConfig interactionConfig))
+            {
+                hybridStopIsland.CustomData.AttachOrReplace(interactionConfig);
+            }
+            if (waitStopIsland.CustomData.TryGet(out IslandCollisionData collisionData))
+            {
+                hybridStopIsland.CustomData.AttachOrReplace(collisionData);
+            }
+
 
             // patch the group's custom data
             // (i'm still not sure what a group is)

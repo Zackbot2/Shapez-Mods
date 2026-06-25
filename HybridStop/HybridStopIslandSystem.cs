@@ -1,15 +1,11 @@
 ﻿using Core.Events;
-using Game.Content.Features.Fluids;
-using Game.Core.Coordinates;
 using Game.Core.Map.Simulation;
-using Game.Core.Trains;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace HybridStop
 {
-    public class HybridStopIslandSystem : ISimulationSystem
+    public class HybridStopIslandSystem : ISimulationSystem, IIslandObserverSimulationSystem
     {
         private readonly IslandDefinitionId _islandDefinitionId;
         private readonly HybridStopDecider _decider;
@@ -26,5 +22,9 @@ namespace HybridStop
         public IEvent<IConnectableSimulation> OnSimulationCreated => _onSimulationCreated;
         public IEvent<IConnectableSimulation> OnBeforeSimulationDestroyed => _onBeforeSimulationDestroyed;
         public IEnumerable<IConnectableSimulation> ConnectableSimulations => Array.Empty<IConnectableSimulation>();
+
+        public void IslandWasAdded(in IslandInstance island, IReadOnlyMapLayout layout) { }
+
+        public void IslandWillBeRemoved(in IslandInstance island, IReadOnlyMapLayout layout) { }
     }
 }

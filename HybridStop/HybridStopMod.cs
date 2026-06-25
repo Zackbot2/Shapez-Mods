@@ -1,4 +1,5 @@
 ﻿using Core.Localization;
+using Game.Core.Content.Islands;
 using Game.Core.Coordinates;
 using ShapezShifter.Flow;
 using ShapezShifter.Flow.Atomic;
@@ -14,16 +15,18 @@ namespace HybridStop
 {
     public class HybridStopMod : IMod
     {
-        private readonly ILogger _logger;
+        internal static ILogger Logger;
 
         private RewirerHandle _hybridStopRewirer;
 
+        readonly IslandDefinitionId hybridStopIslandId = new("HybridStop");
+
         public HybridStopMod(ILogger logger)
         {
-            _logger = logger;
+            Logger = logger;
             AddHybridStop();
 
-            logger.Info?.Log("HybridStop loaded successfully!");
+            Logger.Info?.Log("HybridStop loaded successfully!");
         }
 
         public void Dispose() 
@@ -40,7 +43,6 @@ namespace HybridStop
         /// </summary>
         private void AddHybridStop()
         {
-            IslandDefinitionId islandId = new("HybridStop");
             IslandDefinitionGroupId groupId = new("HybridStop");
 
             ModFolderLocator modResourcesLocator = ModDirectoryLocator.CreateLocator<HybridStopMod>().SubLocator("Resources");
@@ -48,7 +50,7 @@ namespace HybridStop
             string meshPath = modResourcesLocator.SubPath("HybridStop.fbx");
 
             // add the rewirer - this patches the simulation and the visuals when a hybrid stop is placed.
-            _hybridStopRewirer = GameRewirers.AddRewirer(new HybridStopSimulationRewirer(islandId, groupId, modResourcesLocator, iconPath, meshPath));
+            _hybridStopRewirer = GameRewirers.AddRewirer(new HybridStopSimulationRewirer(hybridStopIslandId, groupId, modResourcesLocator, iconPath, meshPath));
 
             string titleId = "HybridStopIsland.title";
             string descriptionId = "HybridStopIsland.description";
@@ -78,7 +80,7 @@ namespace HybridStop
                .AsTransportableIsland()
                .WithPreferredPlacement(DefaultPreferredPlacementMode.Single);
 
-            IIslandBuilder islandBuilder = Island.Create(islandId)
+            IIslandBuilder islandBuilder = Island.Create(hybridStopIslandId)
                .WithLayout(layout)
                .WithPerChunkColliders()
                .WithConnectorData(connectorData)
