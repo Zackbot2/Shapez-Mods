@@ -1,15 +1,20 @@
 ﻿using Core.Factory;
+using Game.Core.Content.Islands;
 using Game.Core.Coordinates;
 using Game.Core.Simulation;
 using Game.Core.Trains;
 using Game.Core.Trains.Stations;
+using Game.Interaction.EntitiesPlacement.BlueprintPlacement;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using ShapezShifter.Hijack;
 using ShapezShifter.SharpDetour;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using ILogger = Core.Logging.ILogger;
 using Shapez2ModConfig;
-using Game.Core.Content.Islands;
 
 namespace ConfigurableWaitStop
 {
@@ -35,6 +40,7 @@ namespace ConfigurableWaitStop
         private Hook _bakeMetadataIntoRuntimeHook = null!;
         private Hook _registerIslandHook = null!;
         private Hook _unregisterIslandHook = null!;
+        private ILHook _tryGetConfigHook = null!;
 
 
         public ConfigurableWaitStopMod(ILogger logger)
@@ -76,6 +82,7 @@ namespace ConfigurableWaitStop
             _bakeMetadataIntoRuntimeHook.Dispose();
             _registerIslandHook.Dispose();
             _unregisterIslandHook.Dispose();
+            _tryGetConfigHook.Dispose();
         }
 
         /// <summary>
@@ -136,9 +143,9 @@ namespace ConfigurableWaitStop
                     };
                 });
 
-            // even further down the line, TrainStationCoordinator.RegisterIsland is called when the has all the islands figured out and is now assembling the simulation.
+            // even further down the line, TrainStationCoordinator.RegisterIsland is called when the game has all the islands figured out and is now assembling the simulation.
             // because WaitStopDecider doesn't have access to the configuration directly, we need to store the custom wait time FOR it. i do this using WaitStopData.WaitTimes.
-            // when the wait stop island is registered, we grab its wait time data and store it in the ref, which is usable by the decider.
+            // when the wait stop island is registered, we grab its wait time data and store it there so it's usable by the decider.
             // in summary, it goes WaitStopIslandConfiguration -> WaitStopData.WaitTimes -> WaitStopDecider.ShouldTrainLeave
             _registerIslandHook = DetourHelper.CreatePostfixHook((stationCoordinator, island) =>
                 stationCoordinator.RegisterIsland(island), delegate (TrainStationCoordinator stationCoordinator, IslandInstance island, bool __result)
@@ -148,7 +155,7 @@ namespace ConfigurableWaitStop
 
                     if (island.Configuration is WaitStopIslandConfiguration waitStopConfig)
                     {
-                        Logger.Info?.Log($"Registering wait stop island at {island.Transform.Position} with wait time of {waitStopConfig.WaitTimeTicks}");
+                        //Logger.Debug?.Log($"Registering wait stop island at {island.Transform.Position} with wait time of {waitStopConfig.WaitTimeTicks}");
                         WaitStopData.SetWaitSeconds(island.Transform.Position, waitStopConfig.WaitTimeSeconds);
                     }
                     return __result;
@@ -175,6 +182,78 @@ namespace ConfigurableWaitStop
             _shouldTrainLeaveHook = DetourHelper.Replace<WaitStopDecider, TrainId, TrainSimulationData, bool>(
                 (waitStopDecider, id, trainSimulationData) => waitStopDecider.ShouldTrainLeave(id, trainSimulationData),
                 WaitStop_ShouldTrainLeave);
+
+            // get the MethodInfo of the TryGetConfig method in BlueprintProcessorConfigCachedConverter
+            MethodInfo tryGetConfigMethod = typeof(BlueprintProcessorConfigCachedConverter<WaitStopIslandConfiguration>)
+                .GetMethod(nameof(BlueprintProcessorConfigCachedConverter<WaitStopIslandConfiguration>.TryGetConfig))
+                ?? throw new InvalidOperationException($"Failed to find {nameof(BlueprintProcessorConfigCachedConverter<WaitStopIslandConfiguration>.TryGetConfig)}.");
+
+            _tryGetConfigHook = new ILHook(tryGetConfigMethod, TryGetConfigManipulator);
+        }
+
+        /// <summary>
+        /// Manipulates the IL of <see cref="BlueprintProcessorConfigCachedConverter{TConfiguration}.TryGetConfig"/> in order to skip adding it to the cache.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <remarks>
+        /// Fixes a bug where copying and then dragging to paste wait stops would duplicate the same configuration for all the stops.
+        /// Thanks to @joshrl on discord for spotting this issue and finding a fix!
+        /// </remarks>
+        private void TryGetConfigManipulator(ILContext context)
+        {
+            // i'm super new to ILHooks, so i'm gonna try to be pretty explicit with these comments (they're probably gonna be wrong anyways)
+
+            // establish our cursor. this points between instructions and allows us to insert (Emit) instructions.
+            ILCursor cursor = new(context);
+
+            // get the MethodInfo of the TryComputeConfig method in BlueprintProcessorConfigCachedConverter
+            MethodInfo tryComputeConfigMethod = typeof(BlueprintProcessorConfigCachedConverter<WaitStopIslandConfiguration>)
+                .GetMethod(
+                    nameof(BlueprintProcessorConfigCachedConverter<WaitStopIslandConfiguration>.TryComputeConfig),
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?? throw new InvalidOperationException($"Could not find method {nameof(BlueprintProcessorConfigCachedConverter<WaitStopIslandConfiguration>.TryComputeConfig)}");
+
+            // find the instruction that calls TryComputeConfig. in the code, it's after this that the config is added to the cache.
+            if (!cursor.TryGotoNext(MoveType.After, i => i.MatchCall(tryComputeConfigMethod)))
+            {
+                Logger.Error?.Log("Could not find TryComputeConfig call");
+                return;
+            }
+
+            ILLabel cacheInsertionPointLabel = cursor.DefineLabel();
+
+            // Load 'config' (the out parameter) onto the stack
+                // 0: this
+                // 1: gameVersion
+                // 2: definition
+                // 3: additionalConfigData
+                // 4: config(out parameter)
+            cursor.Emit(OpCodes.Ldarg_S, (byte)4);
+
+            // out parameters are passed as managed references; ldarg.s loads the address of config.
+            // ldobj dereferences that address and loads the WaitStopIslandConfiguration reference.
+            cursor.Emit(OpCodes.Ldobj, typeof(WaitStopIslandConfiguration));
+
+            // insert the ShouldSkipConfigCache method right where our cursor is
+            cursor.EmitDelegate<Func<WaitStopIslandConfiguration, bool>>(ShouldSkipConfigCache);
+
+            // if there is no WaitStop config, continue to the normal cache insertion.
+            cursor.Emit(OpCodes.Brfalse, cacheInsertionPointLabel);
+            // otherwise, skip Add and return
+            cursor.Emit(OpCodes.Ret);
+
+            // attach the label to the current instruction.
+            // any branch to cacheAddLabel will resume execution here.
+            cursor.MarkLabel(cacheInsertionPointLabel);
+
+
+            static bool ShouldSkipConfigCache(WaitStopIslandConfiguration config)
+            {
+                //Logger.Debug?.Log($"Skipping cache for wait stop config: {config?.WaitTimeSeconds}");
+
+                // we could check if it "is WaitStopIslandConfiguration", but we already know it is because it's specified in the generic type.
+                return config != null;
+            }
         }
 
         private static bool WaitStop_ShouldTrainLeave(WaitStopDecider deciderInstance, TrainId id, TrainSimulationData trainSimulationData)

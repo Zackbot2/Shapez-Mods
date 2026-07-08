@@ -29,7 +29,7 @@ namespace ConfigurableWaitStop
             }
             else
             {
-                ConfigurableWaitStopMod.Logger.Warning?.Log("ConfigurableWaitStop: TrainSystem not found — wait stop coordinator NOT registered.");
+                ConfigurableWaitStopMod.Logger.Warning?.Log("TrainSystem not found — wait stop coordinator NOT registered.");
             }
         }
     }

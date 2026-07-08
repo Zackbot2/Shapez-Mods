@@ -6,7 +6,7 @@
 	"previewfile"		"${PREVIEW_IMG}"
 	"visibility"		"0"
 	"title"				"Configurable Wait Stop"
-	"changenote"		"[b]Mod version 2.2.0[/b]
+	"changenote"		"[b]Mod version 2.2.1[/b]
 
-Updated to game version 1.1."
+Fixed a bug where copying and then dragging to paste wait stops would cause all new stops to share the same config."
 }

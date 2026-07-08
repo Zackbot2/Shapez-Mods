@@ -52,7 +52,7 @@ namespace ConfigurableWaitStop
                 HUDDialogSimpleInput dialog = dialogStack.Show(Globals.Resources.UIDialogSimpleInputPrefab);
                 int currentWaitTime = config.WaitTimeSeconds;
 
-                // populate the dialog with our title, description, and value.
+                // populate the dialog with our title, description, and value. these are found in the translations.json file.
                 dialog.Init(
                     title: "island.wait-stop.wait-time-dialog-title".T(),
                     description: "island.wait-stop.wait-time-dialog-desc".T(),
