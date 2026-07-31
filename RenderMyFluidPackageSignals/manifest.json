@@ -10,10 +10,5 @@
     "RenderMyFluidPackageSignals.dll"
   ],
   "Dependencies": [
-    {
-      "ModId": "steam:3542611357",
-      "ModTitle": "Shapez Shifter",
-      "Version": "1.1.*"
-    }
   ]
 }
