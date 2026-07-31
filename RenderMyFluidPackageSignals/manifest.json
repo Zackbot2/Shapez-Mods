@@ -1,7 +1,7 @@
 {
-  "Version": "0.1.0",
+  "Version": "0.1.1",
   "Author": "Zackbot",
-  "Description": "Fixes exceptions being thrown when rendering fluid blobs as wire signals using blueprint editing.",
+  "Description": "Fixes exceptions being thrown when rendering fluid blob wire signals.",
   "AffectsSaveGames": false,
   "DisablesAchievements": false,
   "GameVersionSupportRange": ">=1.0.0", // i actually need 1.1.0, but the game is hardcoded to check for 1.0.0. it'll be changed soon.

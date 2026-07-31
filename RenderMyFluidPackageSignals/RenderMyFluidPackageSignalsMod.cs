@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Game.Content.Features.Signals;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -12,7 +13,7 @@ namespace RenderMyFluidPackageSignals
         internal static ILogger Logger { get; private set; } = null!;
 
         // store hooks so they don't get GCed, and so we can dispose them later
-        private ILHook? _renderSignalHook = null;
+        private readonly ILHook? _renderSignalHook = null;
 
         public RenderMyFluidPackageSignalsMod(ILogger logger)
         {
@@ -20,7 +21,8 @@ namespace RenderMyFluidPackageSignals
             MethodInfo renderSignal = typeof(HUDWireContentsHelper).GetMethod("RenderSignal", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
                 binder: null,
                 types: new[] { typeof(ISignal) },
-                modifiers: null)!;
+                modifiers: null)
+                ?? throw new InvalidOperationException($"Failed to find method {nameof(HUDWireContentsHelper)}.{nameof(HUDWireContentsHelper.RenderSignal)}");
 
             _renderSignalHook = new ILHook(renderSignal, PatchRenderSignal);
 
@@ -33,7 +35,7 @@ namespace RenderMyFluidPackageSignals
 
             if (!cursor.TryGotoNext(MoveType.Before, i => i.MatchIsinst<ShapeItem>()))
             {
-                Logger.Error?.Log($"Could not find ShapeItem cast in {nameof(HUDWireContentsHelper.RenderSignal)}; IL patch was not applied.");
+                Logger.Error?.Log($"Could not find {nameof(ShapeItem)} cast in {nameof(HUDWireContentsHelper.RenderSignal)}; IL patch was not applied.");
                 return;
             }
 
@@ -46,16 +48,21 @@ namespace RenderMyFluidPackageSignals
             // this checks whether the object on the stack is a FluidPackageItem. if it is, the same reference is left on the stack. if not, null is pushed onto the stack instead.
             cursor.Emit(OpCodes.Isinst, typeof(FluidPackageItem));
 
-            // if the top value on the stack is false/null, execution jumps to continueLabel. otherwise, it'll keep going.
+            // this consumes the top value on the stack and reads it.
+            // if it's false/null, execution jumps to continueLabel. otherwise, it'll keep going to the next instructions we emit.
             cursor.Emit(OpCodes.Brfalse, continueLabel);
 
-            // now we can pop our item off the stack (which we know is either FluidPackageItem or null) in order to leave the stack how we found it...
+            // up to this point, we've essentially just emitted an if statement that the cursor is now inside of.
+            // ...and my entire fix for this method is to return early and do nothing else, lol.
+            
+            // for a return, make sure to pop the remaining ISignal off the stack. this isn't because of the instructions we emitted, but because every return needs to do this.
             cursor.Emit(OpCodes.Pop);
 
-            // ...and return early to skip the rest of the method.
+            // and now we can return safely
             cursor.Emit(OpCodes.Ret);
 
             // set continueLabel to the current cursor position. that means the execution will jump here, which is after the early return.
+            // it's basically a metaphorical closing bracket to the metaphorical if statement.
             cursor.MarkLabel(continueLabel);
         }
 
