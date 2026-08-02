@@ -26,7 +26,7 @@ namespace RenderMyFluidPackageSignals
 
             _renderSignalHook = new ILHook(renderSignal, PatchRenderSignal);
 
-            Logger.Info?.Log("RenderMyFluidPackageSignalsMod initialized.");
+            Logger.Info?.Log("RenderMyFluidPackageSignals initialized.");
         }
 
         private static void PatchRenderSignal(ILContext context)
