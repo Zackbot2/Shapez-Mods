@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreTrainColours", "MoreTra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RenderMyFluidPackageSignals", "RenderMyFluidPackageSignals\RenderMyFluidPackageSignals.csproj", "{A879F847-73E1-487E-B98B-343DF29E902A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisplayCopy", "DisplayCopy\DisplayCopy.csproj", "{6AF0905F-DF4E-4379-B431-4F4BE6A7C193}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{A879F847-73E1-487E-B98B-343DF29E902A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A879F847-73E1-487E-B98B-343DF29E902A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A879F847-73E1-487E-B98B-343DF29E902A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AF0905F-DF4E-4379-B431-4F4BE6A7C193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AF0905F-DF4E-4379-B431-4F4BE6A7C193}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AF0905F-DF4E-4379-B431-4F4BE6A7C193}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AF0905F-DF4E-4379-B431-4F4BE6A7C193}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
