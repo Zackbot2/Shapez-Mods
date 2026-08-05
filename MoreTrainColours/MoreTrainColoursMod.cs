@@ -2,6 +2,7 @@
 using Core.Localization;
 using Game.Core.Coordinates;
 using Game.Core.Rails;
+using Game.Core.Trains.Stations;
 using Game.Orchestration;
 using MonoMod.RuntimeDetour;
 using ShapezShifter.Flow;
@@ -53,8 +54,6 @@ namespace MoreTrainColours
                     // the data we need is, at this point in time, stored at __result.Groups.
                     // make sure to do this using the same control flow as the original method, as to not cause conflicts.
 
-                    // the logic flow for creating the information is
-
                     //__result.Groups.
                     Logger.Info?.Log("BakeMetadataIntoRuntime fired");
 
@@ -65,6 +64,16 @@ namespace MoreTrainColours
             //    (factory, metaGameModeIslands, converterGroupDefinitions) => factory.ResolveGroups(),
             //    (IslandDefinitionFactory factory, )
             //    )
+
+
+            DetourHelper.CreatePostfixHook(
+                (stationCoordinator, islandInstance) => stationCoordinator.RegisterIsland(islandInstance),
+                (TrainStationCoordinator stationCoordinator, IslandInstance islandInstance, bool __result) =>
+                {
+                    Logger.Info?.Log($"RegisterIsland called! definition: {islandInstance.Definition}");
+                    Logger.Info?.Log(Environment.StackTrace);
+                    return __result;
+                });
 
             AddRailGroups();
             AddTrainProducerGroups();
@@ -80,7 +89,6 @@ namespace MoreTrainColours
         private void AddTrainProducerGroups()
         {
             Logger.Info?.Log("Adding train producer groups...");
-            IslandDefinitionId islandId = new("BlackTrainProducerIsland");
             IslandDefinitionGroupId blackGroupId = new("BlackTrainProducerGroup");
 
             string titleId = "blackTrainProducerGroup.title";
@@ -101,8 +109,6 @@ namespace MoreTrainColours
                 new EntityIO<LocalChunkPivot, IIslandConnector>(inputPivot, new RailIslandInputConnector())
             };
 
-            IslandConnectorData connectorData = new(connectors, new ChunkVector[] { ChunkVector.Zero });
-
             // using ShapezShifter, we can now add the island in the standard way
             IIslandGroupBuilder groupBuilder = IslandGroup.Create(blackGroupId)
            .WithPresentation(titleId.T(), descriptionId.T(), null)
@@ -110,8 +116,6 @@ namespace MoreTrainColours
            .WithPreferredPlacement(DefaultPreferredPlacementMode.Single);
 
             Logger.Info?.Log("Added train producer group(s).");
-        
-            AtomicIslandExtender
         }
     }
 }
