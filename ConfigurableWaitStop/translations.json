@@ -6,5 +6,12 @@
     "research.CBTrains_TrainStopHalting.description": "Unlocks a new <gl>Train Stop</gl>, where trains will always stop and wait until fully loaded or unloaded - with a configurable maximum wait time.",
     "island-layout.Layout_TrainWaitStation.description": "Trains will stop and wait here up to the configured <gl>maximum wait time</gl> or until fully loaded/unloaded.",
     "wiki.WKTrains_TrainStops.text-wait-stop": "The <gl>Wait Stop</gl> can be unlocked in the <gll:WKResearch_Shop>Shop</gll>. Trains will always stop there, until they are either fully loaded or unloaded, or the stop's configured maximum wait time has been exceeded.\n\nEach stop features a <gl>Configure</gl> button, allowing you to configure the maximum time that a train will wait for. The default value depends on the <gl>Configurable Wait Stop</gl> mod configuration accessible on the main menu."
+  },
+  "fr-FR": {
+    "island.wait-stop.wait-time-dialog-title": "Temps d'attente maximal",
+    "island.wait-stop.wait-time-dialog-desc": "Définissez le temps d'attente maximal pour la gare, en secondes. Un nombre négatif indique un temps d'attente infini.",
+    "research.CBTrains_TrainStopHalting.description": "Débloque un nouvel <gl>arrêt</gl>, auquel les trains font halte jusqu'à être entièrement chargés ou déchargés, avec un temps d'attente maximal configurable.",
+    "island-layout.Layout_TrainWaitStation.description": "Les trains s'y arrêtent pendant le <gl>temps d'attente maximal</gl> configuré, ou jusqu'à être complètement chargés ou déchargés.",
+    "wiki.WKTrains_TrainStops.text-wait-stop": "L'<gl>arrêt long</gl> peut être débloqué dans la <gll:WKResearch_Shop>boutique</gll>. Les trains y feront halte systématiquement, jusqu'à être entièrement chargés ou déchargés, ou jusqu'à ce que le temps d'attente maximal configuré pour l'arrêt soit écoulé.\n\nChaque arrêt propose un bouton <gl>Configurer</gl>, permettant de configurer le temps maximal qu'un train attendra. La valeur par défaut dépend de la configuration du mod <gl>Configurable Wait Stop</gl> accessible depuis le menu principal."
   }
 }
