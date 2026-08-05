@@ -113,6 +113,10 @@
 			<HintPath>$(SPZ2_PATH)\Game.Interaction.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="UnityEngine.IMGUIModule">
+			<HintPath>$(SPZ2_PATH)\UnityEngine.IMGUIModule.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>

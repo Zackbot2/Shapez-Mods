@@ -1,19 +1,12 @@
-﻿using Core.Localization;
+﻿using UnityEngine;
+using Core.Localization;
 using Core.Logging;
 using Game.Content.Features.Signals;
 using Game.Core.Map.Simulation;
-using Game.Core.Trains.Stations;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
-using MonoMod.Utils;
 using ShapezShifter.SharpDetour;
-using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
-using Opcodes = Mono.Cecil.Cil.OpCodes;
+using ILogger = Core.Logging.ILogger;
 
 namespace DisplayCopy
 {
@@ -66,12 +59,56 @@ namespace DisplayCopy
             {
                 Logger.Info?.Log("COPY!!!!!!!");
                 Logger.Info?.Log($"LastInput: {actualSimulation.LastInput}");
-                Logger.Info?.Log($"LastInput as string: {SignalToString(actualSimulation.LastInput)}");
+                string lastInputString = SignalToString(actualSimulation.LastInput);
+                Logger.Info?.Log($"LastInput as string: {lastInputString}");
+
+                GUIUtility.systemCopyBuffer = lastInputString;
             }); ;
         }
 
+        /// <summary>
+        /// Convert <paramref name="signal"/> into the string you'd enter into a signal producer to get said signal.
+        /// </summary>
+        /// <param name="signal"></param>
+        /// <returns></returns>
         private static string SignalToString(ISignal signal)
         {
+            // simple ones
+            if (signal == null || signal is NullSignal)
+                return "null";
+            if (signal is ConflictSignal)
+                return "conflict";
+            if (signal is IntegerSignal intSignal)
+                return intSignal.Value.ToString();
+
+            // not simple ones
+            if (signal is FluidSignal fluidSignal)
+            {
+                Logger?.Info?.Log($"FluidSignalToString: {fluidSignal.Value} -> {fluidSignal.Value.ToString().Split(' ')[0].ToLower()}");
+                return fluidSignal.Value.ToString().Split(' ')[0].ToLower() switch
+                {
+                    "uncolored" => "color-u",
+                    "red" => "color-r",
+                    "green" => "color-g",
+                    "blue" => "color-b",
+                    "cyan" => "color-c",
+                    "magenta" => "color-m",
+                    "yellow" => "color-y",
+                    "white" => "color-w",
+                    "black" => "color-k",
+                    _ => "N/A",
+                };
+            }
+
+            if (signal is BeltItemSignal beltItemSignal)
+            {
+                if (beltItemSignal.Value is FluidPackageItem)
+                    return "null";
+
+                return beltItemSignal.Value?.ToString() ?? "null";
+            }
+
+            return signal.ToString();
         }
 
         public void Dispose()
