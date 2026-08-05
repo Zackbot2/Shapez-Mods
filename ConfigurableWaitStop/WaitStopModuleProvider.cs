@@ -17,11 +17,7 @@ namespace ConfigurableWaitStop
 
         public IEnumerable<IHUDSidePanelModuleData> GetModules(IslandModel island)
         {
-            //Debug.Log("getting wait stop modules...");
             IIslandConfiguration configuration = island.Configuration;
-            //Debug.Log($"Island type: {island.GetType().FullName}");
-            //Debug.Log($"config type: {configuration?.GetType().FullName}");
-            //Debug.Log($"Configuration is null: {island.Configuration == null}");
             if (configuration is not WaitStopIslandConfiguration config)
             {
                 //Debug.LogWarning("config mismatch! backing out.");
@@ -32,6 +28,7 @@ namespace ConfigurableWaitStop
             GlobalChunkCoordinate stationChunk = ChunkVector.Zero.ToGlobal(in transform);
             int currentWaitSeconds = config.WaitTimeSeconds;
 
+            // populate the dialogue
             yield return new HUDSidePanelModuleInfoText.Data(new RawText($"Maximum wait time: {(currentWaitSeconds >= 0 ? $"{currentWaitSeconds} seconds" : "Infinite")} "));
             yield return new HUDSidePanelModuleGenericButton.Data("global.btn-configure".T(), () =>
             {

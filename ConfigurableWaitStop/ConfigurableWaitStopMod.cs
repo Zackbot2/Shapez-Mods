@@ -20,20 +20,21 @@ namespace ConfigurableWaitStop
 {
     public class ConfigurableWaitStopMod : IMod
     {
-        // feel free to use this code as a reference for how to make your own mods! i did a lot of digging, and i've done my best to document my code as best i can.
-
         internal static ILogger Logger { get; private set; } = null!;
 
         // config
         public static ModConfig Config { get; private set; } = null!;
-        public static int DefaultWaitSeconds => Config.GetEntry<int>(DEFAULT_WAIT_TIME_ID).Value;
+        internal static int DefaultWaitSeconds => Config.GetEntry<int>(DEFAULT_WAIT_TIME_ID).Value;
+
+        #region DANGER ZONE
         private const string DEFAULT_WAIT_TIME_ID = "default wait time";    // DO NOT CHANGE. WILL RESET ALL SUBSCRIBERS' CONFIGS.
         private const string CONFIG_ID = "Zackbot2.ConfigurableWaitStop";   // DO NOT CHANGE. WILL RESET ALL SUBSCRIBERS' CONFIGS.
+        #endregion
 
         private GameIslands? _islands;
+        // store hooks and rewirers so they don't get GCed, and so we can dispose them later
         private readonly RewirerHandle _simulationRewirer;
         private readonly RewirerHandle _modulesRewirer;
-        // store hooks so they don't get GCed, and so we can dispose them later
         private Hook _shouldTrainLeaveHook = null!;
         private Hook _initManagersHook = null!;
         private Hook _panelHook = null!;
@@ -48,7 +49,8 @@ namespace ConfigurableWaitStop
             Logger = logger;
             Config = new(CONFIG_ID, GetType());
 
-            Config.RegisterEntry<int>(DEFAULT_WAIT_TIME_ID, 60).OnChanged.Register(value => Logger.Info?.Log($"Config entry \"{DEFAULT_WAIT_TIME_ID}\" updated to {value}"));
+            Config.RegisterEntry<int>(DEFAULT_WAIT_TIME_ID, 60).OnChanged.Register(
+                value => Logger.Info?.Log($"Config entry \"{DEFAULT_WAIT_TIME_ID}\" updated to {value}"));
             Config.Load();
             Config.Save();
 
@@ -57,6 +59,7 @@ namespace ConfigurableWaitStop
             // rewire the simulation to use WaitStopIslandSystem.
             _simulationRewirer = GameRewirers.AddRewirer(new WaitStopSimulationRewirer());
             // this one is weird - it follows the same logic flow as ShapezShifter.Flow.Atomic but bypasses much of the implementation.
+            // don't know what i'd do if shapezshifter didn't have this rewirer
             _modulesRewirer = GameRewirers.AddRewirer(new WaitStopModulesRewirer());
 
             Logger.Info?.Log("ConfigurableWaitStop loaded successfully!");
@@ -95,7 +98,7 @@ namespace ConfigurableWaitStop
             // the game reads this island data ONCE and never comes back, meaning we can't hook any later than this.
             _bakeMetadataIntoRuntimeHook = DetourHelper.CreatePostfixHook(
                 (factory, catalogPair, metaIslands) => factory.BakeMetadataIntoRuntime(catalogPair, metaIslands),
-                (IslandDefinitionFactory factory, IIslandCatalogPair catalogPair, AuthoringIslands metaIslands, GameIslands __result) =>
+                delegate (IslandDefinitionFactory factory, IIslandCatalogPair catalogPair, AuthoringIslands metaIslands, GameIslands __result)
                 {
                     bool success = false;
 
@@ -123,8 +126,8 @@ namespace ConfigurableWaitStop
 
             // GameSessionOrchestrator.Init_4_Managers is a little further down the line, this handles the island data that was created in IslandDefinitionFactory.BakeMetadataIntoRuntime.
             // here, we can use data it's populated the islands with in order to grab the wait stop's island definition as well as the orchestrator's dialog stack.
-            _initManagersHook = DetourHelper.CreatePostfixHook((orchestrator, kb, cam, iface, data) =>
-                orchestrator.Init_4_Managers(kb, cam, iface, data),
+            _initManagersHook = DetourHelper.CreatePostfixHook(
+                (orchestrator, kb, cam, iface, data) => orchestrator.Init_4_Managers(kb, cam, iface, data),
                 delegate (GameSessionOrchestrator orchestrator, Keybindings _kb, CameraGameSettings _cam, InterfaceGameSettings _iface, IGameData _data)
                 {
                     WaitStopData.DialogStack = orchestrator.DialogStack;
@@ -135,7 +138,9 @@ namespace ConfigurableWaitStop
                     WaitStopData.WaitStationId = waitStationDefinition.Id;
                 });
 
-            _panelHook = DetourHelper.CreatePostfixHook((self, sel) => self.OnSelectionChanged(sel), delegate (HUDIslandSelectionDetails self, IEnumerable<IslandModel> _)
+            _panelHook = DetourHelper.CreatePostfixHook(
+                (self, sel) => self.OnSelectionChanged(sel), 
+                delegate (HUDIslandSelectionDetails self, IEnumerable<IslandModel> _)
                 {
                     WaitStopData.RefreshSidePanel = delegate
                     {
@@ -147,8 +152,9 @@ namespace ConfigurableWaitStop
             // because WaitStopDecider doesn't have access to the configuration directly, we need to store the custom wait time FOR it. i do this using WaitStopData.WaitTimes.
             // when the wait stop island is registered, we grab its wait time data and store it there so it's usable by the decider.
             // in summary, it goes WaitStopIslandConfiguration -> WaitStopData.WaitTimes -> WaitStopDecider.ShouldTrainLeave
-            _registerIslandHook = DetourHelper.CreatePostfixHook((stationCoordinator, island) =>
-                stationCoordinator.RegisterIsland(island), delegate (TrainStationCoordinator stationCoordinator, IslandInstance island, bool __result)
+            _registerIslandHook = DetourHelper.CreatePostfixHook(
+                (stationCoordinator, island) => stationCoordinator.RegisterIsland(island), 
+                delegate (TrainStationCoordinator stationCoordinator, IslandInstance island, bool __result)
                 {
                     if (!__result)
                         return __result;
@@ -163,8 +169,9 @@ namespace ConfigurableWaitStop
             );
 
             // this is pretty much the same as _registerIslandHook, but in reverse. when the island is unregistered, we need to get rid of its entry.
-            _unregisterIslandHook = DetourHelper.CreatePostfixHook((stationCoordinator, island) =>
-                stationCoordinator.UnregisterIsland(island), delegate (TrainStationCoordinator stationCoordinator, IslandInstance island, bool __result)
+            _unregisterIslandHook = DetourHelper.CreatePostfixHook(
+                (stationCoordinator, island) => stationCoordinator.UnregisterIsland(island),
+                delegate (TrainStationCoordinator stationCoordinator, IslandInstance island, bool __result)
                 {
                     if (!__result)
                         return __result;
@@ -184,6 +191,7 @@ namespace ConfigurableWaitStop
                 WaitStop_ShouldTrainLeave);
 
             // get the MethodInfo of the TryGetConfig method in BlueprintProcessorConfigCachedConverter
+            // see TryGetConfigManipulator for why
             MethodInfo tryGetConfigMethod = typeof(BlueprintProcessorConfigCachedConverter<WaitStopIslandConfiguration>)
                 .GetMethod(nameof(BlueprintProcessorConfigCachedConverter<WaitStopIslandConfiguration>.TryGetConfig))
                 ?? throw new InvalidOperationException($"Failed to find {nameof(BlueprintProcessorConfigCachedConverter<WaitStopIslandConfiguration>.TryGetConfig)}.");
@@ -220,6 +228,8 @@ namespace ConfigurableWaitStop
                 return;
             }
 
+            // define a label so we're able to reference it while we emit instructions.
+            // it's not placed yet so it doesn't have a location. it's like declaring a variable as null before you use it.
             ILLabel cacheInsertionPointLabel = cursor.DefineLabel();
 
             // Load 'config' (the out parameter) onto the stack
@@ -239,7 +249,7 @@ namespace ConfigurableWaitStop
 
             // if there is no WaitStop config, continue to the normal cache insertion.
             cursor.Emit(OpCodes.Brfalse, cacheInsertionPointLabel);
-            // otherwise, skip Add and return
+            // otherwise, just return
             cursor.Emit(OpCodes.Ret);
 
             // attach the label to the current instruction.
