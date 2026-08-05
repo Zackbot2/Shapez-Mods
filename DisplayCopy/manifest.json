@@ -7,7 +7,7 @@
   "GameVersionSupportRange": "1.*",
   "Conflicts": [],
   "Assemblies": [
-    "DisplayCopy.dll"
+    "SignalCopy.dll"
   ],
   "Dependencies": [
     {

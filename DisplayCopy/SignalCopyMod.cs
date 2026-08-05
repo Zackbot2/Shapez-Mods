@@ -1,5 +1,6 @@
 ﻿using Core.Localization;
 using Core.Logging;
+using Game.Content.Features.Signals;
 using Game.Core.Map.Simulation;
 using Game.Core.Trains.Stations;
 using Mono.Cecil.Cil;
@@ -27,13 +28,13 @@ namespace DisplayCopy
      * - when the button is pressed, read simulation data and copy it to the user's clipboard. it should be the same format as signal producers take.
      */
 
-    public class DisplayCopyMod : IMod
+    public class SignalCopyMod : IMod
     {
         internal static ILogger Logger { get; private set; } = null!;
 
         private Hook? _getModulesHook;
 
-        public DisplayCopyMod(ILogger logger)
+        public SignalCopyMod(ILogger logger)
         {
             Logger = logger;
 
@@ -47,7 +48,7 @@ namespace DisplayCopy
                     moduleDataProvider.GetSimulationModules(building, localizedSimulation, actualSimulation),
                 Wrap);
 
-            Logger.Info?.Log("DisplayCopy initialized.");
+            Logger.Info?.Log("SignalCopy initialized.");
         }
 
         private static IEnumerable<IHUDSidePanelModuleData> Wrap(
@@ -57,16 +58,20 @@ namespace DisplayCopy
             DisplaySimulation actualSimulation,
             IEnumerable<IHUDSidePanelModuleData> original)
         {
-            Logger.Info?.Log("DisplayCopy: wrap called");
             foreach (var module in original)
             {
                 yield return module;
             }
-            yield return new HUDSidePanelModuleGenericButton.Data("copy".T(), () =>
+            yield return new HUDSidePanelModuleGenericButton.Data("signal-copy.copy-button".T(), () =>
             {
-                Logger.Info?.Log("DisplayCopy: COPY!!!!!!!");
-                Logger.Info?.Log($"LastInput: {actualSimulation.LastInput}");   
+                Logger.Info?.Log("COPY!!!!!!!");
+                Logger.Info?.Log($"LastInput: {actualSimulation.LastInput}");
+                Logger.Info?.Log($"LastInput as string: {SignalToString(actualSimulation.LastInput)}");
             }); ;
+        }
+
+        private static string SignalToString(ISignal signal)
+        {
         }
 
         public void Dispose()

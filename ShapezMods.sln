@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreTrainColours", "MoreTra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RenderMyFluidPackageSignals", "RenderMyFluidPackageSignals\RenderMyFluidPackageSignals.csproj", "{A879F847-73E1-487E-B98B-343DF29E902A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisplayCopy", "DisplayCopy\DisplayCopy.csproj", "{6AF0905F-DF4E-4379-B431-4F4BE6A7C193}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalCopy", "DisplayCopy\SignalCopy.csproj", "{6AF0905F-DF4E-4379-B431-4F4BE6A7C193}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
