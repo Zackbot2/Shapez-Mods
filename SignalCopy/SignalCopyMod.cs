@@ -15,13 +15,14 @@ namespace DisplayCopy
         internal static ILogger Logger { get; private set; } = null!;
 
         // store hooks so they don't get GCed
-        private Hook? _getModulesHook;
+        private Hook? _displayGetModulesHook;
+        private Hook? _wireGetModulesHook;
 
         public SignalCopyMod(ILogger logger)
         {
             Logger = logger;
 
-            _getModulesHook = DetourHelper.CreatePostfixHook<
+            _displayGetModulesHook = DetourHelper.CreatePostfixHook<
                 DisplayBuildingModuleDataProvider,
                 BuildingModel,
                 ILocalizedSimulation,
@@ -29,12 +30,22 @@ namespace DisplayCopy
                 IEnumerable<IHUDSidePanelModuleData>>(
                 (moduleDataProvider, building, localizedSimulation, actualSimulation) => 
                     moduleDataProvider.GetSimulationModules(building, localizedSimulation, actualSimulation),
-                Wrap);
+                WrapDisplay);
+
+            _wireGetModulesHook = DetourHelper.CreatePostfixHook<
+                WireBuildingModuleDataProvider,
+                BuildingModel,
+                ILocalizedSimulation,
+                SignalNetworkSimulation,
+                IEnumerable<IHUDSidePanelModuleData>>(
+                (moduleDataProvider, building, localizedSimulation, actualSimulation) =>
+                    moduleDataProvider.GetSimulationModules(building, localizedSimulation, actualSimulation),
+                WrapWire);
 
             Logger.Info?.Log("SignalCopy initialized.");
         }
 
-        private static IEnumerable<IHUDSidePanelModuleData> Wrap(
+        private static IEnumerable<IHUDSidePanelModuleData> WrapDisplay(
             DisplayBuildingModuleDataProvider moduleDataProvider,
             BuildingModel building,
             ILocalizedSimulation localizedSimulation,
@@ -50,7 +61,25 @@ namespace DisplayCopy
                 string lastInputString = SignalToString(actualSimulation.LastInput);
 
                 GUIUtility.systemCopyBuffer = lastInputString;
-            }); ;
+            });
+        }
+        private static IEnumerable<IHUDSidePanelModuleData> WrapWire(
+            WireBuildingModuleDataProvider moduleDataProvider,
+            BuildingModel building,
+            ILocalizedSimulation localizedSimulation,
+            SignalNetworkSimulation actualSimulation,
+            IEnumerable<IHUDSidePanelModuleData> original)
+        {
+            foreach (var module in original)
+            {
+                yield return module;
+            }
+            yield return new HUDSidePanelModuleGenericButton.Data("signal-copy.copy-button".T(), () =>
+            {
+                string lastInputString = SignalToString(actualSimulation.LastOutput);
+
+                GUIUtility.systemCopyBuffer = lastInputString;
+            });
         }
 
         /// <summary>
@@ -100,7 +129,8 @@ namespace DisplayCopy
 
         public void Dispose()
         {
-            _getModulesHook?.Dispose();
+            _displayGetModulesHook?.Dispose();
+            _wireGetModulesHook?.Dispose();
         }
     }
 }

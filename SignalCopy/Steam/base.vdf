@@ -1,11 +1,12 @@
 "workshopitem"
 {
 	"appid"				"2162800"
+	"publishedfileid"	"3777873172"
 	"contentfolder"		"${CONTENT_PATH}"
 	"previewfile"		"${PREVIEW_IMG}"
 	"visibility"		"0"
 	"title"				"Signal Copy"
-	"changenote"		"[b]Mod version 1.0.0[/b]
+	"changenote"		"[b]Mod version 1.1.0[/b]
 
-Initial release."
+Added copy functionality to wires."
 }
