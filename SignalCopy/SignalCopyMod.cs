@@ -10,21 +10,11 @@ using ILogger = Core.Logging.ILogger;
 
 namespace DisplayCopy
 {
-
-    /*
-     * important types
-     * - DisplaySimulation: contains LastInput field - the value we need to access
-     * - DisplayBuildingModuleDataProvider: provides HUD modules and access to the needed DisplaySimulation instance
-     * 
-     * goal: 
-     * - hook DisplayBuildingModuleDataProvider to add a copy button
-     * - when the button is pressed, read simulation data and copy it to the user's clipboard. it should be the same format as signal producers take.
-     */
-
     public class SignalCopyMod : IMod
     {
         internal static ILogger Logger { get; private set; } = null!;
 
+        // store hooks so they don't get GCed
         private Hook? _getModulesHook;
 
         public SignalCopyMod(ILogger logger)
@@ -57,10 +47,7 @@ namespace DisplayCopy
             }
             yield return new HUDSidePanelModuleGenericButton.Data("signal-copy.copy-button".T(), () =>
             {
-                Logger.Info?.Log("COPY!!!!!!!");
-                Logger.Info?.Log($"LastInput: {actualSimulation.LastInput}");
                 string lastInputString = SignalToString(actualSimulation.LastInput);
-                Logger.Info?.Log($"LastInput as string: {lastInputString}");
 
                 GUIUtility.systemCopyBuffer = lastInputString;
             }); ;
@@ -84,8 +71,8 @@ namespace DisplayCopy
             // not simple ones
             if (signal is FluidSignal fluidSignal)
             {
-                Logger?.Info?.Log($"FluidSignalToString: {fluidSignal.Value} -> {fluidSignal.Value.ToString().Split(' ')[0].ToLower()}");
-                return fluidSignal.Value.ToString().Split(' ')[0].ToLower() switch
+                string fluidString = fluidSignal.Value?.ToString() ?? "null";
+                return fluidString.Split(' ')[0].ToLower() switch
                 {
                     "uncolored" => "color-u",
                     "red" => "color-r",
@@ -96,7 +83,7 @@ namespace DisplayCopy
                     "yellow" => "color-y",
                     "white" => "color-w",
                     "black" => "color-k",
-                    _ => "N/A",
+                    _ => "null",
                 };
             }
 

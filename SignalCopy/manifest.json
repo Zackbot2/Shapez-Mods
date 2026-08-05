@@ -1,7 +1,7 @@
 {
-  "Version": "0.0.1",
+  "Version": "1.0.0",
   "Author": "Zackbot",
-  "Description": "",
+  "Description": "Adds a copy button to displays, allowing you to copy their current signal to your clipboard.",
   "AffectsSaveGames": false,
   "DisablesAchievements": false,
   "GameVersionSupportRange": "1.*",

@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<RootNamespace>DisplayCopy</RootNamespace>
+		<RootNamespace>SignalCopy</RootNamespace>
 		<LangVersion>9</LangVersion>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
@@ -16,7 +16,7 @@
 	</ItemGroup>
 
 	<PropertyGroup>
-		<OutputPath>$(SPZ2_PERSISTENT)\mods\DisplayCopy</OutputPath>
+		<OutputPath>$(SPZ2_PERSISTENT)\mods\SignalCopy</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 
@@ -120,7 +120,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Publicize Include="SPZGameAssembly"/>
+		<Publicize Include="SPZGameAssembly" />
 	</ItemGroup>
 
 </Project>
