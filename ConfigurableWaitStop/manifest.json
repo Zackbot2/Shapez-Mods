@@ -1,5 +1,5 @@
 {
-  "Version": "2.2.1",
+  "Version": "2.3.0",
   "Author": "Zackbot",
   "Description": "Adds a configuration panel to every Wait Stop, allowing you to set a custom wait time for each station, including waiting forever!",
   "AffectsSaveGames": false,

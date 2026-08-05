@@ -28,7 +28,7 @@ namespace ConfigurableWaitStop
                 yield break;
             }
 
-            var transform = island.Transform;
+            GlobalChunkTransform transform = island.Transform;
             GlobalChunkCoordinate stationChunk = ChunkVector.Zero.ToGlobal(in transform);
             int currentWaitSeconds = config.WaitTimeSeconds;
 
@@ -59,7 +59,8 @@ namespace ConfigurableWaitStop
                     buttonText: "global.btn-confirm".T(),
                     defaultValue: new RawText(currentWaitTime.ToString()));
 
-                // this triggers when you hit the confirm button. my implementation is pretty simple, it just parses to an int if it can.
+                // this triggers when you hit the confirm button.
+                // my implementation is pretty simple, it just parses to an int if it can. otherwise, it doesn't change it.
                 dialog.OnConfirmed.Register(delegate (string text)
                 {
                     text = text.Trim();

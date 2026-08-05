@@ -6,7 +6,8 @@
 	"previewfile"		"${PREVIEW_IMG}"
 	"visibility"		"0"
 	"title"				"Configurable Wait Stop"
-	"changenote"		"[b]Mod version 2.2.1[/b]
+	"changenote"		"[b]Mod version 2.3.0[/b]
 
-Fixed a bug where copying and then dragging to paste wait stops would cause all new stops to share the same config."
+- The wait stop's tooltip and shop descriptions now mention the custom wait time
+- Added a custom description to the wait stop's codex entry"
 }

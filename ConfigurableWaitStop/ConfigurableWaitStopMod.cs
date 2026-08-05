@@ -22,7 +22,7 @@ namespace ConfigurableWaitStop
     {
         // feel free to use this code as a reference for how to make your own mods! i did a lot of digging, and i've done my best to document my code as best i can.
 
-        public static ILogger Logger { get; private set; } = null!;
+        internal static ILogger Logger { get; private set; } = null!;
 
         // config
         public static ModConfig Config { get; private set; } = null!;
