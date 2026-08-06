@@ -17,6 +17,7 @@ namespace DisplayCopy
         // store hooks so they don't get GCed
         private Hook? _displayGetModulesHook;
         private Hook? _wireGetModulesHook;
+        private Hook? _signalProducerGetModulesHook;
 
         public SignalCopyMod(ILogger logger)
         {
@@ -41,6 +42,16 @@ namespace DisplayCopy
                 (moduleDataProvider, building, localizedSimulation, actualSimulation) =>
                     moduleDataProvider.GetSimulationModules(building, localizedSimulation, actualSimulation),
                 WrapWire);
+
+            _signalProducerGetModulesHook = DetourHelper.CreatePostfixHook<
+                ConstantSignalBuildingModuleDataProvider,
+                BuildingModel,
+                ILocalizedSimulation,
+                ConstantSignalSimulation,
+                IEnumerable<IHUDSidePanelModuleData>>(
+                (moduleDataProvider, building, localizedSimulation, actualSimulation) =>
+                    moduleDataProvider.GetSimulationModules(building, localizedSimulation, actualSimulation),
+                WrapSignalProducer);
 
             Logger.Info?.Log("SignalCopy initialized.");
         }
@@ -77,6 +88,26 @@ namespace DisplayCopy
             yield return new HUDSidePanelModuleGenericButton.Data("signal-copy.copy-button".T(), () =>
             {
                 string lastInputString = SignalToString(actualSimulation.LastOutput);
+
+                GUIUtility.systemCopyBuffer = lastInputString;
+            });
+        }
+
+        private static IEnumerable<IHUDSidePanelModuleData> WrapSignalProducer(
+            ConstantSignalBuildingModuleDataProvider moduleDataProvider,
+            BuildingModel building,
+            ILocalizedSimulation localizedSimulation,
+            ConstantSignalSimulation actualSimulation,
+            IEnumerable<IHUDSidePanelModuleData> original)
+        {
+            foreach (var module in original)
+            {
+                yield return module;
+            }
+            yield return new HUDSidePanelModuleGenericButton.Data("signal-copy.copy-button".T(), () =>
+            {
+                ConstantSignalConfiguration config = (ConstantSignalConfiguration)building.Configuration;
+                string lastInputString = SignalToString(config.Value);
 
                 GUIUtility.systemCopyBuffer = lastInputString;
             });
@@ -131,6 +162,7 @@ namespace DisplayCopy
         {
             _displayGetModulesHook?.Dispose();
             _wireGetModulesHook?.Dispose();
+            _signalProducerGetModulesHook?.Dispose();
         }
     }
 }
