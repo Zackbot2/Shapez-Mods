@@ -6,8 +6,7 @@
 	"previewfile"		"${PREVIEW_IMG}"
 	"visibility"		"0"
 	"title"				"Better Immediate Stop"
-	"changenote"		"[b]Mod version 2.0.0[/b]
+	"changenote"		"[b]Mod version 2.0.1[/b]
 
-- Updated to game version 1.1.
-- Added mod configuration to change the maximum wait time."
+Future-proof ShapezShifter target version."
 }

@@ -1,5 +1,5 @@
 {
-  "Version": "2.4.0",
+  "Version": "2.4.1",
   "Author": "Zackbot",
   "Description": "Adds a configuration panel to every Wait Stop, allowing you to set a custom wait time for each station, including waiting forever!",
   "AffectsSaveGames": false,
@@ -14,12 +14,12 @@
     {
       "ModId": "steam:3542611357",
       "ModTitle": "Shapez Shifter",
-      "Version": "1.1.*"
+      "Version": "^1.1.0"
     },
     {
       "ModId": "steam:3736598408",
       "ModTitle": "Shapez2ModConfig",
-      "Version": "1.*"
+      "Version": "^1.0.0"
     }
   ]
 }

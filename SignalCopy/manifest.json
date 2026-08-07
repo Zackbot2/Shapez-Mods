@@ -1,10 +1,10 @@
 {
-  "Version": "1.2.0",
+  "Version": "1.2.1",
   "Author": "Zackbot",
   "Description": "Adds a copy button to wires and displays, allowing you to copy their current signal to your clipboard in a single click.",
   "AffectsSaveGames": false,
   "DisablesAchievements": false,
-  "GameVersionSupportRange": "1.*",
+  "GameVersionSupportRange": "^1.0.0",
   "Conflicts": [],
   "Assemblies": [
     "SignalCopy.dll"
@@ -13,7 +13,7 @@
     {
       "ModId": "steam:3542611357",
       "ModTitle": "Shapez Shifter",
-      "Version": "1.1.*"
+      "Version": "^1.1.0"
     }
   ]
 }
