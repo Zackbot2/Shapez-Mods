@@ -32,7 +32,7 @@
 	<!--Directories-->
 	<PropertyGroup>
 		<SPZ2_WORKSHOP_MODS>$(SPZ2_SHIFTER)/../..</SPZ2_WORKSHOP_MODS>
-		<SteamDirectory>$(MSBuildProjectDirectoryOutput)\Steam</SteamDirectory> <!--Where base.vdf and other steam assets are located-->
+		<SteamFolder>$(MSBuildProjectDirectoryOutput)\Steam</SteamFolder> <!--Where base.vdf and other steam assets are located-->
 	</PropertyGroup>
 	
 	<ItemGroup>

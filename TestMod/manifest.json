@@ -1,13 +1,13 @@
 {
   "Version": "0.0.1",
   "Author": "Zackbot",
-  "Description": "CHANGE_ME",
+  "Description": "",
   "AffectsSaveGames": false,
   "DisablesAchievements": false,
-  "GameVersionSupportRange": "CHANGE_ME",
+  "GameVersionSupportRange": "1.*",
   "Conflicts": [],
   "Assemblies": [
-    "CHANGE_ME.dll"
+    "TestMod.dll"
   ],
   "Dependencies": [
     {
