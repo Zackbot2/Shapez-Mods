@@ -30,6 +30,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{
 		Templates\translations.json = Templates\translations.json
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{0F85A1D1-2DCB-4242-B70D-F3D3980F8B78}"
+	ProjectSection(SolutionItems) = preProject
+		Tools\SteamPublish.sh = Tools\SteamPublish.sh
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
