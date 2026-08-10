@@ -6,7 +6,7 @@ using System.Linq;
 namespace ConfigurableWaitStop
 {
     /// <summary>
-    /// Rewires the simulation to use <see cref="WaitStopIslandSystem"/>.
+    /// Rewires the simulation to use <see cref="WaitStopIslandSimulationSystem"/>.
     /// </summary>
     /// <remarks>
     /// <see cref="SimulationSystemsInterceptor"/> is in charge of all <see cref="ISimulationSystemsRewirer"/> instances.
@@ -19,18 +19,7 @@ namespace ConfigurableWaitStop
 
         public void ModifySimulationSystems(ICollection<ISimulationSystem> simulationSystems, SimulationSystemsDependencies dependencies)
         {
-            TrainSystem? trainSystem = simulationSystems
-                .OfType<TrainSystem>()
-                .FirstOrDefault();
-
-            if (trainSystem != null)
-            {
-                simulationSystems.Add(new WaitStopIslandSystem());
-            }
-            else
-            {
-                ConfigurableWaitStopMod.Logger.Warning?.Log("TrainSystem not found — wait stop coordinator NOT registered.");
-            }
+            simulationSystems.Add(new WaitStopIslandSimulationSystem());
         }
     }
 }

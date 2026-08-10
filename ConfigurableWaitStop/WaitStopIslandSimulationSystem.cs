@@ -11,7 +11,7 @@ namespace ConfigurableWaitStop
     /// <summary>
     /// Handles the simulation logic for wait stop islands, specifically when a wait stop is placed or removed.
     /// </summary>
-    public class WaitStopIslandSystem : ISimulationSystem, IIslandObserverSimulationSystem
+    public class WaitStopIslandSimulationSystem : IIslandObserverSimulationSystem
     {
         private readonly MultiRegisterEvent<IConnectableSimulation> _onSimulationCreated = new();
         public IEvent<IConnectableSimulation> OnSimulationCreated => _onSimulationCreated;
@@ -20,7 +20,7 @@ namespace ConfigurableWaitStop
         public IEvent<IConnectableSimulation> OnBeforeSimulationDestroyed => _onBeforeSimulationDestroyed;
         public IEnumerable<IConnectableSimulation> ConnectableSimulations => Array.Empty<IConnectableSimulation>();
 
-        public WaitStopIslandSystem() { }
+        public WaitStopIslandSimulationSystem() { }
 
         /// <summary>
         /// Called when an island is placed (including when loading a savegame).
@@ -49,7 +49,6 @@ namespace ConfigurableWaitStop
                 WaitStopData.WaitTimes.Remove(stationChunk, out _);
             }
         }
-
         private static GlobalChunkCoordinate GetInputChunk(in IslandInstance island)
         {
             return ChunkVector.Zero.ToGlobal(in island.Transform);
