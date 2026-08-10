@@ -2,7 +2,7 @@
 # Shapez Mods
 A collection of my mods for [Shapez 2](https://store.steampowered.com/app/2162800/shapez_2__Factory/).
 
-All of the mods in this repository are open source and free to use. Most of them are available on the [Shapez 2 steam workshop](https://steamcommunity.com/app/2162800/workshop/), with the only exception being RenderMyFluidPackageSignals.
+All of the mods in this repository are open source and free to use. Most of them are available on the [Shapez 2 steam workshop](https://steamcommunity.com/app/2162800/workshop/), with the only exceptions being RenderMyFluidPackageSignals and TestMod.
 ## Beginner's Guide
 I fully intend this repository to be used by newer mod developers learning how to do certain things! As a general guide for where to start, Better Immediate Stop is my simplest mod, though Signal Copy is a close second. Both are pretty different in terms of functionality, so you may benefit from taking a look at both.
 

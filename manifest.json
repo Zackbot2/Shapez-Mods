@@ -1,0 +1,20 @@
+{
+  "Version": "0.0.1",
+  "Author": "Zackbot",
+  "Description": "CHANGE_ME",
+  "AffectsSaveGames": false,
+  "DisablesAchievements": false,
+  "GameVersionSupportRange": "CHANGE_ME",
+  "Replaces": "3777873172",
+  "Conflicts": [],
+  "Assemblies": [
+    "CHANGE_ME.dll"
+  ],
+  "Dependencies": [
+    {
+      "ModId": "steam:3542611357",
+      "ModTitle": "Shapez Shifter",
+      "Version": "^1.1.0"
+    }
+  ]
+}
