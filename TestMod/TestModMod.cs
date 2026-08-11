@@ -15,8 +15,13 @@ namespace TestMod
 
         public TestModMod()
         {
-            nothing++;
+            DoNothing(nothing);
         }
         public void Dispose() { }
+
+        private void DoNothing(int value)
+        {
+            nothing -= value;
+        }
     }
 }
