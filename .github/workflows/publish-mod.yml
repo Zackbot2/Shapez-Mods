@@ -80,10 +80,37 @@ jobs:
 
           # install!
           & steamcmd `
+            -debug `
             +force_install_dir $installDir `
             +login "$env:STEAM_USER" `
             +app_update 2162800 validate `
             +quit
+
+          $steamCmdExitCode = $LASTEXITCODE
+
+          Write-Host "SteamCMD exit code: $steamCmdExitCode"
+
+          $exe = Get-ChildItem $installDir -Recurse -Filter "*.exe" -File
+
+          # print all executable files
+          Write-Host "Executables:"
+          $exe | ForEach-Object {
+            Write-Host $_.FullName
+          }
+
+          # print all DLL files in the Managed directory - they're the game's assemblies
+          $managedDir = Get-ChildItem $installDir -Recurse -Directory |
+          Where-Object { $_.Name -eq "Managed" } |
+          Select-Object -First 1
+         
+          if ($managedDir) {
+              Write-Host "Managed directory: $($managedDir.FullName)"
+              Get-ChildItem $managedDir.FullName -Filter "*.dll" |
+                  Select-Object Name, Length
+          }
+          else {
+              Write-Host "ERROR: No Managed directory found."
+          }
 
 
       - name: Determine mod
