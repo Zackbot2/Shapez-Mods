@@ -175,32 +175,19 @@ jobs:
 
       - name: Install workshop dependencies
         shell: pwsh
+        env:
+          STEAMCMD_DIR: ${{ steps.steamcmd.outputs.directory }}
         run: |
           $shapezShifterId = "3542611357"
 
           # find the manifest and grab its content
-          $manifest = Get-Content "$MOD_DIR\manifest.json" -Raw | ConvertFrom-Json
+          $manifest = Get-Content "$env:MOD_DIR\manifest.json" -Raw | ConvertFrom-Json
 
           # from that content, grab the dependencies and iterate through them to isolate mod ids
           $workshopIds = $manifest.Dependencies |
             Where-Object { $_.ModId -like "steam:*" } |
             ForEach-Object { $_.ModId.Substring(6) }
           
-          $requiresShifter = $workshopIds -contains $shapezShifterId
-
-          if ($requiresShifter) {
-            $workshopDir = Join-Path $steamCmdDir "steamapps\workshop\content\2162800"
-            $shifterPath = Join-Path $workshopDir "$shapezShifterId\ShapezShifter.dll"
-
-            # verify it was installed successfully
-            if (-not (Test-Path $shifterPath)) {
-              throw "Shapez Shifter was downloaded, but ShapezShifter.dll was not found at: $shifterPath"
-            }
-
-            # set the SPZ2_SHIFTER environment variable
-            "SPZ2_SHIFTER=$shifterPath" >> $env:GITHUB_ENV
-          }
-
           if ($workshopIds.Count -gt 0) {
             Write-Host "Found $($workshopIds.Count) workshop dependencies: $($workshopIds -join ', ')"
             
@@ -212,7 +199,7 @@ jobs:
               $env:STEAM_USER
             )
 
-          # iterate through all items we found earlier and add them to the arguments
+            # iterate through all items we found earlier and add them to the arguments
             foreach ($workshopId in $workshopIds) {
               $steamArgs += @(
                 "+workshop_download_item"
@@ -230,13 +217,54 @@ jobs:
             if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 1) {
               exit $LASTEXITCODE
             }
+
+            Write-Host "Setting environment variables..."
+
+            if ($workshopIds -contains $shapezShifterId) {
+              $shifterDll = Get-ChildItem `
+                -Path $env:STEAMCMD_DIR `
+                -Recurse `
+                -Filter "ShapezShifter.dll" `
+                -ErrorAction SilentlyContinue |
+                Where-Object { $_.FullName -match '[\\/]3542611357[\\/]' } |
+                Select-Object -First 1
+
+              # verify it was installed successfully
+              if ($null -eq $shifterDll.FullName) {
+                throw "Shapez Shifter was downloaded, but ShapezShifter.dll could not be found."
+              }
+
+              $shifterPath = $shifterDll.FullName
+
+              # set the SPZ2_SHIFTER environment variable and 
+              "SPZ2_SHIFTER=$shifterPath" >> $env:GITHUB_ENV
+            }
+            else {
+              # find any downloaded workshop item. we know the parent folder will be named "2162800"
+              $workshopItem = Get-ChildItem `
+                -Path $env:STEAMCMD_DIR `
+                -Directory ` 
+                -Recurse |
+                Where-Object { $_.Parent.Name -eq "2162800" } |
+                Select-Object -First 1
+
+              if ($null -eq $workshopItem) {
+                throw "Failed to find workshop item directory."
+              }
+
+              $workshopModPath = $workshopItem.Parent.FullName
+
+              #set the SPZ2_WORKSHOP_MOD_PATH environment variable used in my csproj files, if shapezshifter doesn't exist.
+              # my csproj files have a built-in override for if this variable exists
+              "SPZ2_WORKSHOP_MOD_PATH=$workshopModPath" >> $env:GITHUB_ENV
+
+              Write-Host "SPZ2_WORKSHOP_MOD_PATH: $workshopModPath"
+            }
           }
           else {
             Write-Host "Found 0 workshop dependencies."
           }
           
-
-
 
       - name: Build mod
         shell: bash
