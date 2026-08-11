@@ -115,10 +115,10 @@ jobs:
       - name: Set environment variables
         shell: pwsh
         run: |
-          $installDir = "$env_GITHUB_WORKSPACE\shapez2"
+          $installDir = "$env:GITHUB_WORKSPACE\shapez2"
 
-          $spzPath = Join-Path $installDir "shapez2_Data\Managed"
-          $spz2Persistent = Join-Path $installDir "shapez2_Data\Persistent"
+          $spzPath = Join-Path $installDir "shapez 2_Data\Managed"
+          $spz2Persistent = Join-Path $installDir "shapez 2_Data\Persistent"
 
           "SPZ_PATH=$spzPath" >> $env:GITHUB_ENV
           "SPZ2_PERSISTENT=$spz2Persistent" >> $env:GITHUB_ENV
