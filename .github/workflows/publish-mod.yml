@@ -15,42 +15,12 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Install SteamCMD
-        shell: pwsh
-        run: |
-          # specify the steamcmd directory and store it a an environment variable so we can use it later
-          $steamCmdDir = "$env:GITHUB_WORKSPACE\steamcmd"
-
-          # create the folder
-          New-Item -ItemType Directory -Path $steamCmdDir | Out-Null
-
-          Invoke-WebRequest `
-            -Uri "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip" `
-            -OutFile "$env:RUNNER_TEMP\steamcmd.zip"
-
-          # extract the installed steamcmd.zip into the steamcmd directory
-          Expand-Archive `
-            -Path "$env:RUNNER_TEMP\steamcmd.zip" `
-            -DestinationPath $steamCmdDir `
-            -Force
-
-          # run steamcmd, which will update itself
-          & "$steamCmdDir\steamcmd.exe" +quit
-          $steamCmdExitCode = $LASTEXITCODE
-
-          if (-not (Test-Path "$steamCmdDir\steamcmd.exe")) {
-            Write-Error "SteamCMD installation failed. steamcmd.exe not found."
-            exit 1
-          }
-          
-          Write-Host "SteamCMD bootstrap exit code: $steamCmdExitCode"
-          Write-Host "SteamCMD installed successfully at $steamCmdDir\steamcmd.exe"
-
-          "STEAMCMD_PATH=$steamCmdDir\steamcmd.exe" >> $env:GITHUB_ENV
+        uses: Lordfirespeed/setup-steamcmd@v2
 
       - name: Test SteamCMD
         shell: pwsh
         run: |
-          & "$env:STEAMCMD_PATH" +quit
+          & steamcmd +quit
 
       - name: Install Shapez 2
         shell: pwsh
@@ -62,7 +32,7 @@ jobs:
           New-Item -ItemType Directory -Path $installDir | Out-Null
 
           # install!
-          & env:STEAMCMD_PATH `
+          & steamcmd `
             +force_install_dir $installDir `
             +login anonymous `
             +app_update 2162800 validate `
