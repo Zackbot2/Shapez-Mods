@@ -35,6 +35,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{0F85A1D1
 		Tools\SteamPublish.sh = Tools\SteamPublish.sh
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{A1ECBF1B-87B0-46D1-8AF2-875D675AA322}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{4CA23C98-DE7E-484F-9027-D5166224AD10}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\publish-mod.yml = .github\workflows\publish-mod.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +79,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4CA23C98-DE7E-484F-9027-D5166224AD10} = {A1ECBF1B-87B0-46D1-8AF2-875D675AA322}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8E173F5-40BD-42AE-A061-669F4D9AD326}
