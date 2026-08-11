@@ -25,7 +25,7 @@ jobs:
 
           Invoke-WebRequest `
             -Uri "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip" `
-            -OutFile "$steamCmdDir\steamcmd.zip"
+            -OutFile "$env:RUNNER_TEMP\steamcmd.zip"
 
           # extract the installed steamcmd.zip into the steamcmd directory
           Expand-Archive `
