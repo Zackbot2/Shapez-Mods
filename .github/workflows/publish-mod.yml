@@ -14,6 +14,44 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Install SteamCMD
+        shell: pwsh
+        run: |
+          # specify the steamcmd directory and store it a an environment variable so we can use it later
+          $steamCmdDir = "$env:GITHUB_WORKSPACE\steamcmd"
+
+          # create the folder
+          New-Item -ItemType Directory -Path $steamCmdDir | Out-Null
+
+          Invoke-WebRequest `
+            -Uri "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip" `
+            -OutFile "$steamCmdDir\steamcmd.zip"
+
+          # extract the installed steamcmd.zip into the steamcmd directory
+          Expand-Archive `
+            -Path "$env:RUNNER_TEMP\steamcmd.zip" `
+            -DestinationPath $steamCmdDir `
+            -Force
+
+          # run steamcmd, which will update itself
+          & "$steamCmdDir\steamcmd.exe" +quit
+
+      - name: Install Shapez 2
+        shell: pwsh
+        run: |
+          # specify the install directory and store it in an environment variable
+          $installDir = "$env:GITHUB_WORKSPACE\shapez2"
+          
+          # create the folder
+          New-Item -ItemType Directory -Path $installDir | Out-Null
+
+          # install!
+          & $steamcmd `
+            +force_install_dir $installDir `
+            +login anonymous `
+            +app_update 2162800 validate `
+            +quit
+
       - name: Determine mod
         shell: bash
         run: |
@@ -23,7 +61,7 @@ jobs:
           MOD_NAME="${TAG%-*}"
           VERSION="${TAG##*-}"
 
-          # Find the mod files
+          # find the mod files
           MOD_DIR="$GITHUB_WORKSPACE/$MOD_NAME"
           PROJECT=$(find "$MOD_DIR" -maxdepth 1 -name '*.csproj' -print -quit)
 
@@ -37,6 +75,7 @@ jobs:
             exit 1
           fi
 
+          # store the values into the environment for use later
           echo "MOD_NAME=$MOD_NAME" >> "$GITHUB_ENV"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "MOD_DIR=$MOD_DIR" >> "$GITHUB_ENV"
