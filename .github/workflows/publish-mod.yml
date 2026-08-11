@@ -106,11 +106,40 @@ jobs:
           if ($managedDir) {
               Write-Host "Managed directory: $($managedDir.FullName)"
               Get-ChildItem $managedDir.FullName -Filter "*.dll" |
-                  Select-Object Name, Length
+                  Select-Object Name
           }
           else {
               Write-Host "ERROR: No Managed directory found."
           }
+
+      - name: Set environment variables
+        shell: pwsh
+        run: |
+          $installDir = "$env_GITHUB_WORKSPACE\shapez2"
+
+          $spzPath = Join-Path $installDir "shapez2_Data\Managed"
+          $spz2Persistent = Join-Path $installDir "shapez2_Data\Persistent"
+
+          "SPZ_PATH=$spzPath" >> $env:GITHUB_ENV
+          "SPZ2_PERSISTENT=$spz2Persistent" >> $env:GITHUB_ENV
+
+          Write-Host "SPZ_PATH: $spzPath"
+          Write-Host "SPZ2_PERSISTENT: $spz2Persistent"
+
+
+      - name: Verify Shapez 2 environment
+        shell: pwsh
+        run: |
+          if (-not (Test-Path $env:SPZ_PATH)) {
+            throw "SPZ_PATH does not exist: $env:SPZ_PATH"
+          }
+
+          if (-not (Test-Path $env:SPZ2_PERSISTENT)) {
+            New-Item -ItemType Directory -Force -Path $env:SPZ2_PERSISTENT | Out-Null
+          }
+
+          Write-Host "SPZ_PATH exists: $env:SPZ_PATH"
+          Write-Host "SPZ2_PERSISTENT: $env:SPZ2_PERSISTENT"
 
 
       - name: Determine mod
