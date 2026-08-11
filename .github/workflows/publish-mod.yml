@@ -14,16 +14,41 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+
       - name: Install SteamCMD
+        id: steamcmd
         uses: Lordfirespeed/setup-steamcmd@v2
+
+      - name: Restore SteamCMD authentication
+        shell: pwsh
+        env:
+          CONFIG_VDF_CONTENTS: ${{ secrets.CONFIG_VDF_CONTENTS }}
+        run: |
+          $configDir = Join-Path "${{ steps.steamcmd.outputs.directory }}" "config"
+
+          New-Item -ItemType Directory -Path $configDir | Out-Null
+
+          $CONFIG_VDF_CONTENTS | 
+            Out-File `
+              -FilePath (Join-Path $configDir "config.vdf") `
+              -Encoding utf8 `
+              -NoNewline
 
       - name: Test SteamCMD
         shell: pwsh
+        env:
+          STEAM_USER: ${{ secrets.STEAM_USER }}
         run: |
-          & steamcmd +quit
+          & steamcmd +login "$env:STEAM_USER" +quit
+          if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 1) {
+            exit $LASTEXITCODE
+          }
+
 
       - name: Install Shapez 2
         shell: pwsh
+        env:
+          STEAM_USER: ${{ secrets.STEAM_USER }}
         run: |
           # specify the install directory and store it in an environment variable
           $installDir = "$env:GITHUB_WORKSPACE\shapez2"
@@ -34,7 +59,7 @@ jobs:
           # install!
           & steamcmd `
             +force_install_dir $installDir `
-            +login anonymous `
+            +login "$env:STEAM_USER" `
             +app_update 2162800 validate `
             +quit
 
