@@ -175,6 +175,8 @@ jobs:
       - name: Build mod
         shell: bash
         run: |
+          dotnet msbuild "$PROJECT" -getItem:Reference -getProperty:SPZ_PATH -nologo
+
           dotnet build "$PROJECT" \
             --configuration Release \
             -p:OutputPath="$GITHUB_WORKSPACE/build/$MOD_NAME"
