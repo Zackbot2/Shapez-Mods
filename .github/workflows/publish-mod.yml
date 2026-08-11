@@ -30,12 +30,14 @@ jobs:
           # create the config directory. -Force is used so that it won't crash if it already exists
           New-Item -ItemType Directory -Force -Path $configDir | Out-Null
 
+          Write-Host "Copying config contents into folder..."
+
           # copy the config.vdf contents from the secret into the config directory
-          $CONFIG_VDF_CONTENTS | 
-            Out-File `
-              -FilePath (Join-Path $configDir "config.vdf") `
-              -Encoding utf8 `
-              -NoNewline
+          [System.IO.File]::WriteAllText(
+            (Join-Path $configDir "config.vdf"),
+            $env:CONFIG_VDF_CONTENTS,
+            [System.Text.UTF8Encoding]::new($false)
+          )
 
 
       - name: Test SteamCMD
@@ -43,8 +45,23 @@ jobs:
         env:
           STEAM_USER: ${{ secrets.STEAM_USER }}
         run: |
-          # i'd rather fail here than later when trying to install the game.
+          $configFile = Join-Path "${{ steps.steamcmd.outputs.directory }}" "config\config.vdf"
+
+          if (-not (Test-Path $configFile)) {
+            throw "config.vdf was not created."
+          }
+
+          $contents = Get-Content $configFile -Raw
+
+          if ($contents -notmatch '"ConnectCache"') {
+            throw "config.vdf does not contain ConnectCache."
+          }
+
+          Write-Host "config.vdf exists and contains ConnectCache."
+
+          # attempt to login
           & steamcmd +login "$env:STEAM_USER" +quit
+
           if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 1) {
             exit $LASTEXITCODE
           }
