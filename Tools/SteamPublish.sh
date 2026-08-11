@@ -1,13 +1,32 @@
 #!/usr/bin/env bash
 
-# Directory containing SteamPublish.sh
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 MOD_NAME="$1"
 MOD_DIR="$REPO_DIR/$MOD_NAME"
+MANIFEST="$MOD_DIR/manifest.json"
 
-# Find the .csproj file
+# Check for jq - this is needed to parse the manifest to get the version
+if ! command -v jq >/dev/null 2>&1; then
+    echo "ERROR: jq is required but was not found."
+    echo "Install jq and try again."
+    exit 1
+fi
+
+# Ensure the manifest exists
+if [[ ! -f "$MANIFEST" ]]; then
+    echo "ERROR: No manifest.json found."
+    exit 1
+fi
+
+# Validate that the manifest actually has json data
+if ! jq empty "$MANIFEST" >/dev/null 2>&1; then
+    echo "ERROR: manifest.json contains invalid JSON."
+    exit 1
+fi
+
+# Find the project file and steam folder directory
 PROJECT=$(find "$MOD_DIR" -maxdepth 1 -name '*.csproj' -print -quit)
 STEAM_DIR="$MOD_DIR/Steam"
 
@@ -17,9 +36,29 @@ if [[ -z "$PROJECT" ]]; then
     exit 1
 fi
 
+# Use jq to get the version from the manifest
+VERSION=$(jq -r '.Version' "$MANIFEST")
+
+# Make sure the version was successfully read
+if [[ -z "$VERSION" || "$VERSION" == "null" || "$VERSION" == "CHANGE_ME" ]]; then
+    echo "ERROR: Could not read Version from $MANIFEST"
+    exit 1
+fi
+
 echo "PROJECT: $PROJECT"
+echo "VERSION: $VERSION"
 
 CONTENT_PATH=$(dotnet msbuild "$PROJECT" -getProperty:OutputPath -nologo)
+
+CONTENT_MANIFEST="$CONTENT_PATH/manifest.json"
+# Use jq to get the version from the manifest
+CONTENT_VERSION=$(jq -r '.Version' "$CONTENT_MANIFEST")
+
+# The versions should match. If they don't, you forgot to build!
+if [[ "$CONTENT_VERSION" != "$VERSION" ]]; then
+    echo "ERROR: Build output version ($CONTENT_VERSION) does not match project version ($VERSION)!"
+    exit 1
+fi
 
 # Convert the content path to Windows format
 CONTENT_PATH=$(cygpath -w "$CONTENT_PATH")
@@ -39,6 +78,7 @@ echo "PREVIEW_IMG: $PREVIEW_IMG"
 
 export CONTENT_PATH
 export PREVIEW_IMG
+export VERSION
 
 # Adjust temporary .vdf with absolute paths for the content and the preview image
 envsubst < "$STEAM_DIR/base.vdf" > "$STEAM_DIR/base.tmp.vdf"
@@ -69,8 +109,6 @@ FILE_ID=$(grep '"publishedfileid"' "$TMP_VDF" | sed 's/.*"publishedfileid"[ \t]*
 
 # Update original file with new published file ID
 echo "New published file ID: $FILE_ID"
-sed -i 's/\("publishedfileid"[ \t]*"\)[0-9]\+"/\1'"$FILE_ID"'"/' "$STEAM_DIR/base.vdf"
-echo "Published file ID added to $STEAM_DIR\\base.vdf"
 
 # Clean temporary files
 rm "$TMP_VDF"

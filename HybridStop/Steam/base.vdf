@@ -6,7 +6,7 @@
 	"previewfile"		"${PREVIEW_IMG}"
 	"visibility"		"0"
 	"title"				"Hybrid Train Stop"
-	"changenote"		"[b]Mod version 1.1.1[/b]
+	"changenote"		"[b]Mod version $VERSION[/b]
 
 Future-proof ShapezShifter target version."
 }

@@ -5,7 +5,7 @@
 	"previewfile"		"${PREVIEW_IMG}"
 	"visibility"		"2"
 	"title"				"TestMod"
-	"changenote"		"[b]Mod version REPLACE ME[/b]
+	"changenote"		"[b]Mod version $VERSION[/b]
 
 "
 }

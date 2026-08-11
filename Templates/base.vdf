@@ -4,8 +4,8 @@
 	"contentfolder"		"${CONTENT_PATH}"
 	"previewfile"		"${PREVIEW_IMG}"
 	"visibility"		"0"
-	"title"				"CHANGE ME"
-	"changenote"		"[b]Mod version CHANGE ME[/b]
+	"title"				"CHANGE_ME"
+	"changenote"		"[b]Mod version $VERSION[/b]
 
 "
 }

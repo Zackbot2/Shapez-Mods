@@ -10,6 +10,12 @@ namespace TestMod
     /// </remarks>
     public class TestModMod : IMod
     {
+        private int nothing = 0;
+
+        public TestModMod()
+        {
+            nothing++;
+        }
         public void Dispose() { }
     }
 }
