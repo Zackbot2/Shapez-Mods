@@ -98,15 +98,13 @@ jobs:
             Write-Host $_.FullName
           }
 
-          # print all DLL files in the Managed directory - they're the game's assemblies
+          # ensure the Managed directory exists. we need to do this before we can create the environment variables.
           $managedDir = Get-ChildItem $installDir -Recurse -Directory |
           Where-Object { $_.Name -eq "Managed" } |
           Select-Object -First 1
          
           if ($managedDir) {
               Write-Host "Managed directory: $($managedDir.FullName)"
-              Get-ChildItem $managedDir.FullName -Filter "*.dll" |
-                  Select-Object Name
           }
           else {
               Write-Host "ERROR: No Managed directory found."
@@ -177,6 +175,7 @@ jobs:
         shell: pwsh
         env:
           STEAMCMD_DIR: ${{ steps.steamcmd.outputs.directory }}
+          STEAM_USER: ${{ secrets.STEAM_USER }}
         run: |
           $shapezShifterId = "3542611357"
 
