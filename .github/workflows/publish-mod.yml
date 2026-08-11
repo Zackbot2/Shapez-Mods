@@ -172,6 +172,72 @@ jobs:
           echo "MOD_DIR=$MOD_DIR" >> "$GITHUB_ENV"
           echo "PROJECT=$PROJECT" >> "$GITHUB_ENV"
 
+
+      - name: Install workshop dependencies
+        shell: pwsh
+        run: |
+          $shapezShifterId = "3542611357"
+
+          # find the manifest and grab its content
+          $manifest = Get-Content "$MOD_DIR\manifest.json" -Raw | ConvertFrom-Json
+
+          # from that content, grab the dependencies and iterate through them to isolate mod ids
+          $workshopIds = $manifest.Dependencies |
+            Where-Object { $_.ModId -like "steam:*" } |
+            ForEach-Object { $_.ModId.Substring(6) }
+          
+          $requiresShifter = $workshopIds -contains $shapezShifterId
+
+          if ($requiresShifter) {
+            $workshopDir = Join-Path $steamCmdDir "steamapps\workshop\content\2162800"
+            $shifterPath = Join-Path $workshopDir "$shapezShifterId\ShapezShifter.dll"
+
+            # verify it was installed successfully
+            if (-not (Test-Path $shifterPath)) {
+              throw "Shapez Shifter was downloaded, but ShapezShifter.dll was not found at: $shifterPath"
+            }
+
+            # set the SPZ2_SHIFTER environment variable
+            "SPZ2_SHIFTER=$shifterPath" >> $env:GITHUB_ENV
+          }
+
+          if ($workshopIds.Count -gt 0) {
+            Write-Host "Found $($workshopIds.Count) workshop dependencies: $($workshopIds -join ', ')"
+            
+            Write-Host "Installing dependencies..."
+
+            # set up steamcmd arguments
+            $steamArgs = @(
+              "+login"
+              $env:STEAM_USER
+            )
+
+          # iterate through all items we found earlier and add them to the arguments
+            foreach ($workshopId in $workshopIds) {
+              $steamArgs += @(
+                "+workshop_download_item"
+                "2162800"
+                $workshopId
+              )
+            }
+
+            $steamArgs += "+quit"
+
+            # run the command
+            & steamcmd @steamArgs
+
+            # steamcmd likes to use exit code 1 when it isn't an error. yay.
+            if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 1) {
+              exit $LASTEXITCODE
+            }
+          }
+          else {
+            Write-Host "Found 0 workshop dependencies."
+          }
+          
+
+
+
       - name: Build mod
         shell: bash
         run: |
@@ -184,4 +250,4 @@ jobs:
             echo "Build output:"
             find "$GITHUB_WORKSPACE/build/$MOD_NAME" -type f -print
 
-          # Verify version numbers
+      
