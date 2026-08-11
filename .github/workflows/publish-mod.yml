@@ -117,29 +117,29 @@ jobs:
         run: |
           $installDir = "$env:GITHUB_WORKSPACE\shapez2"
 
-          $spzPath = Join-Path $installDir "shapez 2_Data\Managed"
+          $spz2Path = Join-Path $installDir "shapez 2_Data\Managed"
           $spz2Persistent = Join-Path $env:USERPROFILE "AppData\LocalLow\tobspr Games\shapez 2"
           
           # write the values to environment variables
-          "SPZ_PATH=$spzPath" >> $env:GITHUB_ENV
+          "SPZ2_PATH=$spz2Path" >> $env:GITHUB_ENV
           "SPZ2_PERSISTENT=$spz2Persistent" >> $env:GITHUB_ENV
 
-          Write-Host "SPZ_PATH: $spzPath"
+          Write-Host "SPZ2_PATH: $spz2Path"
           Write-Host "SPZ2_PERSISTENT: $spz2Persistent"
 
 
       - name: Verify Shapez 2 environment
         shell: pwsh
         run: |
-          if (-not (Test-Path $env:SPZ_PATH)) {
-            throw "SPZ_PATH does not exist: $env:SPZ_PATH"
+          if (-not (Test-Path $env:SPZ2_PATH)) {
+            throw "SPZ2_PATH does not exist: $env:SPZ2_PATH"
           }
 
           if (-not (Test-Path $env:SPZ2_PERSISTENT)) {
             New-Item -ItemType Directory -Force -Path $env:SPZ2_PERSISTENT | Out-Null
           }
 
-          Write-Host "SPZ_PATH exists: $env:SPZ_PATH"
+          Write-Host "SPZ2_PATH exists: $env:SPZ2_PATH"
           Write-Host "SPZ2_PERSISTENT: $env:SPZ2_PERSISTENT"
 
 
@@ -175,7 +175,7 @@ jobs:
       - name: Build mod
         shell: bash
         run: |
-          dotnet msbuild "$PROJECT" -getItem:Reference -getProperty:SPZ_PATH -nologo
+          dotnet msbuild "$PROJECT" -getItem:Reference -getProperty:SPZ2_PATH -nologo
 
           dotnet build "$PROJECT" \
             --configuration Release \
