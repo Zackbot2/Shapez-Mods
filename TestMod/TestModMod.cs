@@ -15,7 +15,7 @@ namespace TestMod
 
         public TestModMod()
         {
-            nothing++; nothing++;
+            nothing++;
         }
         public void Dispose() { }
     }
