@@ -14,8 +14,42 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Show trigger information
+      - name: Determine mod
         shell: bash
         run: |
-          echo "Ref: $GITHUB_REF"
-          echo "Ref name: $GITHUB_REF_NAME"
+          TAG="$GITHUB_REF_NAME"
+          echo "Running for tag: $TAG"
+
+          MOD_NAME="${TAG%-*}"
+          VERSION="${TAG##*-}"
+
+          # Find the mod files
+          MOD_DIR="$GITHUB_WORKSPACE/$MOD_NAME"
+          PROJECT=$(find "$MOD_DIR" -maxdepth 1 -name '*.csproj' -print -quit)
+
+          if [[ ! -d "$MOD_DIR" ]]; then
+            echo "ERROR: Could not find mod directory in $MOD_DIR"
+            exit 1
+          fi
+
+          if [[ -z "$PROJECT" ]]; then
+            echo "ERROR: No .csproj file found in $MOD_DIR"
+            exit 1
+          fi
+
+          echo "MOD_NAME=$MOD_NAME" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "MOD_DIR=$MOD_DIR" >> "$GITHUB_ENV"
+          echo "PROJECT=$PROJECT" >> "$GITHUB_ENV"
+
+      - name: Build mod
+        shell: bash
+        run: |
+          dotnet build "$PROJECT" \
+            --configuration Release \
+            -p:OutputPath="$GITHUB_WORKSPACE/build/$MOD_NAME"
+
+            echo "Build output:"
+            find "$GITHUB_WORKSPACE/build/$MOD_NAME" -type f -print
+
+          # Verify version numbers
