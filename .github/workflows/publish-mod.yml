@@ -30,9 +30,9 @@ jobs:
         run: |
           echo "Running from event: $GITHUB_EVENT_NAME"
 
-          if [["$GITHUB_EVENT_NAME" == "workflow_dispatch"]]; then
-            MOD_NAME = "${{ inputs.mod }}"
-            MOD_VERSION = ""
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            MOD_NAME="${{ inputs.mod }}"
+            MOD_VERSION=""
           else
             TAG="$GITHUB_REF_NAME"
             echo "Running for tag: $TAG"
