@@ -5,6 +5,16 @@ on:
     tags:
       - '[A-Za-z0-9]+-[0-9]+\.[0-9]+\.[0-9]+'
   workflow_dispatch:
+    inputs:
+      mod:
+        description: 'Mod name (e.g. TestMod)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Perform a dry run. If true, the mod will not be published.'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   publish:
@@ -13,6 +23,100 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+
+      - name: Determine mod
+        shell: bash
+        run: |
+          if [["$GITHUB_EVENT_NAME" == "workflow_dispatch"]]; then
+            MOD_NAME = "${{ inputs.mod }}"
+            MOD_VERSION = ""
+          else
+            TAG="$GITHUB_REF_NAME"
+            echo "Running for tag: $TAG"
+
+            MOD_NAME="${TAG%-*}"
+            TAG_VERSION="${TAG##*-}"
+
+          echo "TAG_VERSION=$TAG_VERSION" >> "$GITHUB_ENV"
+          fi
+
+          # find the mod files
+          MOD_DIR="$GITHUB_WORKSPACE/$MOD_NAME"
+          PROJECT=$(find "$MOD_DIR" -maxdepth 1 -name '*.csproj' -print -quit)
+
+          if [[ ! -d "$MOD_DIR" ]]; then
+            echo "ERROR: Could not find mod directory in $MOD_DIR"
+            exit 1
+          fi
+
+          if [[ -z "$PROJECT" ]]; then
+            echo "ERROR: No .csproj file found in $MOD_DIR"
+            exit 1
+          fi
+
+
+          # store the values into the environment for use later
+          echo "MOD_NAME=$MOD_NAME" >> "$GITHUB_ENV"
+          echo "MOD_DIR=$MOD_DIR" >> "$GITHUB_ENV"
+          echo "PROJECT=$PROJECT" >> "$GITHUB_ENV"
+
+      - name: Verify mod integrity
+        shell: pwsh
+        run: |
+          # verify the folder structure of the mod. out of all the places in the workflow, this is where we want to fail the most.
+          # at this point we've done no installations or heavy operations, so it's best to check for all the basic things now instead of putting a bunch of compute power into a build that's doomed to fail
+
+          # the manifest should be in the mod's root folder
+          $manifestPath = Join-Path $env:MOD_DIR "manifest.json"
+
+          if (-not (Test-Path $manifestPath)) {
+            throw "manifest.json could not be found in $manifestPath"
+          }
+
+          # try to parse the manifest to a json
+          try {
+            $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
+          }
+          catch {
+            throw "Failed to parse manifest.json: $_"
+          }
+
+          if ([string]::IsNullOrWhiteSpace($manifest.Version)) {
+            throw "manifest.json contains invalid version: $($manifest.Version)"
+          }
+
+          $manifestVersion = $manifest.Version
+
+          # for the workflow-dispatch event, we don't supply a version. instead, we grab it from the manifest
+          if ($env:GITHUB_EVENT_NAME -eq "workflow_dispatch") {
+            $modVersion = $manifestVersion
+
+            Write-Host "Using manifest version: $modVersion"
+          }
+          else
+          {
+            # when this runs from a tag, that means a version was supplied
+
+            if ([string]::IsNullOrWhiteSpace($env:TAG_VERSION)) {
+              throw "TAG_VERSION is empty. Was this action supposed to run?" # this should never happen. if it does, the regex must have failed
+            }
+
+            Write-Host "Version specified by tag: $env:TAG_VERSION"
+            Write-Host "Version specified by manifest: $manifestVersion"
+
+            if ($env:TAG_VERSION -ne $manifestVersion) {
+              throw "Version mismatch: tag version ($env:TAG_VERSION) does not match manifest version ($manifestVersion)"
+            }
+
+            $modVersion = $manifestVersion
+          }
+
+          # regardless of how we got here, the version is now set. we can store it to pass it onto later steps
+
+          "MOD_VERSION=$modVersion" >> $env:GITHUB_ENV
+
+          Write-Host "$env:MOD_NAME directory verified. Preparing to build version $modVersion"
 
 
       - name: Install SteamCMD
@@ -141,36 +245,6 @@ jobs:
           Write-Host "SPZ2_PERSISTENT: $env:SPZ2_PERSISTENT"
 
 
-      - name: Determine mod
-        shell: bash
-        run: |
-          TAG="$GITHUB_REF_NAME"
-          echo "Running for tag: $TAG"
-
-          MOD_NAME="${TAG%-*}"
-          VERSION="${TAG##*-}"
-
-          # find the mod files
-          MOD_DIR="$GITHUB_WORKSPACE/$MOD_NAME"
-          PROJECT=$(find "$MOD_DIR" -maxdepth 1 -name '*.csproj' -print -quit)
-
-          if [[ ! -d "$MOD_DIR" ]]; then
-            echo "ERROR: Could not find mod directory in $MOD_DIR"
-            exit 1
-          fi
-
-          if [[ -z "$PROJECT" ]]; then
-            echo "ERROR: No .csproj file found in $MOD_DIR"
-            exit 1
-          fi
-
-          # store the values into the environment for use later
-          echo "MOD_NAME=$MOD_NAME" >> "$GITHUB_ENV"
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-          echo "MOD_DIR=$MOD_DIR" >> "$GITHUB_ENV"
-          echo "PROJECT=$PROJECT" >> "$GITHUB_ENV"
-
-
       - name: Install workshop dependencies
         shell: pwsh
         env:
@@ -278,3 +352,48 @@ jobs:
             find "$GITHUB_WORKSPACE/build/$MOD_NAME" -type f -print
 
       
+      - name: Verify build
+        shell: pwsh
+        run: |
+          $buildDir = Join-Path $env:SPZ2_PERSISTENT "mods\$modName"
+
+          if (-not (Test-Path $buildDir)) {
+            throw "Build output directory does not exist: $buildDir"
+          }
+
+          Write-Host "Verified build output directory exists"
+
+          $manifestPath = Join-Path $buildDir "manifest.json"
+
+          if (-not (Test-Path $manifestPath)) {
+            throw "Manifest was not included in build output"
+          }
+
+          Write-Host "Verified presence of manifest.json"
+
+          $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
+
+          # read from the output manifest - all specified assemblies should be present.
+          foreach ($assembly in $manifest.Assemblies) {
+            $assemblyPath = Join-Path $buildDir $assembly
+            
+            if (-not (Test-Path $assemblyPath)) {
+              throw "Required assembly is missing from build output: $assembly"
+            }
+
+            Write-Host "Found assembly: $assembly"
+          }
+
+          if ($manifest.Version -ne $version) {
+            throw "Manifest version ($($manifest.Version)) does not match release version ($version)."
+          }
+
+          Write-Host ""
+          Write-Host "Build contents:"
+          Get-ChildItem $buildDir -Recurse | ForEach-Object {
+            Write-Host "  $($_.FullName)"
+          }
+     
+      - name: Publish mod
+        shell: pwsh
+        run: |
