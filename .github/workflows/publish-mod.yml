@@ -7,8 +7,13 @@ on:
   workflow_dispatch:
     inputs:
       mod:
-        description: 'Mod name (e.g. TestMod)'
+        description: 'Mod name (e.g. TestMod). Do not specify a version.'
         required: true
+        type: string
+      game_branch:
+        description: 'Shapez 2 Steam branch the mod uses. If not specified, the default public branch will be used.'
+        required: true
+        default: "Default Public Branch"
         type: string
       dry_run:
         description: 'Perform a dry run. If true, the mod will not be published.'
@@ -19,7 +24,8 @@ on:
 jobs:
   publish:
     runs-on: windows-latest
-
+    env:
+      SPZ2_STEAMAPP_ID: 2162800
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -127,7 +133,7 @@ jobs:
         uses: Lordfirespeed/setup-steamcmd@v2
 
 
-      - name: Restore SteamCMD authentication
+      - name: Load SteamCMD authentication
         shell: pwsh
         env:
           CONFIG_VDF_CONTENTS: ${{ secrets.CONFIG_VDF_CONTENTS }}
@@ -178,19 +184,56 @@ jobs:
         shell: pwsh
         env:
           STEAM_USER: ${{ secrets.STEAM_USER }}
+          SHAPEZ2_BRANCH_PASSWORDS: ${{ secrets.SHAPEZ2_BRANCH_PASSWORDS }}
+          SPZ2_STEAM_BRANCH: ${{ inputs.game_branch || 'Default Public Branch' }}
         run: |
+          if ([string]::IsNullOrEmpty($env:SHAPEZ2_BRANCH_PASSWORDS)) {
+            throw "SHAPEZ2_BRANCH_PASSWORDS is empty or was not provided."
+          }
           # specify the install directory and store it in an environment variable
           $installDir = "$env:GITHUB_WORKSPACE\shapez2"
           
           # create the folder
           New-Item -ItemType Directory -Force -Path $installDir | Out-Null
 
-          # install!
-          & steamcmd `
-            +force_install_dir $installDir `
-            +login "$env:STEAM_USER" `
-            +app_update 2162800 validate `
-            +quit
+          # determine branch
+          $selectedBranch = "$env:SPZ2_STEAM_BRANCH"
+          Write-Host "Selected branch: $selectedBranch"
+
+          $branches = $env:SHAPEZ2_BRANCH_PASSWORDS | ConvertFrom-Json
+          $branch = $branches.PSObject.Properties[$selectedBranch]
+          $branchPassword = $branch.Value
+
+          if ($null -eq $branch) {
+            throw "Invalid steam branch: $selectedBranch"
+          }
+
+          # by default, set the normal installation without a branch
+          $args = @(
+            "+force_install_dir", $installDir,
+            "+login", $env:STEAM_USER,
+            "+app_update", $env:SPZ2_STEAMAPP_ID
+          )
+
+          # if a branch was specified, switch to that branch
+          if ($selectedBranch -ne "Default Public Branch") {
+            $args += @("-beta", $selectedBranch)
+
+            # public branches are given a password of null (by me)
+            if ($null -ne $branchPassword) {
+              Write-Host "Using private branch: $selectedBranch"
+
+              $args += @("-betapassword", $branchPassword)
+            }
+            else {
+              Write-Host "Using public branch: $selectedBranch"
+            }
+          }
+
+          $args += @("validate", "+quit")
+          
+          Write-Host "Installing game..."
+          & steamcmd @args
 
           $steamCmdExitCode = $LASTEXITCODE
 
@@ -271,7 +314,7 @@ jobs:
             foreach ($workshopId in $workshopIds) {
               $steamArgs += @(
                 "+workshop_download_item"
-                "2162800"
+                $env:SPZ2_STEAMAPP_ID
                 $workshopId
               )
             }
@@ -308,12 +351,12 @@ jobs:
               "SPZ2_SHIFTER=$shifterPath" >> $env:GITHUB_ENV
             }
             else {
-              # find any downloaded workshop item. we know the parent folder will be named "2162800"
+              # find any downloaded workshop item. we know the parent folder will be named the steam app's id
               $workshopItem = Get-ChildItem `
                 -Path $env:STEAMCMD_DIR `
                 -Directory ` 
                 -Recurse |
-                Where-Object { $_.Parent.Name -eq "2162800" } |
+                Where-Object { $_.Parent.Name -eq "$env:SPZ2_STEAMAPP_ID" } |
                 Select-Object -First 1
 
               if ($null -eq $workshopItem) {
@@ -342,9 +385,6 @@ jobs:
 
           dotnet build "$PROJECT" \
             --configuration Release
-
-          echo "Build output:"
-          find "$outputPath" -type f -print
 
       
       - name: Verify build
