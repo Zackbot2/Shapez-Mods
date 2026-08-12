@@ -1,21 +1,21 @@
 {
-  "Version": "1.1.1",
+  "Version": "1.2.0",
   "Author": "Zackbot",
   "Description": "Adds a hybrid train stop that combines the functionality of both the Immediate Stop and the Wait Stop. Trains wait at a Hybrid Stop until 1 floor of 1 car is done exchanging.",
   "AffectsSaveGames": true,
   "DisablesAchievements": false,
-  "SavedModVersionCompabilityRangeWithSelf": "1.*.*",
+  "SavedModVersionCompabilityRangeWithSelf": "^1.0.0",
   "SaveGameCompabilityRange": "*",
-  "GameVersionSupportRange": ">=1.0.0", // i actually need 1.1.0, but the game is hardcoded to check for 1.0.0
+  "GameVersionSupportRange": "1.2.*",
   "Conflicts": [],
   "Assemblies": [
     "HybridStop.dll"
   ],
   "Dependencies": [
     {
-      "ModId": "steam:3542611357",
-      "ModTitle": "Shapez Shifter",
-      "Version": "^1.1.0"
+      "ModId": "steam:3738646868",
+      "ModTitle": "Shapez Shifter [Developer]",
+      "Version": "^1.2.0"
     }
   ]
 }

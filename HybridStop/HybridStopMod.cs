@@ -15,7 +15,7 @@ namespace HybridStop
 {
     public class HybridStopMod : IMod
     {
-        internal static ILogger Logger;
+        internal static ILogger Logger = null!;
 
         private RewirerHandle _hybridStopRewirer;
 
@@ -24,6 +24,7 @@ namespace HybridStop
         public HybridStopMod(ILogger logger)
         {
             Logger = logger;
+
             AddHybridStop();
 
             Logger.Info?.Log("HybridStop loaded successfully!");

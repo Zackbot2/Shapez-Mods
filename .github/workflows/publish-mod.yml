@@ -185,7 +185,7 @@ jobs:
         env:
           STEAM_USER: ${{ secrets.STEAM_USER }}
           SHAPEZ2_BRANCH_PASSWORDS: ${{ secrets.SHAPEZ2_BRANCH_PASSWORDS }}
-          SPZ2_STEAM_BRANCH: ${{ inputs.game_branch || 'Default Public Branch' }}
+          SPZ2_STEAM_BRANCH: ${{ inputs.game_branch || 'closed-beta' }}
         run: |
           if ([string]::IsNullOrEmpty($env:SHAPEZ2_BRANCH_PASSWORDS)) {
             throw "SHAPEZ2_BRANCH_PASSWORDS is empty or was not provided."
