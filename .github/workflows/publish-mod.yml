@@ -185,6 +185,7 @@ jobs:
         env:
           STEAM_USER: ${{ secrets.STEAM_USER }}
           SHAPEZ2_BRANCH_PASSWORDS: ${{ secrets.SHAPEZ2_BRANCH_PASSWORDS }}
+          SPZ2_STEAM_BRANCH: ${{ inputs.game_branch || "Default Public Branch" }}
         run: |
           if ([string]::IsNullOrEmpty($env:SHAPEZ2_BRANCH_PASSWORDS)) {
             throw "SHAPEZ2_BRANCH_PASSWORDS is empty or was not provided."
@@ -196,7 +197,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path $installDir | Out-Null
 
           # determine branch
-          $selectedBranch = "${{ inputs.game_branch }}"
+          $selectedBranch = "$env:SPZ2_STEAM_BRANCH"
           Write-Host "Selected branch: $selectedBranch"
 
           $branches = $env:SHAPEZ2_BRANCH_PASSWORDS | ConvertFrom-Json
@@ -216,7 +217,7 @@ jobs:
 
           # if a branch was specified, switch to that branch
           if ($selectedBranch -ne "Default Public Branch") {
-            $args += @("-beta", $branch)
+            $args += @("-beta", $selectedBranch)
 
             # public branches are given a password of null (by me)
             if ($null -ne $branchPassword) {
