@@ -1,10 +1,10 @@
 {
-  "Version": "2.4.1",
+  "Version": "2.4.2",
   "Author": "Zackbot",
   "Description": "Adds a configuration panel to every Wait Stop, allowing you to set a custom wait time for each station, including waiting forever!",
   "AffectsSaveGames": false,
   "DisablesAchievements": false,
-  "GameVersionSupportRange": "1.*",
+  "GameVersionSupportRange": "^1.0.0",
   "Conflicts": [],
   "Replaces": "steam:3737723464",
   "Assemblies": [
