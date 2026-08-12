@@ -5,6 +5,16 @@ on:
     tags:
       - '[A-Za-z0-9]+-[0-9]+\.[0-9]+\.[0-9]+'
   workflow_dispatch:
+    inputs:
+      mod:
+        description: 'Mod name (e.g. TestMod)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Perform a dry run. If true, the mod will not be published.'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   publish:
@@ -14,8 +24,378 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Show trigger information
+
+      - name: Determine mod
         shell: bash
         run: |
-          echo "Ref: $GITHUB_REF"
-          echo "Ref name: $GITHUB_REF_NAME"
+          echo "Running from event: $GITHUB_EVENT_NAME"
+
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            MOD_NAME="${{ inputs.mod }}"
+            MOD_VERSION=""
+          else
+            TAG="$GITHUB_REF_NAME"
+            echo "Running for tag: $TAG"
+
+            MOD_NAME="${TAG%-*}"
+            TAG_VERSION="${TAG##*-}"
+
+          echo "TAG_VERSION=$TAG_VERSION" >> "$GITHUB_ENV"
+          fi
+
+          # find the mod files
+          MOD_DIR="$GITHUB_WORKSPACE/$MOD_NAME"
+          PROJECT=$(find "$MOD_DIR" -maxdepth 1 -name '*.csproj' -print -quit)
+
+          if [[ ! -d "$MOD_DIR" ]]; then
+            echo "ERROR: Could not find mod directory in $MOD_DIR"
+            exit 1
+          fi
+
+          if [[ -z "$PROJECT" ]]; then
+            echo "ERROR: No .csproj file found in $MOD_DIR"
+            exit 1
+          fi
+
+
+          # store the values into the environment for use later
+          echo "MOD_NAME=$MOD_NAME" >> "$GITHUB_ENV"
+          echo "MOD_DIR=$MOD_DIR" >> "$GITHUB_ENV"
+          echo "PROJECT=$PROJECT" >> "$GITHUB_ENV"
+
+
+      - name: Verify mod integrity
+        shell: pwsh
+        run: |
+          # verify the folder structure of the mod. out of all the places in the workflow, this is where we want to fail the most.
+          # at this point we've done no installations or heavy operations, so it's best to check for all the basic things now instead of putting a bunch of compute power into a build that's doomed to fail
+
+          # the manifest should be in the mod's root folder
+          $manifestPath = Join-Path $env:MOD_DIR "manifest.json"
+
+          if (-not (Test-Path $manifestPath)) {
+            throw "manifest.json could not be found in $manifestPath"
+          }
+
+          # try to parse the manifest to a json
+          try {
+            $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
+          }
+          catch {
+            throw "Failed to parse manifest.json: $_"
+          }
+
+          if ([string]::IsNullOrWhiteSpace($manifest.Version)) {
+            throw "manifest.json contains invalid version: $($manifest.Version)"
+          }
+
+          $manifestVersion = $manifest.Version
+
+          # for the workflow-dispatch event, we don't supply a version. instead, we grab it from the manifest
+          if ($env:GITHUB_EVENT_NAME -eq "workflow_dispatch") {
+            $modVersion = $manifestVersion
+
+            Write-Host "Using manifest version: $modVersion"
+          }
+          else
+          {
+            # when this runs from a tag, that means a version was supplied
+
+            if ([string]::IsNullOrWhiteSpace($env:TAG_VERSION)) {
+              throw "TAG_VERSION is empty. Was this action supposed to run?" # this should never happen. if it does, the regex must have failed
+            }
+
+            Write-Host "Version specified by tag: $env:TAG_VERSION"
+            Write-Host "Version specified by manifest: $manifestVersion"
+
+            if ($env:TAG_VERSION -ne $manifestVersion) {
+              throw "Version mismatch: tag version ($env:TAG_VERSION) does not match manifest version ($manifestVersion)"
+            }
+
+            $modVersion = $manifestVersion
+          }
+
+          # regardless of how we got here, the version is now set. we can store it to pass it onto later steps
+
+          "MOD_VERSION=$modVersion" >> $env:GITHUB_ENV
+
+          Write-Host "$env:MOD_NAME directory verified. Preparing to build version $modVersion"
+
+
+      - name: Install SteamCMD
+        id: steamcmd
+        uses: Lordfirespeed/setup-steamcmd@v2
+
+
+      - name: Restore SteamCMD authentication
+        shell: pwsh
+        env:
+          CONFIG_VDF_CONTENTS: ${{ secrets.CONFIG_VDF_CONTENTS }}
+        run: |
+          $configDir = Join-Path "${{ steps.steamcmd.outputs.directory }}" "config"
+
+          # create the config directory. -Force is used so that it won't crash if it already exists
+          New-Item -ItemType Directory -Force -Path $configDir | Out-Null
+
+          Write-Host "Copying config contents into folder..."
+
+          # copy the config.vdf contents from the secret into the config directory
+          [System.IO.File]::WriteAllText(
+            (Join-Path $configDir "config.vdf"),
+            $env:CONFIG_VDF_CONTENTS,
+            [System.Text.UTF8Encoding]::new($false)
+          )
+
+
+      - name: Test SteamCMD
+        shell: pwsh
+        env:
+          STEAM_USER: ${{ secrets.STEAM_USER }}
+        run: |
+          $configFile = Join-Path "${{ steps.steamcmd.outputs.directory }}" "config\config.vdf"
+
+          if (-not (Test-Path $configFile)) {
+            throw "config.vdf was not created."
+          }
+
+          $contents = Get-Content $configFile -Raw
+
+          if ($contents -notmatch '"ConnectCache"') {
+            throw "config.vdf does not contain ConnectCache."
+          }
+
+          Write-Host "config.vdf exists and contains ConnectCache."
+
+          # attempt to login
+          & steamcmd +login "$env:STEAM_USER" +quit
+
+          if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 1) {
+            exit $LASTEXITCODE
+          }
+
+
+      - name: Install Shapez 2
+        shell: pwsh
+        env:
+          STEAM_USER: ${{ secrets.STEAM_USER }}
+        run: |
+          # specify the install directory and store it in an environment variable
+          $installDir = "$env:GITHUB_WORKSPACE\shapez2"
+          
+          # create the folder
+          New-Item -ItemType Directory -Force -Path $installDir | Out-Null
+
+          # install!
+          & steamcmd `
+            +force_install_dir $installDir `
+            +login "$env:STEAM_USER" `
+            +app_update 2162800 validate `
+            +quit
+
+          $steamCmdExitCode = $LASTEXITCODE
+
+          Write-Host "SteamCMD exit code: $steamCmdExitCode"
+
+          # ensure the Managed directory exists. we need to do this before we can create the environment variables.
+          $managedDir = Get-ChildItem $installDir -Recurse -Directory |
+          Where-Object { $_.Name -eq "Managed" } |
+          Select-Object -First 1
+         
+          if ($managedDir) {
+              Write-Host "Managed directory: $($managedDir.FullName)"
+          }
+          else {
+              Write-Host "ERROR: No Managed directory found."
+          }
+
+      - name: Set environment variables
+        shell: pwsh
+        run: |
+          $installDir = "$env:GITHUB_WORKSPACE\shapez2"
+
+          $spz2Path = Join-Path $installDir "shapez 2_Data\Managed"
+          $spz2Persistent = Join-Path $env:USERPROFILE "AppData\LocalLow\tobspr Games\shapez 2"
+          
+          # write the values to environment variables
+          "SPZ2_PATH=$spz2Path" >> $env:GITHUB_ENV
+          "SPZ2_PERSISTENT=$spz2Persistent" >> $env:GITHUB_ENV
+
+          Write-Host "SPZ2_PATH: $spz2Path"
+          Write-Host "SPZ2_PERSISTENT: $spz2Persistent"
+
+
+      - name: Verify Shapez 2 environment
+        shell: pwsh
+        run: |
+          if (-not (Test-Path $env:SPZ2_PATH)) {
+            throw "SPZ2_PATH does not exist: $env:SPZ2_PATH"
+          }
+
+          # if the SPZ2_PERSISTENT directory doesn't exist, that's normal. we can just create it
+          if (-not (Test-Path $env:SPZ2_PERSISTENT)) {
+            New-Item -ItemType Directory -Force -Path $env:SPZ2_PERSISTENT | Out-Null
+          }
+
+          Write-Host "SPZ2_PATH exists: $env:SPZ2_PATH"
+          Write-Host "SPZ2_PERSISTENT: $env:SPZ2_PERSISTENT"
+
+
+      - name: Install workshop dependencies
+        shell: pwsh
+        env:
+          STEAMCMD_DIR: ${{ steps.steamcmd.outputs.directory }}
+          STEAM_USER: ${{ secrets.STEAM_USER }}
+        run: |
+          $shapezShifterId = "3542611357"
+
+          # find the manifest and grab its content
+          $manifest = Get-Content "$env:MOD_DIR\manifest.json" -Raw | ConvertFrom-Json
+
+          # from that content, grab the dependencies and iterate through them to isolate mod ids
+          $workshopIds = $manifest.Dependencies |
+            Where-Object { $_.ModId -like "steam:*" } |
+            ForEach-Object { $_.ModId.Substring(6) }
+          
+          if ($workshopIds.Count -gt 0) {
+            Write-Host "Found $($workshopIds.Count) workshop dependencies: $($workshopIds -join ', ')"
+            
+            Write-Host "Installing dependencies..."
+
+            # set up steamcmd arguments
+            $steamArgs = @(
+              "+login"
+              $env:STEAM_USER
+            )
+
+            # iterate through all items we found earlier and add them to the arguments
+            foreach ($workshopId in $workshopIds) {
+              $steamArgs += @(
+                "+workshop_download_item"
+                "2162800"
+                $workshopId
+              )
+            }
+
+            $steamArgs += "+quit"
+
+            # run the command
+            & steamcmd @steamArgs
+
+            # steamcmd likes to use exit code 1 when it isn't an error. yay.
+            if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 1) {
+              exit $LASTEXITCODE
+            }
+
+            Write-Host "Setting environment variables..."
+
+            if ($workshopIds -contains $shapezShifterId) {
+              $shifterDll = Get-ChildItem `
+                -Path $env:STEAMCMD_DIR `
+                -Recurse `
+                -Filter "ShapezShifter.dll" `
+                -ErrorAction SilentlyContinue |
+                Where-Object { $_.FullName -match '[\\/]3542611357[\\/]' } |
+                Select-Object -First 1
+
+              # verify it was installed successfully
+              if ($null -eq $shifterDll.FullName) {
+                throw "Shapez Shifter was downloaded, but ShapezShifter.dll could not be found."
+              }
+
+              $shifterPath = $shifterDll.FullName
+
+              # set the SPZ2_SHIFTER environment variable and 
+              "SPZ2_SHIFTER=$shifterPath" >> $env:GITHUB_ENV
+            }
+            else {
+              # find any downloaded workshop item. we know the parent folder will be named "2162800"
+              $workshopItem = Get-ChildItem `
+                -Path $env:STEAMCMD_DIR `
+                -Directory ` 
+                -Recurse |
+                Where-Object { $_.Parent.Name -eq "2162800" } |
+                Select-Object -First 1
+
+              if ($null -eq $workshopItem) {
+                throw "Failed to find workshop item directory."
+              }
+
+              $workshopModPath = $workshopItem.Parent.FullName
+
+              #set the SPZ2_WORKSHOP_MOD_PATH environment variable used in my csproj files, if shapezshifter doesn't exist.
+              # my csproj files have a built-in override for if this variable exists
+              "SPZ2_WORKSHOP_MOD_PATH=$workshopModPath" >> $env:GITHUB_ENV
+
+              Write-Host "SPZ2_WORKSHOP_MOD_PATH: $workshopModPath"
+            }
+          }
+          else {
+            Write-Host "Found 0 workshop dependencies."
+          }
+          
+
+      - name: Build mod
+        shell: bash
+        run: |
+          outputPath=$(dotnet msbuild "$PROJECT" -getProperty:OutputPath -nologo)
+          echo "OUTPUT_PATH=$outputPath" >> "$GITHUB_ENV"
+
+          dotnet build "$PROJECT" \
+            --configuration Release
+
+          echo "Build output:"
+          find "$outputPath" -type f -print
+
+      
+      - name: Verify build
+        shell: pwsh
+        run: |
+          if (-not (Test-Path $env:OUTPUT_PATH)) {
+            throw "Build output directory does not exist: $env:OUTPUT_PATH"
+          }
+
+          Write-Host "Verified build output directory exists"
+
+          $manifestPath = Join-Path $env:OUTPUT_PATH "manifest.json"
+
+          if (-not (Test-Path $manifestPath)) {
+            throw "Manifest was not included in build output"
+          }
+
+          Write-Host "Verified presence of manifest.json"
+
+          $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
+
+          # read from the output manifest - all specified assemblies should be present.
+          foreach ($assembly in $manifest.Assemblies) {
+            $assemblyPath = Join-Path $env:OUTPUT_PATH $assembly
+            
+            if (-not (Test-Path $assemblyPath)) {
+              throw "Required assembly is missing from build output: $assembly"
+            }
+
+            Write-Host "Found assembly: $assembly"
+          }
+
+          if ($manifest.Version -ne $env:MOD_VERSION) {
+            throw "Manifest version ($($manifest.Version)) does not match release version ($($env:MOD_VERSION))."
+          }
+
+          Write-Host ""
+          Write-Host "Build contents:"
+          Get-ChildItem $env:OUTPUT_PATH -Recurse | ForEach-Object {
+            Write-Host "  $($_.FullName)"
+          }
+     
+      - name: Publish mod
+        if: ${{ !inputs.dry_run }}
+        shell: bash
+        env:
+          STEAM_USER: ${{ secrets.STEAM_USER }}
+        run: |
+          echo "Preparing to publish $MOD_NAME $MOD_VERSION..."
+
+          # run the steam publish script
+          ./Tools/SteamPublish.sh --verified "$MOD_NAME" "$MOD_VERSION"
+
+          echo "Successfully published $MOD_NAME $MOD_VERSION to the Steam Workshop!"

@@ -1,30 +1,27 @@
 #!/usr/bin/env bash
 
+# the verified flag is used to determine if the build and manifest have already been verified.
+# this is typically used by the publishing workflow
+VERIFIED=false
+
+if [[ "$1" == "--verified" ]]; then
+    VERIFIED=true
+    shift
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 MOD_NAME="$1"
+VERSION="$2"
+
+if [[ "$VERIFIED" == true && -z "$VERSION" ]]; then
+    echo "ERROR: Version must be supplied when using --verified."
+    exit 1
+fi
+
 MOD_DIR="$REPO_DIR/$MOD_NAME"
 MANIFEST="$MOD_DIR/manifest.json"
-
-# Check for jq - this is needed to parse the manifest to get the version
-if ! command -v jq >/dev/null 2>&1; then
-    echo "ERROR: jq is required but was not found."
-    echo "Install jq and try again."
-    exit 1
-fi
-
-# Ensure the manifest exists
-if [[ ! -f "$MANIFEST" ]]; then
-    echo "ERROR: No manifest.json found."
-    exit 1
-fi
-
-# Validate that the manifest actually has json data
-if ! jq empty "$MANIFEST" >/dev/null 2>&1; then
-    echo "ERROR: manifest.json contains invalid JSON."
-    exit 1
-fi
 
 # Find the project file and steam folder directory
 PROJECT=$(find "$MOD_DIR" -maxdepth 1 -name '*.csproj' -print -quit)
@@ -36,28 +33,61 @@ if [[ -z "$PROJECT" ]]; then
     exit 1
 fi
 
-# Use jq to get the version from the manifest
-VERSION=$(jq -r '.Version' "$MANIFEST")
+echo "PROJECT: $PROJECT"
 
-# Make sure the version was successfully read
-if [[ -z "$VERSION" || "$VERSION" == "null" || "$VERSION" == "CHANGE_ME" ]]; then
-    echo "ERROR: Could not read Version from $MANIFEST"
-    exit 1
+if [[ "$VERIFIED" == false ]]; then
+    # Check for jq - this is needed to parse the manifest to get the version
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "ERROR: jq is required but was not found."
+        echo "Install jq and try again."
+        exit 1
+    fi
+
+    # Ensure the manifest exists
+    if [[ ! -f "$MANIFEST" ]]; then
+        echo "ERROR: No manifest.json found."
+        exit 1
+    fi
+
+    # Validate that the manifest actually has json data
+    if ! jq empty "$MANIFEST" >/dev/null 2>&1; then
+        echo "ERROR: manifest.json contains invalid JSON."
+        exit 1
+    fi
+
+    # Use jq to get the version from the manifest
+    VERSION=$(jq -r '.Version' "$MANIFEST")
+
+    # Make sure the version was successfully read
+    if [[ -z "$VERSION" || "$VERSION" == "null" || "$VERSION" == "CHANGE_ME" ]]; then
+        echo "ERROR: Could not read Version from $MANIFEST"
+        exit 1
+    fi
 fi
 
-echo "PROJECT: $PROJECT"
 echo "VERSION: $VERSION"
 
-CONTENT_PATH=$(dotnet msbuild "$PROJECT" -getProperty:OutputPath -nologo)
+# if it's been verified and the OUTPUT_PATH environment variable is set, then we can use that instead of calculating it again
+if [[ "$VERIFIED" == true && -n "$OUTPUT_PATH" ]]; then
+    CONTENT_PATH="$OUTPUT_PATH"
+    echo "Using pre-calculated content path from CONTENT_PATH environment variable: $CONTENT_PATH"
+else
+    # get the output path from the csproj file
+    CONTENT_PATH=$(dotnet msbuild "$PROJECT" -getProperty:OutputPath -nologo)
+fi
 
-CONTENT_MANIFEST="$CONTENT_PATH/manifest.json"
-# Use jq to get the version from the manifest
-CONTENT_VERSION=$(jq -r '.Version' "$CONTENT_MANIFEST")
+# if unverified, make sure the otuput manifest version matches the input manifest version
+# if verified, then that means these checks have already been done either manually or automatically
+if [[ "$VERIFIED" == false ]]; then
+    CONTENT_MANIFEST="$CONTENT_PATH/manifest.json"
+    # Use jq to get the version from the manifest
+    CONTENT_VERSION=$(jq -r '.Version' "$CONTENT_MANIFEST")
 
-# The versions should match. If they don't, you forgot to build!
-if [[ "$CONTENT_VERSION" != "$VERSION" ]]; then
-    echo "ERROR: Build output version ($CONTENT_VERSION) does not match project version ($VERSION)!"
-    exit 1
+    # The versions should match. If they don't, you forgot to build!
+    if [[ "$CONTENT_VERSION" != "$VERSION" ]]; then
+        echo "ERROR: Build output version ($CONTENT_VERSION) does not match project version ($VERSION)!"
+        exit 1
+    fi
 fi
 
 # Convert the content path to Windows format
@@ -88,11 +118,10 @@ cat "$STEAM_DIR/base.tmp.vdf"
 
 TMP_VDF=$STEAM_DIR/base.tmp.vdf
 
-STEAMCMD_PATH="${STEAMCMD_PATH:-/d/steamcmd/steamcmd.exe}"
 STEAM_USER="${STEAM_USER:?STEAM_USER is not set}"
 
 # Execute
-"$STEAMCMD_PATH" +login "$STEAM_USER" +workshop_build_item "$TMP_VDF" +quit;
+steamcmd +login "$STEAM_USER" +workshop_build_item "$TMP_VDF" +quit
 
 # If SteamCMD failed to build, exit.
 if [[ $? -ne 0 ]]; then
@@ -109,6 +138,10 @@ FILE_ID=$(grep '"publishedfileid"' "$TMP_VDF" | sed 's/.*"publishedfileid"[ \t]*
 
 # Update original file with new published file ID
 echo "New published file ID: $FILE_ID"
+
+if [[ -n "$GITHUB_OUTPUT" ]]; then
+    echo "file_id=$FILE_ID" >> "$GITHUB_OUTPUT"
+fi
 
 # Clean temporary files
 rm "$TMP_VDF"

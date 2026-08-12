@@ -31,7 +31,8 @@
 
 	<!--Directories-->
 	<PropertyGroup>
-		<SPZ2_WORKSHOP_MODS>$(SPZ2_SHIFTER)/../..</SPZ2_WORKSHOP_MODS>
+		<!--If this value wasn't set externally (by an actions runner for example), use ShapezShifter to find it-->
+		<SPZ2_WORKSHOP_MOD_PATH Condition="'$(SPZ2_WORKSHOP_MOD_PATH)' == ''">$(SPZ2_SHIFTER)/../..</SPZ2_WORKSHOP_MOD_PATH>
 		<SteamFolder>$(MSBuildProjectDirectoryOutput)\Steam</SteamFolder>
 	</PropertyGroup>
 
