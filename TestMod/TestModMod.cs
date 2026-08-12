@@ -15,7 +15,7 @@ namespace TestMod
     /// </remarks>
     public class TestModMod : IMod
     {
-        private int nothing = 69;
+        private int nothing = 68;
 
         public TestModMod()
         {
