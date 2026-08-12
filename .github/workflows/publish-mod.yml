@@ -196,7 +196,7 @@ jobs:
           $selectedBranch = "${{ inputs.game_branch }}"
           Write-Host "Selected branch: $selectedBranch"
 
-          $branches = '$env:STEAM_BRANCH_PASSWORDS' | ConvertFrom-Json
+          $branches = "$env:STEAM_BRANCH_PASSWORDS" -Raw | ConvertFrom-Json
           $branch = $branches.PSObject.Properties[$selectedBranch]
           $branchPassword = $branch.Value
 
