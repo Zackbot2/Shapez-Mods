@@ -393,8 +393,10 @@ jobs:
           STEAMCMD_PATH: ${{ steps.steamcmd.outupts.executable }}
           STEAM_USER: ${{ secrets.STEAM_USER }}
         run: |
+          echo "Preparing to publish $MOD_NAME $MOD_VERSION..."
+
           # run the steam publish script
-          ./Tools/SteamPublish.sh --verified "$MOD_NAME"
+          ./Tools/SteamPublish.sh --verified "$MOD_NAME" "$MOD_VERSION"
 
           if [[ -z "$FILE_ID" ]]; then
             echo "ERROR: SteamCMD did not return a published file ID."

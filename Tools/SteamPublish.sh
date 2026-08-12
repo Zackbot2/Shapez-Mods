@@ -13,6 +13,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 MOD_NAME="$1"
+VERSION="$2"
+
+if [[ "$VERIFIED" == true && -z "$VERSION" ]]; then
+    echo "ERROR: Version must be supplied when using --verified."
+    exit 1
+fi
+
 MOD_DIR="$REPO_DIR/$MOD_NAME"
 MANIFEST="$MOD_DIR/manifest.json"
 
@@ -56,9 +63,9 @@ if [[ "$VERIFIED" == false ]]; then
         echo "ERROR: Could not read Version from $MANIFEST"
         exit 1
     fi
-
-    echo "VERSION: $VERSION"
 fi
+
+echo "VERSION: $VERSION"
 
 CONTENT_PATH=$(dotnet msbuild "$PROJECT" -getProperty:OutputPath -nologo)
 
@@ -104,11 +111,10 @@ cat "$STEAM_DIR/base.tmp.vdf"
 
 TMP_VDF=$STEAM_DIR/base.tmp.vdf
 
-STEAMCMD_PATH="${STEAMCMD_PATH:-/d/steamcmd/steamcmd.exe}"
 STEAM_USER="${STEAM_USER:?STEAM_USER is not set}"
 
 # Execute
-"$STEAMCMD_PATH" +login "$STEAM_USER" +workshop_build_item "$TMP_VDF" +quit;
+steamcmd +login "$STEAM_USER" +workshop_build_item "$TMP_VDF" +quit
 
 # If SteamCMD failed to build, exit.
 if [[ $? -ne 0 ]]; then
