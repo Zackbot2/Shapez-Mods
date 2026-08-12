@@ -7,8 +7,13 @@ on:
   workflow_dispatch:
     inputs:
       mod:
-        description: 'Mod name (e.g. TestMod)'
+        description: 'Mod name (e.g. TestMod). Do not specify a version.'
         required: true
+        type: string
+      game_branch:
+        description: 'Shapez 2 Steam branch the mod uses. If not specified, the default public branch will be used.'
+        required: true
+        default: "Default Public Branch"
         type: string
       dry_run:
         description: 'Perform a dry run. If true, the mod will not be published.'
@@ -19,7 +24,8 @@ on:
 jobs:
   publish:
     runs-on: windows-latest
-
+    env:
+      SPZ2_STEAMAPP_ID: 2162800
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -179,18 +185,49 @@ jobs:
         env:
           STEAM_USER: ${{ secrets.STEAM_USER }}
         run: |
+
+          #Write-Host "Installing shapez 2 with branch "
+
           # specify the install directory and store it in an environment variable
           $installDir = "$env:GITHUB_WORKSPACE\shapez2"
           
           # create the folder
           New-Item -ItemType Directory -Force -Path $installDir | Out-Null
 
-          # install!
-          & steamcmd `
-            +force_install_dir $installDir `
-            +login "$env:STEAM_USER" `
-            +app_update 2162800 validate `
-            +quit
+          # determine branch
+          $selectedBranch = ${{ inputs.game_branch }}
+          $branch = $branches.PSObject.Properties[$selectedBranch]
+          $branchPassword = $branch.Value
+
+          if ($null -eq $branch) {
+            throw "Invalid steam branch: $branch"
+          }
+
+          # by default, set the normal installation without a branch
+          $args = @(
+            "+force_install_dir", $installDir,
+            "+login", $env:STEAM_USER,
+            "+app_update", $env:SPZ2_STEAMAPP_ID
+          )
+
+          # if a branch was specified, switch to that branch
+          if ($branch -ne "Default Public Branch") {
+            $args += @("+beta", $branch)
+
+            # public branches are given a password of null (by me)
+            if ($null -ne $branchPassword) {
+              Write-Host "Using private branch $branch"
+
+              $args += @("-betapassword", $branchPassword)
+            }
+            else {
+              Write-Host "Using public branch: $branch"
+            }
+          }
+
+          $args += @("validate", "+quit")
+          
+          & steamcmd @args
 
           $steamCmdExitCode = $LASTEXITCODE
 
@@ -271,7 +308,7 @@ jobs:
             foreach ($workshopId in $workshopIds) {
               $steamArgs += @(
                 "+workshop_download_item"
-                "2162800"
+                $env:SPZ2_STEAMAPP_ID
                 $workshopId
               )
             }
@@ -308,12 +345,12 @@ jobs:
               "SPZ2_SHIFTER=$shifterPath" >> $env:GITHUB_ENV
             }
             else {
-              # find any downloaded workshop item. we know the parent folder will be named "2162800"
+              # find any downloaded workshop item. we know the parent folder will be named the steam app's id
               $workshopItem = Get-ChildItem `
                 -Path $env:STEAMCMD_DIR `
                 -Directory ` 
                 -Recurse |
-                Where-Object { $_.Parent.Name -eq "2162800" } |
+                Where-Object { $_.Parent.Name -eq "$env:SPZ2_STEAMAPP_ID" } |
                 Select-Object -First 1
 
               if ($null -eq $workshopItem) {
