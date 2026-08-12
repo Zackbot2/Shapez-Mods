@@ -28,6 +28,8 @@ jobs:
       - name: Determine mod
         shell: bash
         run: |
+          echo "Running from event: $GITHUB_EVENT_NAME"
+
           if [["$GITHUB_EVENT_NAME" == "workflow_dispatch"]]; then
             MOD_NAME = "${{ inputs.mod }}"
             MOD_VERSION = ""
