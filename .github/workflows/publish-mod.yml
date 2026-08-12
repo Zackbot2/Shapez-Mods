@@ -196,6 +196,7 @@ jobs:
 
           # determine branch
           $selectedBranch = "${{ inputs.game_branch }}"
+          $branches = "${{ secrets.STEAM_BRANCH_PASSWORDS }}"
           $branch = $branches.PSObject.Properties[$selectedBranch]
           $branchPassword = $branch.Value
 
