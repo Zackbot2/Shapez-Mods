@@ -385,8 +385,8 @@ jobs:
             Write-Host "Found assembly: $assembly"
           }
 
-          if ($manifest.Version -ne $version) {
-            throw "Manifest version ($($manifest.Version)) does not match release version ($version)."
+          if ($manifest.Version -ne $env:MOD_VERSION) {
+            throw "Manifest version ($($manifest.Version)) does not match release version ($($env:MOD_VERSION))."
           }
 
           Write-Host ""
