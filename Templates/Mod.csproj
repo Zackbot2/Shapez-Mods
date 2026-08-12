@@ -43,7 +43,7 @@
 			<Private>false</Private>
 		</Reference>
 		
-		<!---->
+		<!--Package References-->
 		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.0" />
 		<PackageReference Include="Krafs.Publicizer" Version="2.3.0">
 			<PrivateAssets>all</PrivateAssets>
@@ -103,6 +103,10 @@
 			<HintPath>$(SPZ2_PATH)\Game.Interaction.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="Game.Core.Rendering">
+			<HintPath>$(SPZ2_PATH)\Game.Core.Rendering.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 		
 		<!--Unity assemblies-->
 		<Reference Include="Core">
@@ -123,4 +127,8 @@
 		</Reference>
 	</ItemGroup>
 
+	<!--Publicized assemblies-->
+	<ItemGroup>
+		<!--<Publicize Include="SPZGameAssembly"/>-->
+	</ItemGroup>
 </Project>

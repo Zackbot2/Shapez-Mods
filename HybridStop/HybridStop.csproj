@@ -1,21 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<!--Mod name-->
+	<PropertyGroup>
+		<ModName>HybridStop</ModName>
+	</PropertyGroup>
+
+	<!--Project specifications-->
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Nullable>disable</Nullable>
+		<RootNamespace>$(ModName)</RootNamespace>
 		<LangVersion>9</LangVersion>
-		<RootNamespace>HybridStop</RootNamespace>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Krafs.Publicizer" Version="2.3.0">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
+		<Folder Include="Steam\" />
+		<Folder Include="Resources\" />
 	</ItemGroup>
 
+	<!--Build specifications-->
 	<PropertyGroup>
-		<OutputPath>$(SPZ2_PERSISTENT)\mods\HybridStop</OutputPath>
+		<OutputPath>$(SPZ2_PERSISTENT)\mods\$(ModName)</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 
@@ -23,22 +28,38 @@
 		<None Update="manifest.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="Resources/*">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
 		<None Update="translations.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+		<None Update="Resources/*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="Resources\" />
-		<Folder Include="Steam\" />
-	</ItemGroup>
+	<!--Directories-->
+	<PropertyGroup>
+		<!--If this value wasn't set externally (by an actions runner for example), use ShapezShifter to find it-->
+		<SPZ2_WORKSHOP_MOD_PATH Condition="'$(SPZ2_WORKSHOP_MOD_PATH)' == ''">$(SPZ2_SHIFTER)/../..</SPZ2_WORKSHOP_MOD_PATH>
+		<SteamFolder>$(MSBuildProjectDirectoryOutput)\Steam</SteamFolder>
+	</PropertyGroup>
 
 	<ItemGroup>
-		<Reference Include="Core">
-			<HintPath>$(SPZ2_PATH)\Core.dll</HintPath>
+		<!--Mod assemblies-->
+		<Reference Include="ShapezShifter">
+			<HintPath>$(SPZ2_SHIFTER)</HintPath>
+			<Private>false</Private>
+		</Reference>
+
+		<!--Package References-->
+		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.0" />
+		<PackageReference Include="Krafs.Publicizer" Version="2.3.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+
+		<!--Game assemblies-->
+		<Reference Include="SPZGameAssembly">
+			<HintPath>$(SPZ2_PATH)\SPZGameAssembly.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="Game.Core">
@@ -49,22 +70,6 @@
 			<HintPath>$(SPZ2_PATH)\Game.Core.Modding.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
-		<Reference Include="Game.Orchestration">
-			<HintPath>$(SPZ2_PATH)\Game.Orchestration.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="ShapezShifter">
-			<HintPath>$(SPZ2_SHIFTER)</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="SPZGameAssembly">
-			<HintPath>$(SPZ2_PATH)\SPZGameAssembly.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="UnityEngine.CoreModule">
-			<HintPath>$(SPZ2_PATH)\UnityEngine.CoreModule.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
 		<Reference Include="Game.Content">
 			<HintPath>$(SPZ2_PATH)\Game.Content.dll</HintPath>
 			<Private>False</Private>
@@ -73,48 +78,66 @@
 			<HintPath>$(SPZ2_PATH)\Game.Content.Features.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="Game.Interaction">
-			<HintPath>$(SPZ2_PATH)\Game.Interaction.dll</HintPath>
+		<Reference Include="Game.Core.Simulation">
+			<HintPath>$(SPZ2_PATH)\Game.Core.Simulation.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="Game.Core.Coordinates">
 			<HintPath>$(SPZ2_PATH)\Game.Core.Coordinates.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Game.Core.Map">
+			<HintPath>$(SPZ2_PATH)\Game.Core.Map.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="Game.Core.Map.Model">
 			<HintPath>$(SPZ2_PATH)\Game.Core.Map.Model.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="Game.Core.Simulation">
-			<HintPath>$(SPZ2_PATH)\Game.Core.Simulation.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="Game.Core.Rendering">
-			<HintPath>$(SPZ2_PATH)\Game.Core.Rendering.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="Core.Localization">
-			<HintPath>$(SPZ2_PATH)\Core.Localization.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
 		<Reference Include="Game.Core.Map.Simulation">
 			<HintPath>$(SPZ2_PATH)\Game.Core.Map.Simulation.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="Game.Core.Coordinates">
-			<HintPath>$(SPZ2_PATH)\Game.Core.Coordinates.dll</HintPath>
+		<Reference Include="Game.Orchestration">
+			<HintPath>$(SPZ2_PATH)\Game.Orchestration.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="Game.Core.Content">
 			<HintPath>$(SPZ2_PATH)\Game.Core.Content.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="Game.Interaction">
+			<HintPath>$(SPZ2_PATH)\Game.Interaction.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Game.Core.Rendering">
+			<HintPath>$(SPZ2_PATH)\Game.Core.Rendering.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+
+		<!--Unity assemblies-->
+		<Reference Include="Core">
+			<HintPath>$(SPZ2_PATH)\Core.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="Core.Localization">
+			<HintPath>$(SPZ2_PATH)\Core.Localization.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Unity.Core">
+			<HintPath>$(SPZ2_PATH)\Unity.Core.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>$(SPZ2_PATH)\UnityEngine.CoreModule.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 
+	<!--Publicized assemblies-->
 	<ItemGroup>
-		<Publicize Include="SPZGameAssembly" />
-		<Publicize Include="Game.Content" />
-		<Publicize Include="Game.Core.Map.Simulation" />
+		<Publicize Include="SPZGameAssembly"/>
+		<Publicize Include="Game.Content"/>
+		<Publicize Include="Game.Core.Map.Simulation"/>
 	</ItemGroup>
-
 </Project>
