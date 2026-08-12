@@ -63,6 +63,7 @@ jobs:
           echo "MOD_DIR=$MOD_DIR" >> "$GITHUB_ENV"
           echo "PROJECT=$PROJECT" >> "$GITHUB_ENV"
 
+
       - name: Verify mod integrity
         shell: pwsh
         run: |
@@ -344,8 +345,6 @@ jobs:
       - name: Build mod
         shell: bash
         run: |
-          dotnet msbuild "$PROJECT" -getItem:Reference -getProperty:SPZ2_PATH -nologo
-
           dotnet build "$PROJECT" \
             --configuration Release \
             -p:OutputPath="$GITHUB_WORKSPACE/build/$MOD_NAME"
@@ -357,7 +356,7 @@ jobs:
       - name: Verify build
         shell: pwsh
         run: |
-          $buildDir = Join-Path $env:SPZ2_PERSISTENT "mods\$modName"
+          $buildDir = Join-Path $env:GITHUB_WORKSPACE "build/$env:MOD_NAME"
 
           if (-not (Test-Path $buildDir)) {
             throw "Build output directory does not exist: $buildDir"
