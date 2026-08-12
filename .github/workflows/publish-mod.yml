@@ -195,7 +195,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path $installDir | Out-Null
 
           # determine branch
-          $selectedBranch = ${{ inputs.game_branch }}
+          $selectedBranch = "${{ inputs.game_branch }}"
           $branch = $branches.PSObject.Properties[$selectedBranch]
           $branchPassword = $branch.Value
 
@@ -216,7 +216,7 @@ jobs:
 
             # public branches are given a password of null (by me)
             if ($null -ne $branchPassword) {
-              Write-Host "Using private branch $branch"
+              Write-Host "Using private branch: $branch"
 
               $args += @("-betapassword", $branchPassword)
             }
@@ -227,6 +227,7 @@ jobs:
 
           $args += @("validate", "+quit")
           
+          Write-Host "Installing game..."
           & steamcmd @args
 
           $steamCmdExitCode = $LASTEXITCODE
