@@ -386,9 +386,6 @@ jobs:
           dotnet build "$PROJECT" \
             --configuration Release
 
-          echo "Build output:"
-          find "$outputPath" -type f -print
-
       
       - name: Verify build
         shell: pwsh
