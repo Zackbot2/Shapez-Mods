@@ -187,7 +187,6 @@ jobs:
 
           # install!
           & steamcmd `
-            -debug `
             +force_install_dir $installDir `
             +login "$env:STEAM_USER" `
             +app_update 2162800 validate `
@@ -196,14 +195,6 @@ jobs:
           $steamCmdExitCode = $LASTEXITCODE
 
           Write-Host "SteamCMD exit code: $steamCmdExitCode"
-
-          $exe = Get-ChildItem $installDir -Recurse -Filter "*.exe" -File
-
-          # print all executable files
-          Write-Host "Executables:"
-          $exe | ForEach-Object {
-            Write-Host $_.FullName
-          }
 
           # ensure the Managed directory exists. we need to do this before we can create the environment variables.
           $managedDir = Get-ChildItem $installDir -Recurse -Directory |
@@ -403,9 +394,9 @@ jobs:
           STEAM_USER: ${{ secrets.STEAM_USER }}
         run: |
           # run the steam publish script
-          ./Tools/SteamPublish.sh "$MOD_NAME"
+          ./Tools/SteamPublish.sh --verified "$MOD_NAME"
 
-          if [[ -z "FILE_ID" ]]; then
+          if [[ -z "$FILE_ID" ]]; then
             echo "ERROR: SteamCMD did not return a published file ID."
             rm "$TMP_VDF"
             exit 1
