@@ -67,7 +67,14 @@ fi
 
 echo "VERSION: $VERSION"
 
-CONTENT_PATH=$(dotnet msbuild "$PROJECT" -getProperty:OutputPath -nologo)
+# if it's been verified and the OUTPUT_PATH environment variable is set, then we can use that instead of calculating it again
+if [[ "$VERIFIED" == true && -n "$OUTPUT_PATH" ]]; then
+    CONTENT_PATH="$OUTPUT_PATH"
+    echo "Using pre-calculated content path from CONTENT_PATH environment variable: $CONTENT_PATH"
+else
+    # get the output path from the csproj file
+    CONTENT_PATH=$(dotnet msbuild "$PROJECT" -getProperty:OutputPath -nologo)
+fi
 
 # if unverified, make sure the otuput manifest version matches the input manifest version
 # if verified, then that means these checks have already been done either manually or automatically

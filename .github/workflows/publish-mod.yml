@@ -231,6 +231,7 @@ jobs:
             throw "SPZ2_PATH does not exist: $env:SPZ2_PATH"
           }
 
+          # if the SPZ2_PERSISTENT directory doesn't exist, that's normal. we can just create it
           if (-not (Test-Path $env:SPZ2_PERSISTENT)) {
             New-Item -ItemType Directory -Force -Path $env:SPZ2_PERSISTENT | Out-Null
           }
@@ -336,26 +337,26 @@ jobs:
       - name: Build mod
         shell: bash
         run: |
-          dotnet build "$PROJECT" \
-            --configuration Release \
-            -p:OutputPath="$GITHUB_WORKSPACE/build/$MOD_NAME"
+          outputPath=$(dotnet msbuild "$PROJECT" -getProperty:OutputPath -nologo)
+          echo "OUTPUT_PATH=$outputPath" >> "$GITHUB_ENV"
 
-            echo "Build output:"
-            find "$GITHUB_WORKSPACE/build/$MOD_NAME" -type f -print
+          dotnet build "$PROJECT" \
+            --configuration Release
+
+          echo "Build output:"
+          find "$outputPath" -type f -print
 
       
       - name: Verify build
         shell: pwsh
         run: |
-          $buildDir = Join-Path $env:GITHUB_WORKSPACE "build/$env:MOD_NAME"
-
-          if (-not (Test-Path $buildDir)) {
-            throw "Build output directory does not exist: $buildDir"
+          if (-not (Test-Path $env:OUTPUT_PATH)) {
+            throw "Build output directory does not exist: $env:OUTPUT_PATH"
           }
 
           Write-Host "Verified build output directory exists"
 
-          $manifestPath = Join-Path $buildDir "manifest.json"
+          $manifestPath = Join-Path $env:OUTPUT_PATH "manifest.json"
 
           if (-not (Test-Path $manifestPath)) {
             throw "Manifest was not included in build output"
@@ -367,7 +368,7 @@ jobs:
 
           # read from the output manifest - all specified assemblies should be present.
           foreach ($assembly in $manifest.Assemblies) {
-            $assemblyPath = Join-Path $buildDir $assembly
+            $assemblyPath = Join-Path $env:OUTPUT_PATH $assembly
             
             if (-not (Test-Path $assemblyPath)) {
               throw "Required assembly is missing from build output: $assembly"
@@ -382,7 +383,7 @@ jobs:
 
           Write-Host ""
           Write-Host "Build contents:"
-          Get-ChildItem $buildDir -Recurse | ForEach-Object {
+          Get-ChildItem $env:OUTPUT_PATH -Recurse | ForEach-Object {
             Write-Host "  $($_.FullName)"
           }
      
