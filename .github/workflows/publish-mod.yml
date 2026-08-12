@@ -184,10 +184,8 @@ jobs:
         shell: pwsh
         env:
           STEAM_USER: ${{ secrets.STEAM_USER }}
+          STEAM_BRANCH_PASSWORDS: ${{ secrets.STEAM_BRANCH_PASSWORDS }}
         run: |
-
-          #Write-Host "Installing shapez 2 with branch "
-
           # specify the install directory and store it in an environment variable
           $installDir = "$env:GITHUB_WORKSPACE\shapez2"
           
@@ -196,12 +194,14 @@ jobs:
 
           # determine branch
           $selectedBranch = "${{ inputs.game_branch }}"
-          $branches = "${{ secrets.STEAM_BRANCH_PASSWORDS }}"
+          Write-Host "Selected branch: $selectedBranch"
+
+          $branches = '$env:STEAM_BRANCH_PASSWORDS' | ConvertFrom-Json
           $branch = $branches.PSObject.Properties[$selectedBranch]
           $branchPassword = $branch.Value
 
           if ($null -eq $branch) {
-            throw "Invalid steam branch: $branch"
+            throw "Invalid steam branch: $selectedBranch"
           }
 
           # by default, set the normal installation without a branch
@@ -212,17 +212,17 @@ jobs:
           )
 
           # if a branch was specified, switch to that branch
-          if ($branch -ne "Default Public Branch") {
+          if ($selectedBranch -ne "Default Public Branch") {
             $args += @("+beta", $branch)
 
             # public branches are given a password of null (by me)
             if ($null -ne $branchPassword) {
-              Write-Host "Using private branch: $branch"
+              Write-Host "Using private branch: $selectedBranch"
 
               $args += @("-betapassword", $branchPassword)
             }
             else {
-              Write-Host "Using public branch: $branch"
+              Write-Host "Using public branch: $selectedBranch"
             }
           }
 
