@@ -184,8 +184,11 @@ jobs:
         shell: pwsh
         env:
           STEAM_USER: ${{ secrets.STEAM_USER }}
-          STEAM_BRANCH_PASSWORDS: ${{ secrets.STEAM_BRANCH_PASSWORDS }}
+          SHAPEZ2_BRANCH_PASSWORDS: ${{ secrets.SHAPEZ2_BRANCH_PASSWORDS }}
         run: |
+          if ([string]::IsNullOrEmpty($env:SHAPEZ2_BRANCH_PASSWORDS)) {
+            throw "SHAPEZ2_BRANCH_PASSWORDS is empty or was not provided."
+          }
           # specify the install directory and store it in an environment variable
           $installDir = "$env:GITHUB_WORKSPACE\shapez2"
           
@@ -196,7 +199,7 @@ jobs:
           $selectedBranch = "${{ inputs.game_branch }}"
           Write-Host "Selected branch: $selectedBranch"
 
-          $branches = $env:STEAM_BRANCH_PASSWORDS | ConvertFrom-Json
+          $branches = $env:SHAPEZ2_BRANCH_PASSWORDS | ConvertFrom-Json
           $branch = $branches.PSObject.Properties[$selectedBranch]
           $branchPassword = $branch.Value
 
