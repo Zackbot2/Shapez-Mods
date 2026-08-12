@@ -139,5 +139,9 @@ FILE_ID=$(grep '"publishedfileid"' "$TMP_VDF" | sed 's/.*"publishedfileid"[ \t]*
 # Update original file with new published file ID
 echo "New published file ID: $FILE_ID"
 
+if [[ -n "$GITHUB_OUTPUT" ]]; then
+    echo "file_id=$FILE_ID" >> "$GITHUB_OUTPUT"
+fi
+
 # Clean temporary files
 rm "$TMP_VDF"

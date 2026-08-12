@@ -391,7 +391,6 @@ jobs:
         if: ${{ !inputs.dry_run }}
         shell: bash
         env:
-          STEAMCMD_PATH: ${{ steps.steamcmd.outupts.executable }}
           STEAM_USER: ${{ secrets.STEAM_USER }}
         run: |
           echo "Preparing to publish $MOD_NAME $MOD_VERSION..."
@@ -399,11 +398,4 @@ jobs:
           # run the steam publish script
           ./Tools/SteamPublish.sh --verified "$MOD_NAME" "$MOD_VERSION"
 
-          if [[ -z "$FILE_ID" ]]; then
-            echo "ERROR: SteamCMD did not return a published file ID."
-            rm "$TMP_VDF"
-            exit 1
-          fi
-
-          echo "Published file id: $FILE_ID"
-          echo "Successfully published $MOD_NAME $MOD_VERSION to the Steam Workshop."
+          echo "Successfully published $MOD_NAME $MOD_VERSION to the Steam Workshop!"
