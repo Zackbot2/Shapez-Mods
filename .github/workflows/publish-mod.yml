@@ -133,7 +133,7 @@ jobs:
         uses: Lordfirespeed/setup-steamcmd@v2
 
 
-      - name: Restore SteamCMD authentication
+      - name: Load SteamCMD authentication
         shell: pwsh
         env:
           CONFIG_VDF_CONTENTS: ${{ secrets.CONFIG_VDF_CONTENTS }}
@@ -216,7 +216,7 @@ jobs:
 
           # if a branch was specified, switch to that branch
           if ($selectedBranch -ne "Default Public Branch") {
-            $args += @("+beta", $branch)
+            $args += @("-beta", $branch)
 
             # public branches are given a password of null (by me)
             if ($null -ne $branchPassword) {
