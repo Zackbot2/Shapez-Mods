@@ -354,7 +354,7 @@ jobs:
               # find any downloaded workshop item. we know the parent folder will be named the steam app's id
               $workshopItem = Get-ChildItem `
                 -Path $env:STEAMCMD_DIR `
-                -Directory ` 
+                -Directory `
                 -Recurse |
                 Where-Object { $_.Parent.Name -eq "$env:SPZ2_STEAMAPP_ID" } |
                 Select-Object -First 1
