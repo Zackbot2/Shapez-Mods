@@ -8,5 +8,5 @@
 	"title"				"Configurable Wait Stop"
 	"changenote"		"[b]Mod version $VERSION[/b]
 
-Hotfix for mod not properly loading when on game version 1.2."
+Fix translations not being loaded."
 }
