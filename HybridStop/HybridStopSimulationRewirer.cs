@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace HybridStop
 {
-    public class HybridStopSimulationRewirer : ISimulationSystemsRewirer, IRewirer, IEquatable<IRewirer>
+    public class HybridStopSimulationRewirer : ISimulationSystemsRewirer, IRewirer
     {
         private readonly IslandDefinitionId _islandDefinitionId;
         private readonly IslandDefinitionGroupId _groupDefinitionId;
@@ -37,7 +37,7 @@ namespace HybridStop
 
         public void ModifySimulationSystems(ICollection<ISimulationSystem> simulationSystems, SimulationSystemsDependencies dependencies)
         {
-            TrainSystem trainSystem = null;
+            TrainSystem? trainSystem = null;
             foreach (ISimulationSystem simSystem in simulationSystems)
             {
                 if (simSystem is TrainSystem ts)
@@ -80,7 +80,7 @@ namespace HybridStop
         {
             GameIslands islands = dependencies.Mode.Islands;
 
-            if (!islands.TryGetDefinition(_islandDefinitionId, out IIslandDefinition rawHybridStopIsland))
+            if (!islands.TryGetDefinition(_islandDefinitionId, out IIslandDefinition? rawHybridStopIsland))
             {
                 dependencies.Logger.Error?.Log("HybridStop: Island definition with ID '" + _islandDefinitionId.Name + "' not found — visual patch skipped.");
                 return;

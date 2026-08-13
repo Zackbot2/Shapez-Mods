@@ -8,5 +8,5 @@
 	"title"				"Configurable Wait Stop"
 	"changenote"		"[b]Mod version $VERSION[/b]
 
-Future-proof ShapezShifter target version."
+Hotfix for mod not properly loading when on game version 1.2."
 }
