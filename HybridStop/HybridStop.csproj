@@ -46,7 +46,7 @@
 	<ItemGroup>
 		<!--Mod assemblies-->
 		<Reference Include="ShapezShifter">
-			<HintPath>$(SPZ2_WORKSHOP_MOD_PATH)\3738646868\ShapezShifter.dll</HintPath>
+			<HintPath>$(SPZ2_SHIFTER)</HintPath>
 			<Private>false</Private>
 		</Reference>
 

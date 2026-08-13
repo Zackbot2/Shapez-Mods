@@ -128,11 +128,11 @@ namespace HybridStop
             // IslandInteractionConfig
             // IslandCollisionData
 
-            HybridStopMod.Logger.Info?.Log("Custom data types on the wait stop:");
-            foreach (var customData in waitStopIsland.CustomData.CustomData)
-            {
-                HybridStopMod.Logger.Info?.Log($"{customData.GetType().FullName}");
-            }
+            //HybridStopMod.Logger.Info?.Log("Custom data types on the wait stop:");
+            //foreach (var customData in waitStopIsland.CustomData.CustomData)
+            //{
+            //    HybridStopMod.Logger.Info?.Log($"{customData.GetType().FullName}");
+            //}
 
             if (waitStopIsland.CustomData.TryGet(out IslandOverviewDrawer.Data overviewData))
             {
@@ -153,7 +153,7 @@ namespace HybridStop
             }
             if (waitStopIsland.CustomData.TryGet(out IslandPresentationData presentationData))
             {
-                hybridStopIsland.CustomData.AttachOrReplace(presentationData);
+                //hybridStopIsland.CustomData.AttachOrReplace(presentationData);
             }
             if (waitStopIsland.CustomData.TryGet(out TrainStationMetadata stationMetadata))
             {
