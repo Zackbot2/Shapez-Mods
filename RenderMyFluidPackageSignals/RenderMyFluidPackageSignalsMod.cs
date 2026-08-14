@@ -12,30 +12,30 @@ namespace RenderMyFluidPackageSignals
     {
         internal static ILogger Logger { get; private set; } = null!;
 
-        // store hooks so they don't get GCed, and so we can dispose them later
-        private readonly ILHook? _renderSignalHook = null;
+        // store hooks so we can dispose them later
+        private readonly ILHook? _prepareRenderSignalHook = null;
 
         public RenderMyFluidPackageSignalsMod(ILogger logger)
         {
             Logger = logger;
-            MethodInfo renderSignal = typeof(HUDWireContentsHelper).GetMethod("RenderSignal", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
+            MethodInfo prepareRenderSignal = typeof(HUDWireContentsHelper).GetMethod("PrepareRenderSignal", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
                 binder: null,
                 types: new[] { typeof(ISignal) },
                 modifiers: null)
-                ?? throw new InvalidOperationException($"Failed to find method {nameof(HUDWireContentsHelper)}.{nameof(HUDWireContentsHelper.RenderSignal)}");
+                ?? throw new InvalidOperationException($"Failed to find method {nameof(HUDWireContentsHelper)}.PrepareRenderSignal");
 
-            _renderSignalHook = new ILHook(renderSignal, PatchRenderSignal);
+            _prepareRenderSignalHook = new ILHook(prepareRenderSignal, PatchPrepareRenderSignal);
 
             Logger.Info?.Log("RenderMyFluidPackageSignals initialized.");
         }
 
-        private static void PatchRenderSignal(ILContext context)
+        private static void PatchPrepareRenderSignal(ILContext context)
         {
             ILCursor cursor = new(context);
 
             if (!cursor.TryGotoNext(MoveType.Before, i => i.MatchIsinst<ShapeItem>()))
             {
-                Logger.Error?.Log($"Could not find {nameof(ShapeItem)} cast in {nameof(HUDWireContentsHelper.RenderSignal)}; IL patch was not applied.");
+                Logger.Error?.Log($"Could not find {nameof(ShapeItem)} cast in {nameof(HUDWireContentsHelper.PrepareRenderSignal)}; IL patch was not applied.");
                 return;
             }
 
@@ -68,7 +68,7 @@ namespace RenderMyFluidPackageSignals
 
         public void Dispose()
         {
-            _renderSignalHook?.Dispose();
+            _prepareRenderSignalHook?.Dispose();
         }
     }
 }

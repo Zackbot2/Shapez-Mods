@@ -1,0 +1,11 @@
+"workshopitem"
+{
+	"appid"				"2162800"
+	"contentfolder"		"${CONTENT_PATH}"
+	"previewfile"		"${PREVIEW_IMG}"
+	"visibility"		"0"
+	"title"				"Render My Fluid Package Signals"
+	"changenote"		"[b]Mod version $VERSION[/b]
+
+Initial publish."
+}

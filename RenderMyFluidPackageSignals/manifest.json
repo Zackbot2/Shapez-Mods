@@ -1,10 +1,10 @@
 {
-  "Version": "0.1.1",
+  "Version": "0.1.2",
   "Author": "Zackbot",
-  "Description": "Fixes exceptions being thrown when rendering fluid blob wire signals.",
+  "Description": "Fixes exceptions being thrown when rendering fluid package wire signals.",
   "AffectsSaveGames": false,
   "DisablesAchievements": false,
-  "GameVersionSupportRange": ">=1.0.0", // i actually need 1.1.0, but the game is hardcoded to check for 1.0.0
+  "GameVersionSupportRange": "1.2.*",
   "Conflicts": [],
   "Assemblies": [
     "RenderMyFluidPackageSignals.dll"
