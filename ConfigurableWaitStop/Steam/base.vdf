@@ -8,5 +8,5 @@
 	"title"				"Configurable Wait Stop"
 	"changenote"		"[b]Mod version $VERSION[/b]
 
-Fix translations not being loaded."
+Fixed errors not allowing any platforms to be pasted."
 }
