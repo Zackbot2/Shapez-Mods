@@ -8,5 +8,5 @@
 	"title"				"Render My Fluid Package Signals"
 	"changenote"		"[b]Mod version $VERSION[/b]
 
-Initial publish."
+Added MonoMod.RuntimeDetour as a dependency"
 }

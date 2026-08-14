@@ -1,5 +1,5 @@
 {
-  "Version": "0.1.2",
+  "Version": "0.1.3",
   "Author": "Zackbot",
   "Description": "Fixes exceptions being thrown when rendering fluid package wire signals.",
   "AffectsSaveGames": false,
@@ -8,5 +8,12 @@
   "Conflicts": [],
   "Assemblies": [
     "RenderMyFluidPackageSignals.dll"
+  ],
+  "Dependencies": [
+    {
+      "ModId": "steam:3542712030",
+      "ModTitle": "MonoMod.RuntimeDetour",
+      "Version": "^25.3.0"
+    }
   ]
 }
