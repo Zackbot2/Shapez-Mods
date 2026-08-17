@@ -57,6 +57,7 @@
 		<Publicize Include="SPZGameAssembly" />
 		<Publicize Include="Game.Content" />
 		<Publicize Include="Game.Core.Map.Simulation" />
+		<Publicize Include="Game.Orchestration" />
 	</ItemGroup>
 	
 	<PropertyGroup>
@@ -126,6 +127,10 @@
 		</Reference>
 		<Reference Include="Game.Core.Rendering">
 			<HintPath>$(SPZ2_PATH)\Game.Core.Rendering.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Game.Content.Trains">
+			<HintPath>$(SPZ2_PATH)\Game.Content.Trains.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 

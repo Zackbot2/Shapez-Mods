@@ -71,6 +71,8 @@ namespace HybridStop
                 if (predCoordinator is TrainStationCoordinator stationCoordinator)
                 {
                     HybridStopMod.Logger.Info?.Log($"ITrainStopDecider type: {stationCoordinator.TrainStopRule.GetType().FullName}");
+
+                    // TrainWaitStationId refers to the train stop, NOT the wait stop specifically
                     HybridStopMod.Logger.Info?.Log($"TrainWaitStationId type: {stationCoordinator.TrainWaitStationId.Name}");
                 }
             }
