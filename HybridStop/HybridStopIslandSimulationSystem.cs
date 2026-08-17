@@ -1,11 +1,12 @@
 ﻿using Core.Events;
+using Game.Content.Trains;
 using Game.Core.Map.Simulation;
 using System;
 using System.Collections.Generic;
 
 namespace HybridStop
 {
-    public class HybridStopIslandSystem : ISimulationSystem, IIslandObserverSimulationSystem
+    public class HybridStopIslandSimulationSystem : IIslandObserverSimulationSystem
     {
         private readonly IslandDefinitionId _islandDefinitionId;
         private readonly HybridStopDecider _decider;
@@ -13,7 +14,7 @@ namespace HybridStop
         private readonly MultiRegisterEvent<IConnectableSimulation> _onSimulationCreated = new();
         private readonly MultiRegisterEvent<IConnectableSimulation> _onBeforeSimulationDestroyed = new();
 
-        public HybridStopIslandSystem(IslandDefinitionId islandDefinitionId, HybridStopDecider decider)
+        public HybridStopIslandSimulationSystem(IslandDefinitionId islandDefinitionId, HybridStopDecider decider)
         {
             _islandDefinitionId = islandDefinitionId;
             _decider = decider;

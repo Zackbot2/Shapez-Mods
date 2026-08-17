@@ -43,19 +43,33 @@
 		<SteamFolder>$(MSBuildProjectDirectoryOutput)\Steam</SteamFolder>
 	</PropertyGroup>
 
+	<!--Package references-->
+	<ItemGroup>
+		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.0" />
+		<PackageReference Include="Krafs.Publicizer" Version="2.3.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<!--Publicized assemblies-->
+	<ItemGroup>
+		<Publicize Include="SPZGameAssembly" />
+		<Publicize Include="Game.Content" />
+		<Publicize Include="Game.Core.Map.Simulation" />
+	</ItemGroup>
+	
+	<PropertyGroup>
+		<PublicizerRuntimeStrategies>Unsafe</PublicizerRuntimeStrategies> <!--Removes conflict between MonoMod.Utils and Krafs.Publicizer-->
+	</PropertyGroup>
+
+	<!--Assembly references-->
 	<ItemGroup>
 		<!--Mod assemblies-->
 		<Reference Include="ShapezShifter">
 			<HintPath>$(SPZ2_SHIFTER)</HintPath>
 			<Private>false</Private>
 		</Reference>
-
-		<!--Package References-->
-		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.0" />
-		<PackageReference Include="Krafs.Publicizer" Version="2.3.0">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 
 		<!--Game assemblies-->
 		<Reference Include="SPZGameAssembly">
@@ -132,12 +146,5 @@
 			<HintPath>$(SPZ2_PATH)\UnityEngine.CoreModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-	</ItemGroup>
-
-	<!--Publicized assemblies-->
-	<ItemGroup>
-		<Publicize Include="SPZGameAssembly"/>
-		<Publicize Include="Game.Content"/>
-		<Publicize Include="Game.Core.Map.Simulation"/>
 	</ItemGroup>
 </Project>
