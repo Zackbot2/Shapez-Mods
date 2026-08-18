@@ -34,11 +34,6 @@ namespace HybridStop
         {
             TrainSystem? trainSystem = null;
 
-            foreach (ISimulationSystem simSystem in simulationSystems)
-            {
-                HybridStopMod.Logger.Info?.Log($"simulation system: {simSystem}");
-            }
-
             // find the TrainSystem from the list of simulation systems that exist for this save
             foreach (ISimulationSystem simSystem in simulationSystems)
             {
@@ -63,21 +58,6 @@ namespace HybridStop
             TrainStationCoordinator coordinator = new TrainStationCoordinator(_hybridStopIslandDefinitionId, trainsSimulation.BuiltInWagonStates.Moving, decider, decider);
             // add a new coordinator for HybridStops that uses our custom decider
             trainsSimulation.AddCustomNavigationCoordinatorAfter<TrainStationCoordinator, TrainStationCoordinator>(coordinator);
-
-            foreach(ITrainSimulationCoordinator predCoordinator in trainsSimulation.TrainSimulationCoordinators)
-            {
-                HybridStopMod.Logger.Info?.Log($"Found train simulation coordinator: {predCoordinator.GetType().FullName}");
-
-                if (predCoordinator is TrainStationCoordinator stationCoordinator)
-                {
-                    HybridStopMod.Logger.Info?.Log($"ITrainStopDecider type: {stationCoordinator.TrainStopRule.GetType().FullName}");
-
-                    // TrainWaitStationId refers to the train stop, NOT the wait stop specifically
-                    HybridStopMod.Logger.Info?.Log($"TrainWaitStationId type: {stationCoordinator.TrainWaitStationId.Name}");
-                }
-            }
-
-
 
             PatchVisuals(dependencies);
         }

@@ -29,8 +29,8 @@ namespace HybridStop
         {
             get
             {
-                if (GameIslandsProvider.GameIslands is { } islands &&
-                    islands.TryGetDefinition(hybridStopIslandId, out IIslandDefinition? definition))
+                if (GameIslandsProvider.ScenarioGameIslands != null &&
+                    GameIslandsProvider.ScenarioGameIslands.TryGetDefinition(hybridStopIslandId, out IIslandDefinition? definition))
                 {
                     return definition;
                 }
@@ -39,7 +39,7 @@ namespace HybridStop
         }
 
         // hooks and rewirers
-        private RewirerHandle _hybridStopRewirer;
+        private RewirerHandle _gameIslandsProviderRewirer;
         private RewirerHandle _islandsRewirer;
         private Hook? _createTrainStationSystemsHook;
         private Hook? _createTrainPredictionCoordinatorsHook;
@@ -66,9 +66,7 @@ namespace HybridStop
                 builtinPredictionSimulationSystems.CreateTrainStationSystems(
                     shapeCargoType, 
                     fluidCargoType), 
-                WrapCreateTrainStationSystems);
-
-            AddHybridStop();
+                WrapCreateTrainStationSystems);            
 
             _createTrainPredictionCoordinatorsHook = DetourHelper.CreateStaticPrefixHook<
                 ITrainNavigationSimulationConfig,
@@ -84,6 +82,8 @@ namespace HybridStop
                     railColorRegistry), 
                 CreateTrainPredictionCoordinatorsHook);
 
+            AddHybridStop();
+
             Logger.Info?.Log("HybridStop loaded successfully!");
         }
 
@@ -97,6 +97,7 @@ namespace HybridStop
         /// <returns></returns>
         private IEnumerable<ISimulationSystem> WrapCreateTrainStationSystems(BuiltinPredictionSimulationSystems builtinPredictionSimulationSystems, TrainWagonCargoTypeId shapeCargoType, TrainWagonCargoTypeId fluidCargoType, IEnumerable<ISimulationSystem> original)
         {
+            // when it's going to return a PredictionSimulationSystem, throw that one out and create a new one that includes the hybrid stop.
             foreach(ISimulationSystem simulationSystem in original)
             {
                 if (simulationSystem is TrainStationPredictionSimulationSystem)
@@ -121,6 +122,14 @@ namespace HybridStop
             yield break;
         }
 
+        /// <summary>
+        /// Adds <see cref="HybridStopDefinition"/> to the list of valid rail buildings used by <see cref="TrainNavigationPredictionCoordinators"/>.
+        /// </summary>
+        /// <param name="trainNavigationConfiguration"></param>
+        /// <param name="trainIslands"></param>
+        /// <param name="rails"></param>
+        /// <param name="railColorRegistry"></param>
+        /// <returns></returns>
         private (
             ITrainNavigationSimulationConfig, 
             TrainIslandCollection<IIslandDefinition>, 
@@ -132,8 +141,6 @@ namespace HybridStop
                 IEnumerable<IIslandDefinition> rails, 
                 IReadOnlyRailColorRegistry railColorRegistry)
         {
-            Logger.Info?.Log("TrainNavigationPredictionCoordinators.CreateTrainPredictionCoordinators ran");
-
             if (HybridStopDefinition == null)
             {
                 Logger.Error?.Log("HybridStop: Failed to attach hybrid stop to the train prediction coordinator.");
@@ -144,8 +151,7 @@ namespace HybridStop
         }
 
         /// <summary>
-        /// Add the hybrid stop island to the game.
-        /// Rewires the simulation and uses ShapezShifter.Flow.
+        /// Adds the hybrid stop island to the game.
         /// </summary>
         private void AddHybridStop()
         {
@@ -154,7 +160,7 @@ namespace HybridStop
             string meshPath = modResourcesLocator.SubPath("HybridStop.fbx");
 
             // add the rewirer - this patches the simulation and the visuals when a hybrid stop is placed.
-            _hybridStopRewirer = GameRewirers.AddRewirer(new HybridStopSimulationRewirer(hybridStopIslandId, hybridStopGroupId, modResourcesLocator, iconPath, meshPath));
+            _gameIslandsProviderRewirer = GameRewirers.AddRewirer(new HybridStopSimulationRewirer(hybridStopIslandId, hybridStopGroupId, modResourcesLocator, iconPath, meshPath));
 
             // create the layout
             ChunkLayoutLookup<ChunkVector, IslandChunkData> layout = new(new KeyValuePair<ChunkVector, IslandChunkData>[]
@@ -210,9 +216,9 @@ namespace HybridStop
 
         public void Dispose()
         {
-            if (_hybridStopRewirer != null)
+            if (_gameIslandsProviderRewirer != null)
             {
-                GameRewirers.RemoveRewirer(_hybridStopRewirer);
+                GameRewirers.RemoveRewirer(_gameIslandsProviderRewirer);
             }
 
             if (_islandsRewirer != null)
