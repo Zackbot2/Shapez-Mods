@@ -8,6 +8,6 @@
 	"title"				"Hybrid Train Stop"
 	"changenote"		"[b]Mod version $VERSION[/b]
 
-- Added proper support for game version 1.2
-- Fixed title and description data being identical to the wait stop"
+- Fixed shape predictions not working with hybrid stops
+- Added MonoMod.RuntimeDetour as a dependency"
 }
