@@ -14,30 +14,27 @@ namespace HybridStop
 {
     public class HybridStopSimulationRewirer : ISimulationSystemsRewirer, IRewirer
     {
-        private readonly IslandDefinitionId _islandDefinitionId;
-        private readonly IslandDefinitionGroupId _groupDefinitionId;
-        private readonly Sprite _icon;
-        private readonly Mesh _mesh;
+        private readonly IslandDefinitionId _hybridStopIslandDefinitionId;
+        private readonly IslandDefinitionGroupId _hybridStopGroupDefinitionId;
+        private readonly Sprite _hybridStopIcon;
+        private readonly Mesh _hybridStopMesh;
 
 
-        public HybridStopSimulationRewirer(IslandDefinitionId islandId, IslandDefinitionGroupId groupId, ModFolderLocator modFolderLocator, string iconPath, string baseMeshPath)
+        public HybridStopSimulationRewirer(IslandDefinitionId hybridStopIslandId, IslandDefinitionGroupId hybridStopGroupId, ModFolderLocator modFolderLocator, string iconPath, string baseMeshPath)
         {
-            _islandDefinitionId = islandId;
-            _groupDefinitionId = groupId;
-            _icon = FileTextureLoader.LoadTextureAsSprite(iconPath, out _);
+            _hybridStopIslandDefinitionId = hybridStopIslandId;
+            _hybridStopGroupDefinitionId = hybridStopGroupId;
+            _hybridStopIcon = FileTextureLoader.LoadTextureAsSprite(iconPath, out _);
 
             // if you're following this as a sort of guide, make sure your mesh only has ONE material. this line will throw an error if you have more.
-            _mesh = FileMeshLoader.LoadSingleMeshFromFile(modFolderLocator.SubPath(baseMeshPath));
-
-            //Debug.Log($"Verts: {_mesh.vertexCount}");
-            //Debug.Log($"Submeshes: {_mesh.subMeshCount}");
-            //Debug.Log($"Triangles: {_mesh.triangles.Length / 3}");
-            //Debug.Log($"Bounds: {_mesh.bounds}");
+            _hybridStopMesh = FileMeshLoader.LoadSingleMeshFromFile(modFolderLocator.SubPath(baseMeshPath));
         }
 
         public void ModifySimulationSystems(ICollection<ISimulationSystem> simulationSystems, SimulationSystemsDependencies dependencies)
         {
             TrainSystem? trainSystem = null;
+
+            // find the TrainSystem from the list of simulation systems that exist for this save
             foreach (ISimulationSystem simSystem in simulationSystems)
             {
                 if (simSystem is TrainSystem ts)
@@ -48,41 +45,30 @@ namespace HybridStop
             }
             if (trainSystem == null)
             {
-                dependencies.Logger.Warning?.Log("HybridStop: TrainSystem not found — hybrid stop coordinator NOT registered.");
+                throw new Exception("HybridStop: TrainSystem not found — hybrid stop coordinator NOT registered.");
             }
-            else
-            {
-                TrainsSimulation trainsSimulation = trainSystem.TrainsSimulation;
-                HybridStopDecider decider = new(trainsSimulation, trainsSimulation.TrainsWagonCargo, trainsSimulation.TrainSimulationTimeTracker, dependencies.Logger);
 
-                // trainsSimulation.BuiltInWagonStates is obsolete, and the new one is private. not sure what they want us to do here.
-                TrainStationCoordinator coordinator = new(_islandDefinitionId, trainsSimulation.BuiltInWagonStates.Moving, decider, decider);
-                trainsSimulation.AddCustomNavigationCoordinatorAfter<TrainStationCoordinator, TrainStationCoordinator>(coordinator);
+            // using that, grab its TrainsSimulation.
+            // TrainSystem is the topmost manager of everything train related.
+            // TrainsSimulation manages the simulation side of things, as the name implies.
+            TrainsSimulation trainsSimulation = trainSystem.TrainsSimulation;
+            HybridStopDecider decider = new(trainsSimulation, trainsSimulation.TrainsWagonCargo, trainsSimulation.TrainSimulationTimeTracker, dependencies.Logger);
 
-                simulationSystems.Add(new HybridStopIslandSystem(_islandDefinitionId, decider));
+            // trainsSimulation.BuiltInWagonStates is obsolete, and the new one is private. not sure what they want us to do here.
+            TrainStationCoordinator coordinator = new TrainStationCoordinator(_hybridStopIslandDefinitionId, trainsSimulation.BuiltInWagonStates.Moving, decider, decider);
+            // add a new coordinator for HybridStops that uses our custom decider
+            trainsSimulation.AddCustomNavigationCoordinatorAfter<TrainStationCoordinator, TrainStationCoordinator>(coordinator);
 
-                foreach(ITrainSimulationCoordinator predCoordinator in trainsSimulation.TrainSimulationCoordinators)
-                {
-                    HybridStopMod.Logger.Info?.Log($"Found train simulation coordinator: {predCoordinator.GetType().FullName}");
-
-                    if (predCoordinator is TrainStationCoordinator stationCoordinator)
-                    {
-                        HybridStopMod.Logger.Info?.Log($"ITrainStopDecider type: {stationCoordinator.TrainStopRule.GetType().FullName}");
-                        HybridStopMod.Logger.Info?.Log($"TrainWaitStationId type: {stationCoordinator.TrainWaitStationId.Name}");
-                    }
-                }
-
-                PatchVisuals(dependencies);
-            }
+            PatchVisuals(dependencies);
         }
 
         private void PatchVisuals(SimulationSystemsDependencies dependencies)
         {
             GameIslands islands = dependencies.Mode.Islands;
 
-            if (!islands.TryGetDefinition(_islandDefinitionId, out IIslandDefinition? rawHybridStopIsland))
+            if (!islands.TryGetDefinition(_hybridStopIslandDefinitionId, out IIslandDefinition? rawHybridStopIsland))
             {
-                dependencies.Logger.Error?.Log("HybridStop: Island definition with ID '" + _islandDefinitionId.Name + "' not found — visual patch skipped.");
+                dependencies.Logger.Error?.Log("HybridStop: Island definition with ID '" + _hybridStopIslandDefinitionId.Name + "' not found — visual patch skipped.");
                 return;
             }
 
@@ -96,7 +82,7 @@ namespace HybridStop
             {
                 // build the LOD meshes. since we only have one and i'm not about to make 5 more, just use the same one for all of them.
                 LOD6Mesh lodMesh = MeshLod.Create()
-                    .AddLod0Mesh(_mesh)
+                    .AddLod0Mesh(_hybridStopMesh)
                     .UseLod0AsLod1()
                     .UseLod1AsLod2()
                     .UseLod2AsLod3()
@@ -178,12 +164,12 @@ namespace HybridStop
             {
                 IslandDefinitionGroup hybridStopGroup = islands.AllDefinitionGroups
                     .OfType<IslandDefinitionGroup>()
-                    .FirstOrDefault(g => g.Id == _groupDefinitionId);
+                    .FirstOrDefault(g => g.Id == _hybridStopGroupDefinitionId);
 
                 if (hybridStopGroup != null && hybridStopGroup.CustomData.TryGet(out IPresentationData ourGroupPres))
                 {
                     hybridStopGroup.CustomData.AttachOrReplace<IPresentationData>(new GroupPresentationData(
-                        _icon,
+                        _hybridStopIcon,
                         ourGroupPres.Title,
                         ourGroupPres.Description,
                         shouldShowAsReward: false));

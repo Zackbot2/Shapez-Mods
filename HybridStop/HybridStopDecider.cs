@@ -11,7 +11,7 @@ namespace HybridStop
     /// The core logic module of any train stop.
     /// </summary>
     /// <remarks>
-    /// Only one instance of this class exists at a time during runtime; shared across all hybrid stops.
+    /// Only one instance of this class exists at a time during runtime, shared across all hybrid stops.
     /// </remarks>
     public class HybridStopDecider : ITrainStopDecider, ITrainLeaveDecider
     {
