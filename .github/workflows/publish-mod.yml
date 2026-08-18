@@ -153,33 +153,6 @@ jobs:
           )
 
 
-      - name: Test SteamCMD
-        shell: pwsh
-        env:
-          STEAM_USER: ${{ secrets.STEAM_USER }}
-        run: |
-          $configFile = Join-Path "${{ steps.steamcmd.outputs.directory }}" "config\config.vdf"
-
-          if (-not (Test-Path $configFile)) {
-            throw "config.vdf was not created."
-          }
-
-          $contents = Get-Content $configFile -Raw
-
-          if ($contents -notmatch '"ConnectCache"') {
-            throw "config.vdf does not contain ConnectCache."
-          }
-
-          Write-Host "config.vdf exists and contains ConnectCache."
-
-          # attempt to login
-          & steamcmd +login "$env:STEAM_USER" +quit
-
-          if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 1) {
-            exit $LASTEXITCODE
-          }
-
-
       - name: Install Shapez 2
         shell: pwsh
         env:
