@@ -17,7 +17,7 @@ namespace ConfigurableWaitStop
         /// <param name="modulesLookup"></param>
         public void AddModules(IslandsModulesLookup modulesLookup)
         {
-            ConfigurableWaitStopMod.Logger.Info?.Log("Adding wait stop modules");
+            ConfigurableWaitStopMod.Logger.Info?.Log($"{ConfigurableWaitStopMod.ModName}: Adding wait stop modules");
             modulesLookup.AddModuleProvider(WaitStopData.WaitStationId, new WaitStopModuleProvider());
         }
     }

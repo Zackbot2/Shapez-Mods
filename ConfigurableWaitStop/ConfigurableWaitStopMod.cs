@@ -21,6 +21,7 @@ namespace ConfigurableWaitStop
     public class ConfigurableWaitStopMod : IMod
     {
         internal static ILogger Logger { get; private set; } = null!;
+        public static string ModName => nameof(ConfigurableWaitStop);
 
         // config
         public static ModConfig Config { get; private set; } = null!;
@@ -46,10 +47,11 @@ namespace ConfigurableWaitStop
         public ConfigurableWaitStopMod(ILogger logger)
         {
             Logger = logger;
-            Config = new(CONFIG_ID, GetType());
+            Logger.Info?.Log($"{ModName}: Initializing mod...");
 
+            Config = new(CONFIG_ID, GetType());
             Config.RegisterEntry<int>(DEFAULT_WAIT_TIME_ID, 60).OnChanged.Register(
-                value => Logger.Info?.Log($"Config entry \"{DEFAULT_WAIT_TIME_ID}\" updated to {value}"));
+                value => Logger.Info?.Log($"{ModName}: Config entry \"{DEFAULT_WAIT_TIME_ID}\" updated to {value}"));
             Config.Load();
             Config.Save();
 
@@ -61,7 +63,7 @@ namespace ConfigurableWaitStop
             // don't know what i'd do if shapezshifter didn't have this rewirer
             _modulesRewirer = GameRewirers.AddRewirer(new WaitStopModulesRewirer());
 
-            Logger.Info?.Log("ConfigurableWaitStop loaded successfully!");
+            Logger.Info?.Log($"{ModName}: Mod successfully initialized!");
         }
 
         public void Dispose()
@@ -100,7 +102,7 @@ namespace ConfigurableWaitStop
                 {
                     bool success = false;
 
-                    Logger.Info?.Log("Injecting WaitStop config factory during bake...");
+                    Logger.Info?.Log($"{ModName}: Injecting WaitStop config factory during bake...");
 
                     // IMPORTANT: modify definitions BEFORE islands are used elsewhere
                     foreach (var def in __result.AllDefinitions)
@@ -112,12 +114,12 @@ namespace ConfigurableWaitStop
                             );
 
                             success = true;
-                            Logger.Info?.Log("WaitStop config factory attached");
+                            Logger.Info?.Log($"{ModName}: Wait Stop config factory attached.");
                         }
                     }
 
                     if (!success)
-                        Logger.Warning?.Log("Failed to attach WaitStop config factory");
+                        Logger.Warning?.Log($"{ModName}: Failed to attach Wait Stop config factory - configurations may not work for this savegame.");
 
                     return __result;
                 });
@@ -193,7 +195,7 @@ namespace ConfigurableWaitStop
         {
             if (deciderInstance == null)
             {
-                Logger.Error?.Log($"{nameof(WaitStop_ShouldTrainLeave)} is missing a {nameof(WaitStopDecider)} instance! Location: {trainSimulationData.Head.Incoming.Position}");
+                Logger.Error?.Log($"{ModName}: {nameof(WaitStop_ShouldTrainLeave)} is missing a {nameof(WaitStopDecider)} instance! Location: {trainSimulationData.Head.Incoming.Position}");
                 return false;
             }
 

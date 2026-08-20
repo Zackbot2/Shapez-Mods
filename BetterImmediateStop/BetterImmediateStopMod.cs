@@ -10,13 +10,17 @@ namespace BetterImmediateStop
 {
     public class BetterImmediateStopMod : IMod
     {
-        public static ILogger Logger = null!;
+        internal static ILogger Logger = null!;
+        public static string ModName => nameof(BetterImmediateStop);
 
         // config
         public static ModConfig Config { get; private set; } = null!;
         public static int DefaultWaitSeconds => Config.GetEntry<int>(WAIT_TIME_ID).Value;
+
+        #region DANGER ZONE
         private const string WAIT_TIME_ID = "maximum wait time";    // DO NOT CHANGE. WILL RESET ALL SUBSCRIBERS' CONFIGS.
         private const string CONFIG_ID = "Zackbot2.BetterImmediateStop";   // DO NOT CHANGE. WILL RESET ALL SUBSCRIBERS' CONFIGS.
+        #endregion DANGER ZONE
 
         public static int WaitTimeSeconds => Config.GetEntry<int>(WAIT_TIME_ID).Value;
         public static Ticks WaitTimeTicks => Ticks.FromSeconds(WaitTimeSeconds);
@@ -30,13 +34,13 @@ namespace BetterImmediateStop
 
             Config = new(CONFIG_ID, GetType());
 
-            Config.RegisterEntry<int>(WAIT_TIME_ID, 5).OnChanged.Register(value => Logger.Info?.Log($"Config entry \"{WAIT_TIME_ID}\" updated to {value}"));
+            Config.RegisterEntry<int>(WAIT_TIME_ID, 5).OnChanged.Register(value => Logger.Info?.Log($"{ModName}: Config entry \"{WAIT_TIME_ID}\" updated to {value}"));
             Config.Load();
             Config.Save();
 
             shouldTrainLeaveHook = CreateHook();
 
-            Logger.Info?.Log("BetterImmediateStop loaded successfully.");
+            Logger.Info?.Log($"{ModName}: Mod successfully initialized!");
         }
 
         private Hook CreateHook()

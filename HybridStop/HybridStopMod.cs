@@ -25,6 +25,7 @@ namespace HybridStop
     public class HybridStopMod : IMod
     {
         internal static ILogger Logger = null!;
+        public static string ModName => nameof(HybridStop);
         internal IIslandDefinition? HybridStopDefinition
         {
             get
@@ -40,9 +41,9 @@ namespace HybridStop
 
         // hooks and rewirers
         private RewirerHandle _gameIslandsProviderRewirer;
-        private RewirerHandle _islandsRewirer;
-        private Hook? _createTrainStationSystemsHook;
-        private Hook? _createTrainPredictionCoordinatorsHook;
+        private readonly RewirerHandle _islandsRewirer;
+        private readonly Hook? _createTrainStationSystemsHook;
+        private readonly Hook? _createTrainPredictionCoordinatorsHook;
 
         // readonly values, to minimize magic numbers/strings
         private readonly IslandDefinitionId hybridStopIslandId = new("HybridStop");
@@ -53,10 +54,11 @@ namespace HybridStop
         public HybridStopMod(ILogger logger)
         {
             Logger = logger;
-            Logger.Info?.Log("Loading HybridStop...");
+            Logger.Info?.Log($"{ModName}: Initializing mod...");
 
             _islandsRewirer = GameRewirers.AddRewirer(new GameIslandsProvider());
 
+            // wrap BuiltinPredictionSimulationSystems.CreateTrainStationSystems(...) to add the hybrid stop to the list of train stations it recognizes.
             _createTrainStationSystemsHook = DetourHelper.CreatePostfixHook<
                 BuiltinPredictionSimulationSystems, 
                 TrainWagonCargoTypeId, 
@@ -66,8 +68,10 @@ namespace HybridStop
                 builtinPredictionSimulationSystems.CreateTrainStationSystems(
                     shapeCargoType, 
                     fluidCargoType), 
-                WrapCreateTrainStationSystems);            
+                WrapCreateTrainStationSystems);
 
+            // hook TrainNavigationPredictionCoordinators.CreateTrainPredictionCoordinators(...) to add the hybrid stop to the list of rail buildings.
+            // this method is in charge of registering train buildings for the train line rendering system
             _createTrainPredictionCoordinatorsHook = DetourHelper.CreateStaticPrefixHook<
                 ITrainNavigationSimulationConfig,
                 TrainIslandCollection<IIslandDefinition>,
@@ -84,7 +88,7 @@ namespace HybridStop
 
             AddHybridStop();
 
-            Logger.Info?.Log("HybridStop loaded successfully!");
+            Logger.Info?.Log($"{ModName}: Mod successfully initialized!");
         }
 
         /// <summary>
@@ -95,7 +99,11 @@ namespace HybridStop
         /// <param name="fluidCargoType"></param>
         /// <param name="original"></param>
         /// <returns></returns>
-        private IEnumerable<ISimulationSystem> WrapCreateTrainStationSystems(BuiltinPredictionSimulationSystems builtinPredictionSimulationSystems, TrainWagonCargoTypeId shapeCargoType, TrainWagonCargoTypeId fluidCargoType, IEnumerable<ISimulationSystem> original)
+        private IEnumerable<ISimulationSystem> WrapCreateTrainStationSystems(
+            BuiltinPredictionSimulationSystems builtinPredictionSimulationSystems, 
+            TrainWagonCargoTypeId shapeCargoType, 
+            TrainWagonCargoTypeId fluidCargoType, 
+            IEnumerable<ISimulationSystem> original)
         {
             // when it's going to return a PredictionSimulationSystem, throw that one out and create a new one that includes the hybrid stop.
             foreach(ISimulationSystem simulationSystem in original)
@@ -130,20 +138,15 @@ namespace HybridStop
         /// <param name="rails"></param>
         /// <param name="railColorRegistry"></param>
         /// <returns></returns>
-        private (
-            ITrainNavigationSimulationConfig, 
-            TrainIslandCollection<IIslandDefinition>, 
-            IEnumerable<IIslandDefinition>, 
-            IReadOnlyRailColorRegistry) 
-            CreateTrainPredictionCoordinatorsHook(
-                ITrainNavigationSimulationConfig trainNavigationConfiguration, 
-                TrainIslandCollection<IIslandDefinition> trainIslands, 
-                IEnumerable<IIslandDefinition> rails, 
-                IReadOnlyRailColorRegistry railColorRegistry)
+        private (ITrainNavigationSimulationConfig, TrainIslandCollection<IIslandDefinition>, IEnumerable<IIslandDefinition>, IReadOnlyRailColorRegistry) CreateTrainPredictionCoordinatorsHook(
+            ITrainNavigationSimulationConfig trainNavigationConfiguration, 
+            TrainIslandCollection<IIslandDefinition> trainIslands, 
+            IEnumerable<IIslandDefinition> rails, 
+            IReadOnlyRailColorRegistry railColorRegistry)
         {
             if (HybridStopDefinition == null)
             {
-                Logger.Error?.Log("HybridStop: Failed to attach hybrid stop to the train prediction coordinator.");
+                Logger.Error?.Log($"{ModName}: Failed to attach hybrid stop to the train prediction coordinator.");
                 return (trainNavigationConfiguration, trainIslands, rails, railColorRegistry);
             }
 

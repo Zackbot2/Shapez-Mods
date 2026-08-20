@@ -27,6 +27,7 @@ namespace HybridStop
             TrainSimulationTimeProvider = trainSimulationTimeProvider;
             Logger = logger;
         }
+
         public bool ShouldTrainStop(TrainId trainId, TrainSimulationData trainSimulationData)
         {
             // stop like a wait stop
@@ -35,12 +36,18 @@ namespace HybridStop
 
         public bool ShouldTrainLeave(TrainId trainId, TrainSimulationData trainSimulationData)
         {
-            if (TrainCanExchangeImmediately(trainId, trainSimulationData) || !TrainExchangeCompleted(trainSimulationData))
+            if (CanTrainExchangeImmediately(trainId, trainSimulationData) || !IsTrainExchangeCompleted(trainSimulationData))
                 return false;
 
             return !TrainCouldExchange(trainId, trainSimulationData) || TrainHasCompleteExchanges(trainId, trainSimulationData);
         }
 
+        /// <summary>
+        /// Are there any exchangers where this train could exchange cargo, even if the exchange is not immediate?
+        /// </summary>
+        /// <param name="trainId"></param>
+        /// <param name="trainSimulationData"></param>
+        /// <returns></returns>
         private bool TrainCouldExchange(TrainId trainId, TrainSimulationData trainSimulationData)
         {
             for (int i = 1; i < trainSimulationData.Wagons.Length; i++)
@@ -65,7 +72,12 @@ namespace HybridStop
             return false;
         }
 
-        private bool TrainExchangeCompleted(TrainSimulationData trainSimulationData)
+        /// <summary>
+        /// Has the train completed all of its active exchanges?
+        /// </summary>
+        /// <param name="trainSimulationData"></param>
+        /// <returns>Returns <c>true</c> if no wagons are actively exchanging, otherwise <c>false</c>.</returns>
+        private bool IsTrainExchangeCompleted(TrainSimulationData trainSimulationData)
         {
             for (int i = 1; i < trainSimulationData.Wagons.Length; i++)
             {
@@ -82,7 +94,13 @@ namespace HybridStop
             return true;
         }
 
-        private bool TrainCanExchangeImmediately(TrainId trainId, TrainSimulationData trainSimulationData)
+        /// <summary>
+        /// Are there any packages that can be immediately exchanged?
+        /// </summary>
+        /// <param name="trainId"></param>
+        /// <param name="trainSimulationData"></param>
+        /// <returns></returns>
+        private bool CanTrainExchangeImmediately(TrainId trainId, TrainSimulationData trainSimulationData)
         {
             for (int i = 1; i < trainSimulationData.Wagons.Length; i++)
             {
@@ -136,48 +154,58 @@ namespace HybridStop
                 // 4. inline variable names don't conflict like they would in an if else chain
                 switch (cargoExchanger, wagonCargoData)
                 {
-                    case (TrainCargoUnloaderSimulation<FluidId> fUnloader, LayeredWagonCargo<CargoContainer<FluidId>> fCargo):
-                        // return true if the check passes, but don't return false if it fails. remember that we're in a loop
-                        if (IsUnloaderBlocked(fUnloader, fCargo)) 
-                            return true;
-                        break;
-
-                    case (TrainCargoLoaderSimulation<FluidId> fLoader, LayeredWagonCargo<CargoContainer<FluidId>> fCargo):
-                        if (IsLoaderBlocked(fLoader, fCargo))
-                            return true;
-                        break;
-
+                    // shape unloader
                     case (TrainCargoUnloaderSimulation<ShapeId> sUnloader, LayeredWagonCargo<CargoContainer<ShapeId>> sCargo):
+                        // return true if the check passes, but don't return false if it fails. remember that we're in a loop
                         if (IsUnloaderBlocked(sUnloader, sCargo))
                             return true;
                         break;
 
+                    // shape loader
                     case (TrainCargoLoaderSimulation<ShapeId> sLoader, LayeredWagonCargo<CargoContainer<ShapeId>> sCargo):
                         if (IsLoaderBlocked(sLoader, sCargo))
                             return true;
                         break;
 
+                    // shape transferrer
+                    case (TrainCargoTransferrerSimulation<ShapeId>.TransferExchangeHandle sTransferrer, LayeredWagonCargo<CargoContainer<ShapeId>> sCargo):
+                        if (IsTransferrerBlocked(sTransferrer, sCargo))
+                            return true;
+                        break;
+
+                    // fluid unloader
+                    case (TrainCargoUnloaderSimulation<FluidId> fUnloader, LayeredWagonCargo<CargoContainer<FluidId>> fCargo):
+                        
+                        if (IsUnloaderBlocked(fUnloader, fCargo)) 
+                            return true;
+                        break;
+
+                    // fluid loader
+                    case (TrainCargoLoaderSimulation<FluidId> fLoader, LayeredWagonCargo<CargoContainer<FluidId>> fCargo):
+                        if (IsLoaderBlocked(fLoader, fCargo))
+                            return true;
+                        break;
+
+                    // fluid transferrer
                     case (TrainCargoTransferrerSimulation<FluidId>.TransferExchangeHandle fTransferrer, LayeredWagonCargo<CargoContainer<FluidId>> fCargo):
                         if (IsTransferrerBlocked(fTransferrer, fCargo))
                             return true;
                         break;
 
-                    case (TrainCargoTransferrerSimulation<ShapeId>.TransferExchangeHandle sTransferrer, LayeredWagonCargo<CargoContainer<ShapeId>> sCargo):
-                        if (IsTransferrerBlocked(sTransferrer, sCargo))
-                            return true;
-                        break;
                 }
             }
             // if we get here, it means that everything else failed and we don't have any complete exchanges
             return false;
         }
 
+        #region blocked exchangers
+
         /// <summary>
         /// Ignoring deactivated layers, is this <paramref name="unloader"/> trying to pull from an empty <paramref name="wagon"/>?
         /// </summary>
         /// <typeparam name="TItem">The type of item we're dealing with, typically <see cref="ShapeId"/> or <see cref="FluidId"/>.</typeparam>
-        /// <param name="unloader"></param>
-        /// <param name="wagon"></param>
+        /// <param name="unloader">The unloader in question.</param>
+        /// <param name="wagon">The wagon in question.</param>
         /// <returns></returns>
         private bool IsUnloaderBlocked<TItem>(TrainCargoUnloaderSimulation<TItem> unloader, LayeredWagonCargo<CargoContainer<TItem>> wagon)
             where TItem : unmanaged, IEquatable<TItem>
@@ -193,11 +221,11 @@ namespace HybridStop
         }
 
         /// <summary>
-        /// Ignoring deactivated layers, is this <paramref name="loader"/> trying to push into a full <paramref name="wagon"/>?
+        /// Ignoring deactivated layers, is this <paramref name="loader"/> trying to push to a full <paramref name="wagon"/>?
         /// </summary>
         /// <typeparam name="TItem">The type of item we're dealing with, typically <see cref="ShapeId"/> or <see cref="FluidId"/>.</typeparam>
-        /// <param name="loader"></param>
-        /// <param name="wagon"></param>
+        /// <param name="loader">The loader in question.</param>
+        /// <param name="wagon">The wagon in question.</param>
         /// <returns></returns>
         private bool IsLoaderBlocked<TItem>(TrainCargoLoaderSimulation<TItem> loader, LayeredWagonCargo<CargoContainer<TItem>> wagon) where TItem : unmanaged, IEquatable<TItem>
         {
@@ -214,7 +242,7 @@ namespace HybridStop
         }
 
         /// <summary>
-        /// 
+        /// Ignoring deactivated layers (do those exist for transfer stations?), is this <paramref name="transferrerHandle"/>
         /// </summary>
         /// <typeparam name="TItem">The type of item we're dealing with, typically <see cref="ShapeId"/> or <see cref="FluidId"/>.</typeparam>
         /// <param name="transferrerHandle"></param>
@@ -222,7 +250,6 @@ namespace HybridStop
         /// <returns></returns>
         private bool IsTransferrerBlocked<TItem>(TrainCargoTransferrerSimulation<TItem>.TransferExchangeHandle transferrerHandle, LayeredWagonCargo<CargoContainer<TItem>> wagon) where TItem : unmanaged, IEquatable<TItem>
         {
-            Logger.Info?.Log($"checking if transfer station is blocked!!!");
             bool isUnloading = transferrerHandle.TransferExchangeMode == TrainCargoTransferrerSimulation<TItem>.TransferExchangeMode.UnloadingFromTrainIntoStation;
             bool isLoading = transferrerHandle.TransferExchangeMode == TrainCargoTransferrerSimulation<TItem>.TransferExchangeMode.LoadingFromStationIntoTrain;
 
@@ -238,6 +265,7 @@ namespace HybridStop
 
             return false;
         }
-
+        
+        #endregion blocked exchangers
     }
 }

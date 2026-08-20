@@ -45,7 +45,7 @@ namespace HybridStop
             }
             if (trainSystem == null)
             {
-                throw new Exception("HybridStop: TrainSystem not found — hybrid stop coordinator NOT registered.");
+                throw new Exception($"{HybridStopMod.ModName}: {nameof(TrainSystem)} not found — hybrid stop coordinator NOT registered.");
             }
 
             // using that, grab its TrainsSimulation.
@@ -54,8 +54,8 @@ namespace HybridStop
             TrainsSimulation trainsSimulation = trainSystem.TrainsSimulation;
             HybridStopDecider decider = new(trainsSimulation, trainsSimulation.TrainsWagonCargo, trainsSimulation.TrainSimulationTimeTracker, dependencies.Logger);
 
-            // trainsSimulation.BuiltInWagonStates is obsolete, and the new one is private. not sure what they want us to do here.
-            TrainStationCoordinator coordinator = new TrainStationCoordinator(_hybridStopIslandDefinitionId, trainsSimulation.BuiltInWagonStates.Moving, decider, decider);
+            // trainsSimulation.BuiltInWagonStates is obsolete, and the new one is private. not sure what they want us to do here?
+            TrainStationCoordinator coordinator = new(_hybridStopIslandDefinitionId, trainsSimulation.BuiltInWagonStates.Moving, decider, decider);
             // add a new coordinator for HybridStops that uses our custom decider
             trainsSimulation.AddCustomNavigationCoordinatorAfter<TrainStationCoordinator, TrainStationCoordinator>(coordinator);
 
@@ -68,7 +68,7 @@ namespace HybridStop
 
             if (!islands.TryGetDefinition(_hybridStopIslandDefinitionId, out IIslandDefinition? rawHybridStopIsland))
             {
-                dependencies.Logger.Error?.Log("HybridStop: Island definition with ID '" + _hybridStopIslandDefinitionId.Name + "' not found — visual patch skipped.");
+                dependencies.Logger.Error?.Log($"{HybridStopMod.ModName}: Island definition with ID '" + _hybridStopIslandDefinitionId.Name + "' not found — visual patch skipped.");
                 return;
             }
 

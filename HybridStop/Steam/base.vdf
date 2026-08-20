@@ -8,7 +8,5 @@
 	"title"				"Hybrid Train Stop"
 	"changenote"		"[b]Mod version $VERSION[/b]
 
-- Fixed train line lines being cut off by stations with a hybrid stop
-- Fixed shape predictions not working with hybrid stops
-- Added MonoMod.RuntimeDetour as a dependency"
+Added the mod name to all logs."
 }
