@@ -29,7 +29,12 @@ namespace ConfigurableWaitStop
             int currentWaitSeconds = config.WaitTimeSeconds;
 
             // populate the dialogue
-            yield return new HUDSidePanelModuleInfoText.Data(new RawText($"Maximum wait time: {(currentWaitSeconds >= 0 ? $"{currentWaitSeconds} seconds" : "Infinite")} "));
+            //yield return new HUDSidePanelModuleInfoText.Data(new RawText($"Maximum wait time: {(currentWaitSeconds >= 0 ? $"{currentWaitSeconds} seconds" : "Infinite")} "));
+
+            yield return new HUDSidePanelModuleInfoText.Data(currentWaitSeconds >= 0 
+                ? "configurable-wait-stop.wait-time-module-seconds".T().Bind("num-seconds", new RawText(currentWaitSeconds.ToString())) 
+                : "configurable-wait-stop.wait-time-module-infinite".T());
+
             yield return new HUDSidePanelModuleGenericButton.Data("global.btn-configure".T(), () =>
             {
                 ShowConfigDialog(config, stationChunk);

@@ -1,5 +1,9 @@
 {
   "en-US": {
+    "configurable-wait-stop.wait-time-module-seconds": "Maximum wait time: <num-seconds/> seconds",
+    "configurable-wait-stop.wait-time-module-infinite": "Maximum wait time: Infinite",
+
+
     "island.wait-stop.wait-time-dialog-title": "Maximum wait time",
     "island.wait-stop.wait-time-dialog-desc": "Set the maximum wait time for the station, in seconds. A negative value indicates infinite wait time.",
 
@@ -8,6 +12,9 @@
     "wiki.WKTrains_TrainStops.text-wait-stop": "The <gl>Wait Stop</gl> can be unlocked in the <gll:WKResearch_Shop>Shop</gll>. Trains will always stop there, until they are either fully loaded or unloaded, or the stop's configured maximum wait time has been exceeded.\n\nEach stop features a <gl>Configure</gl> button, allowing you to configure the maximum time that a train will wait for. The default value depends on the <gl>Configurable Wait Stop</gl> mod configuration accessible on the main menu."
   },
   "fr-FR": {
+    "configurable-wait-stop.wait-time-module-seconds": "Temps d'attente maximal: <num-seconds/> seconds",
+    "configurable-wait-stop.wait-time-module-infinite": "Temps d'attente maximal: Infini",
+
     "island.wait-stop.wait-time-dialog-title": "Temps d'attente maximal",
     "island.wait-stop.wait-time-dialog-desc": "Définissez le temps d'attente maximal pour la gare, en secondes. Un nombre négatif indique un temps d'attente infini.",
 

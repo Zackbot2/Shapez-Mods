@@ -8,5 +8,5 @@
 	"title"				"Configurable Wait Stop"
 	"changenote"		"[b]Mod version $VERSION[/b]
 
-Added the mod name to all logs."
+The maximum wait time in the wait stop's tooltip is now localized."
 }
