@@ -1,0 +1,19 @@
+{
+  "Version": "0.0.1",
+  "Author": "Zackbot",
+  "Description": "TBA",
+  "AffectsSaveGames": false,
+  "DisablesAchievements": false,
+  "GameVersionSupportRange": "~1.2",
+  "Conflicts": [],
+  "Assemblies": [
+    "TrainsLib.dll"
+  ],
+  "Dependencies": [
+    {
+      "ModId": "steam:3542611357",
+      "ModTitle": "Shapez Shifter",
+      "Version": "^1.1.0"
+    }
+  ]
+}
