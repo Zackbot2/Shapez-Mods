@@ -129,6 +129,7 @@
 
 	<!--Publicized assemblies-->
 	<ItemGroup>
-		<!--<Publicize Include="SPZGameAssembly"/>-->
+		<Publicize Include="SPZGameAssembly"/>
+		<Publicize Include="Game.Orchestration"/>
 	</ItemGroup>
 </Project>
