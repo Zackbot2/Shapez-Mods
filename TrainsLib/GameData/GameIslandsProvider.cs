@@ -1,6 +1,6 @@
 ﻿using ShapezShifter.Hijack;
 
-namespace TrainsLib
+namespace TrainsLib.GameData
 {
     /// <summary>
     /// Provides access to the currently active <see cref="GameIslands"/> instance for the scenario.

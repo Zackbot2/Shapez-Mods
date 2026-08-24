@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TrainsLib.GameData;
 using UnityEngine;
 
-namespace TrainsLib
+namespace TrainsLib.Stations
 {
     /// <summary>
     /// Represents a custom train stop. Extending from this class is encouraged but not required, and allows more functionality than otherwise possible.

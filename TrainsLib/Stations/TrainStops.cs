@@ -3,19 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace TrainsLib
+namespace TrainsLib.Stations
 {
     /// <summary>
     /// Everything to do with train stops.
     /// </summary>
     public static class TrainStops
     {
-        /// <summary>
-        /// Set when <see cref="GameSessionOrchestrator.Init_4_Managers"/> fires.
-        /// </summary>
-        public static IslandDefinition? WaitStopDefinition { get; internal set; }
-        public static IslandDefinition? ImmediateStopDefinition { get; internal set; }
-
         private static readonly List<ModdedTrainStop> _moddedTrainStops = new();
 
         /// <summary>
