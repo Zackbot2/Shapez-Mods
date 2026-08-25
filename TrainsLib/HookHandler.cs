@@ -74,24 +74,6 @@ namespace TrainsLib
         {
             TrainsLibLogger.LogInfo("Creating hooks...");
 
-            // TrainStationCoordinator.ShouldTrainStop hook
-            //_hooks.Add(DetourHelper.CreatePostfixHook(
-            //    (TrainStationCoordinator coordinator, TrainId trainId, TrainSimulationData trainData) => coordinator.ShouldTrainStop(trainId, trainData),
-            //    delegate (TrainStationCoordinator coordinator, TrainId trainId, TrainSimulationData train, bool __result)
-            //    {
-            //        if (__result)
-            //        {
-            //            EventHandler.OnTrainArrivedEvent.Invoke(new TrainArrivedEvent(
-            //                trainId,
-            //                train,
-            //                coordinator.StopController
-            //            ));
-            //            TrainsLibLogger.LogInfo($"Train {trainId} arrived at a station. (ShouldTrainStop)");
-            //        }
-            //        return __result;
-            //    }
-            //));
-
             // TrainStationCoordinator.TrainStopController.ShouldHaltTrain hook
             _hooks.Add(DetourHelper.CreatePostfixHook(
                 (TrainStationCoordinator.TrainStopController controller, TrainId trainId, TrainSimulationData train) => controller.ShouldHaltTrain(trainId, train),

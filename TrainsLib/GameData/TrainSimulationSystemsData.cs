@@ -5,7 +5,10 @@ using System.Text;
 
 namespace TrainsLib.GameData
 {
-    public static class SimulationSystemsData
+    /// <summary>
+    /// Data related to the train simulation systems.
+    /// </summary>
+    public static class TrainSimulationSystemsData
     {
         public static TrainSystem? TrainSystem {get; internal set; }
         public static TrainsSimulation? Simulation => TrainSystem?.TrainsSimulation;

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TrainsLib.GameData
 {
-    public static class NavigationData
+    public static class TrainNavigationData
     {
 
     }

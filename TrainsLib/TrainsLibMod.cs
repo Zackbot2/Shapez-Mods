@@ -1,4 +1,5 @@
-﻿using ILogger = Core.Logging.ILogger;
+﻿using TrainsLib.Stations;
+using ILogger = Core.Logging.ILogger;
 
 namespace TrainsLib
 {
@@ -19,6 +20,8 @@ namespace TrainsLib
 
         public void Dispose() 
         {
+            TrainsLibLogger.LogInfo("Disposing...");
+            ModdedStopRegistry.UnregisterAllStops();
             HookHandler.Instance?.Dispose();
         }
     }

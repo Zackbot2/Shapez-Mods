@@ -17,13 +17,13 @@ namespace TrainsLib.Rewirers
         {
             // find TrainSystem in simulationSystems
             // important: currently only handles one single train system.
-            SimulationSystemsData.TrainSystem = simulationSystems.OfType<TrainSystem>().FirstOrDefault();
+            TrainSimulationSystemsData.TrainSystem = simulationSystems.OfType<TrainSystem>().FirstOrDefault();
 
             // register modded train stops
             foreach (ModdedTrainStop stop in ModdedStopRegistry.RegisteredStops)
             {
-                TrainStationCoordinator coordinator = new(stop.DefinitionId, SimulationSystemsData.TrainSystem.TrainsSimulation.BuiltInWagonStates.Moving, stop.Decider, stop.Decider);
-                SimulationSystemsData.TrainSystem.TrainsSimulation.AddCustomNavigationCoordinatorAfter<TrainStationCoordinator, TrainStationCoordinator>(coordinator);
+                TrainStationCoordinator coordinator = new(stop.DefinitionId, TrainSimulationSystemsData.TrainSystem.TrainsSimulation.BuiltInWagonStates.Moving, stop.Decider, stop.Decider);
+                TrainSimulationSystemsData.TrainSystem.TrainsSimulation.AddCustomNavigationCoordinatorAfter<TrainStationCoordinator, TrainStationCoordinator>(coordinator);
             }
         }
     }

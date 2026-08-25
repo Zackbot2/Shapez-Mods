@@ -7,7 +7,7 @@ using UnityEngine;
 namespace TrainsLib.Stations
 {
     /// <summary>
-    /// Represents a custom train stop. Extending from this class is encouraged but not required, and allows more functionality than otherwise possible.
+    /// Represents a custom train stop. Only one instance of this class should exist at a time.
     /// </summary>
     public class ModdedTrainStop
     {

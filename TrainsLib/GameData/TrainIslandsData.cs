@@ -5,6 +5,9 @@ using TrainsLib.Rewirers;
 
 namespace TrainsLib.GameData
 {
+    /// <summary>
+    /// Data related to train islands.
+    /// </summary>
     public static class TrainIslandsData
     {
         #region collections
