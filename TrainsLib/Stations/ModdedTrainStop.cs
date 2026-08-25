@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using TrainsLib.GameData;
+using TrainsLib.Rewirers;
 using UnityEngine;
 
 namespace TrainsLib.Stations
@@ -21,8 +21,8 @@ namespace TrainsLib.Stations
         {
             get
             {
-                if (GameIslandsProvider.ScenarioGameIslands != null &&
-                    GameIslandsProvider.ScenarioGameIslands.TryGetDefinition(DefinitionId, out IIslandDefinition? definition))
+                if (GameIslandsProvider.CurrentGameIslands != null &&
+                    GameIslandsProvider.CurrentGameIslands.TryGetDefinition(DefinitionId, out IIslandDefinition? definition))
                 {
                     return definition;
                 }

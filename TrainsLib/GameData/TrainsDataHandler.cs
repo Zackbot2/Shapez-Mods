@@ -1,19 +1,22 @@
 ﻿using MonoMod.RuntimeDetour;
+using ShapezShifter.Hijack;
 using ShapezShifter.SharpDetour;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using TrainsLib.Rewirers;
 
 namespace TrainsLib.GameData
 {
+    /// <summary>
+    /// Handles the attaining and managing of game data related to trains.
+    /// </summary>
     internal class TrainsDataHandler : IDisposable
     {
         public static TrainsDataHandler? Instance;
 
-        private GameIslands? _gameIslands;
-
-        // hooks
-        private Hook? _initManagersHook;
+        // hooks & rewirers
+        private readonly List<RewirerHandle> _rewirerHandles = new();
 
         private TrainsDataHandler()
         {
@@ -23,34 +26,35 @@ namespace TrainsLib.GameData
         public static void Initialize()
         {
             // create an instance, if one doesn't already exist
-            Instance ??= new();
+            if (Instance != null)
+            {
+                throw new InvalidOperationException($"Cannot initialize an already initialized {nameof(TrainsDataHandler)}");
+            }
+            Instance = new();
 
             Instance.CreateHooks();// create hooks
             
         }
 
+        private void RegisterRewirers()
+        {
+            TrainsLibLogger.LogInfo("Registering rewiwers...");
+
+            _rewirerHandles.Add(GameRewirers.AddRewirer(new TrainsSimulationSystemsRewirer()));
+        }
+
         private void CreateHooks()
         {
-            _initManagersHook = DetourHelper.CreatePostfixHook(
-            (orchestrator, kb, cam, iface, data) => orchestrator.Init_4_Managers(kb, cam, iface, data),
-            delegate (GameSessionOrchestrator orchestrator, Keybindings _kb, CameraGameSettings _cam, InterfaceGameSettings _iface, IGameData _data)
-            {
-                _gameIslands = orchestrator.Mode.Islands;
-
-                // wait stop definition
-                IslandDefinition waitStationDefinition = (IslandDefinition)_gameIslands.Trains.Navigation.WaitStation;
-                GameTrainStationsData.WaitStationDefinition = waitStationDefinition;
-
-                // quick stop definition
-                IslandDefinition quickStationDefinition = (IslandDefinition)_gameIslands.Trains.Navigation.QuickStation;
-                GameTrainStationsData.QuickStationDefinition = quickStationDefinition;
-            });
+            TrainsLibLogger.LogInfo("Creating hooks...");
         }
 
         public void Dispose()
         {
+            // dispose all rewirers
+            _rewirerHandles.ForEach(handle => GameRewirers.RemoveRewirer(handle));
+            _rewirerHandles.Clear();
+
             // dispose all hooks
-            _initManagersHook?.Dispose();
 
             // dispose this instance
             if (Instance == this)

@@ -18,8 +18,9 @@ namespace TrainsLib.Stations
         /// <param name="moddedTrainStop"></param>
         public static void RegisterTrainStop(ModdedTrainStop moddedTrainStop)
         {
+            throw new NotImplementedException();
+
             _moddedTrainStops.Add(moddedTrainStop);
-            TrainsLibMod.Logger.Info?.Log($"{TrainsLibMod.ModName}:");
         }
     }
 }

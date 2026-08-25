@@ -1,6 +1,6 @@
 ﻿using ShapezShifter.Hijack;
 
-namespace TrainsLib.GameData
+namespace TrainsLib.Rewirers
 {
     /// <summary>
     /// Provides access to the currently active <see cref="GameIslands"/> instance for the scenario.
@@ -10,11 +10,12 @@ namespace TrainsLib.GameData
     /// </remarks>
     internal class GameIslandsProvider : IIslandsRewirer
     {
-        internal static GameIslands? ScenarioGameIslands { get; private set; }
+        internal static GameIslands? CurrentGameIslands { get; private set; }
 
         public GameIslands ModifyGameIslands(IslandDefinitionFactory factory, AuthoringIslands metaIslands, GameIslands gameIslands)
         {
-            ScenarioGameIslands = gameIslands;
+            TrainsLibLogger.LogInfo($"Fetched rewirers.");
+            CurrentGameIslands = gameIslands;
 
             return gameIslands;
         }

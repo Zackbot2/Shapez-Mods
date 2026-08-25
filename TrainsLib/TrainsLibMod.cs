@@ -13,12 +13,10 @@ namespace TrainsLib
         internal static ILogger Logger { get; private set; } = null!;
         public static string ModName => nameof(TrainsLib);
 
-        private RewirerHandle _gameIslandsProviderRewirer;
-        private Hook? _initManagersHook;
-
         public TrainsLibMod(ILogger logger) 
         {
             Logger = logger;
+            Logger.Info?.Log($"{ModName}: Initializing mod...");
 
             TrainsDataHandler.Initialize();
 
@@ -27,11 +25,7 @@ namespace TrainsLib
 
         public void Dispose() 
         {
-            // dispose rewirers
-            if (_gameIslandsProviderRewirer != null)
-            {
-                GameRewirers.RemoveRewirer(_gameIslandsProviderRewirer);
-            }
+            TrainsDataHandler.Instance?.Dispose();
         }
     }
 }
