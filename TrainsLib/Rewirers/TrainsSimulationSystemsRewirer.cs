@@ -1,10 +1,13 @@
 ﻿using Game.Core.Trains;
+using Game.Core.Trains.Stations;
+using Iced.Intel;
 using ShapezShifter.Hijack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TrainsLib.GameData;
+using TrainsLib.Stations;
 
 namespace TrainsLib.Rewirers
 {
@@ -15,6 +18,13 @@ namespace TrainsLib.Rewirers
             // find TrainSystem in simulationSystems
             // important: currently only handles one single train system.
             SimulationSystemsData.TrainSystem = simulationSystems.OfType<TrainSystem>().FirstOrDefault();
+
+            // register modded train stops
+            foreach (ModdedTrainStop stop in ModdedStopRegistry.RegisteredStops)
+            {
+                TrainStationCoordinator coordinator = new(stop.DefinitionId, SimulationSystemsData.TrainSystem.TrainsSimulation.BuiltInWagonStates.Moving, stop.Decider, stop.Decider);
+                SimulationSystemsData.TrainSystem.TrainsSimulation.AddCustomNavigationCoordinatorAfter<TrainStationCoordinator, TrainStationCoordinator>(coordinator);
+            }
         }
     }
 }

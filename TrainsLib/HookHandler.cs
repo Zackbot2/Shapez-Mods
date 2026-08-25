@@ -140,7 +140,7 @@ namespace TrainsLib
                 delegate (ITrainNavigationSimulationConfig trainNavigationConfiguration, TrainIslandCollection<IIslandDefinition> trainIslands, IEnumerable<IIslandDefinition> rails, IReadOnlyRailColorRegistry railColorRegistry)
                 {
                     // stop.Definition may be null, but i'd like to throw if it gets to this point and is still null
-                    rails.ToList().AddRange(TrainStops.ModdedTrainStops.Select(stop => stop.Definition!));
+                    rails.ToList().AddRange(ModdedStopRegistry.RegisteredStops.Select(stop => stop.Definition!));
                     return (trainNavigationConfiguration, trainIslands, rails, railColorRegistry);
                 }
                 ));
@@ -155,7 +155,7 @@ namespace TrainsLib
         }
 
         /// <summary>
-        /// Hook <see cref="BuiltinPredictionSimulationSystems.CreateTrainStationSystems"/> in order to create shape prediction systems for all <see cref="ModdedTrainStop"/>s registered in <see cref="TrainStops"/>."/>
+        /// Hook <see cref="BuiltinPredictionSimulationSystems.CreateTrainStationSystems"/> in order to create shape prediction systems for all <see cref="ModdedTrainStop"/>s registered in <see cref="ModdedStopRegistry"/>."/>
         /// </summary>
         /// <param name="builtinSystems"></param>
         /// <param name="shapeCargoType"></param>
@@ -175,7 +175,7 @@ namespace TrainsLib
                             builtinSystems.Mode.Islands.Trains.Navigation.QuickStation.Id,
                             builtinSystems.Mode.Islands.Trains.Navigation.WaitStation.Id,
                         };
-                    trainStops.AddRange(TrainStops.ModdedTrainStops.Select(stop => stop.DefinitionId));
+                    trainStops.AddRange(ModdedStopRegistry.RegisteredStops.Select(stop => stop.DefinitionId));
 
                     ITrainSubStationSimulationSystem[] predictionSubSystems = builtinSystems.TrainStationPredictionSubSystems(shapeCargoType, fluidCargoType).ToArray();
 

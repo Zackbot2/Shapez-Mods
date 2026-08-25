@@ -30,9 +30,9 @@ namespace TrainsLib.Stations
             }
         }
 
-        public ICustomTrainStopDecider Decider { get; private set; }
+        public IModdedTrainStopDecider Decider { get; private set; }
 
-        public ModdedTrainStop(IslandDefinitionId definitionId, ICustomTrainStopDecider decider)
+        public ModdedTrainStop(IslandDefinitionId definitionId, IModdedTrainStopDecider decider)
         {
             if (definitionId == null)
             {
