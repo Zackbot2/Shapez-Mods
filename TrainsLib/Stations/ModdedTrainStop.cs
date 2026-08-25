@@ -38,8 +38,8 @@ namespace TrainsLib.Stations
             {
                 throw new ArgumentNullException(nameof(definitionId));
             }
-
             DefinitionId = definitionId;
+
             Decider = decider ?? throw new ArgumentNullException(nameof(decider));
         }
 
