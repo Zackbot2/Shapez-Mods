@@ -12,14 +12,14 @@ namespace TrainsLib
             Logger = logger;
             Logger.Info?.Log($"{ModName}: Initializing mod...");
 
-            TrainsLibHookProvider.Initialize();
+            HookHandler.Initialize();
 
             Logger.Info?.Log($"{ModName}: Mod initialized successfully! 🚂");
         }
 
         public void Dispose() 
         {
-            TrainsLibHookProvider.Instance?.Dispose();
+            HookHandler.Instance?.Dispose();
         }
     }
 }

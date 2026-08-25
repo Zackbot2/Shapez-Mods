@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TrainsLib.GameData
 {
-    public static class GameTrainSimulationSystemsData
+    public static class SimulationSystemsData
     {
         public static TrainSystem? TrainSystem {get; internal set; }
         public static TrainsSimulation? Simulation => TrainSystem?.TrainsSimulation;

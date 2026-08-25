@@ -12,15 +12,15 @@ namespace TrainsLib
     /// <summary>
     /// Handles hooks and rewirers for <see cref="TrainsLib"/>.
     /// </summary>
-    internal class TrainsLibHookProvider : IDisposable
+    internal class HookHandler : IDisposable
     {
-        public static TrainsLibHookProvider? Instance;
+        public static HookHandler? Instance;
 
         // hooks & rewirers
         private readonly List<Hook> _hooks = new();
         private readonly List<RewirerHandle> _rewirerHandles = new();
 
-        private TrainsLibHookProvider()
+        private HookHandler()
         {
             Instance ??= this;
         }
@@ -46,7 +46,7 @@ namespace TrainsLib
             // create an instance, if one doesn't already exist
             if (Instance != null)
             {
-                throw new InvalidOperationException($"Cannot initialize an already initialized {nameof(TrainsLibHookProvider)}.");
+                throw new InvalidOperationException($"Cannot initialize an already initialized {nameof(HookHandler)}.");
             }
             Instance = new();
 

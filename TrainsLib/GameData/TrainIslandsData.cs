@@ -5,7 +5,7 @@ using TrainsLib.Rewirers;
 
 namespace TrainsLib.GameData
 {
-    public static class GameTrainIslandsData
+    public static class TrainIslandsData
     {
         #region collections
         public static TrainIslandCollection<IIslandDefinition>? TrainIslands => GameIslandsProvider.CurrentGameIslands?.Trains;

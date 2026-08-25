@@ -14,7 +14,7 @@ namespace TrainsLib.Rewirers
         {
             // find TrainSystem in simulationSystems
             // important: currently only handles one single train system.
-            GameTrainSimulationSystemsData.TrainSystem = simulationSystems.OfType<TrainSystem>().FirstOrDefault();
+            SimulationSystemsData.TrainSystem = simulationSystems.OfType<TrainSystem>().FirstOrDefault();
         }
     }
 }
