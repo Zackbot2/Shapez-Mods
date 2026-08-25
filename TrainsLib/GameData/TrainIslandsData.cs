@@ -9,6 +9,10 @@ namespace TrainsLib.GameData
     {
         #region collections
         public static TrainIslandCollection<IIslandDefinition>? TrainIslands => GameIslandsProvider.CurrentGameIslands?.Trains;
+
+        public static TrainNavigationIslandCollection<IIslandDefinition>? TrainNavigationIslands => GameIslandsProvider.CurrentGameIslands?.Trains.Navigation;
+
+        public static TrainProductionIslandCollection<IIslandDefinition>? TrainProductionIslands => GameIslandsProvider.CurrentGameIslands?.Trains.Production;
         #endregion collections
 
         #region train stops

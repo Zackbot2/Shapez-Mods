@@ -1,10 +1,4 @@
-﻿using MonoMod.RuntimeDetour;
-using ShapezShifter.Hijack;
-using ShapezShifter.SharpDetour;
-using System;
-using TrainsLib.GameData;
-using TrainsLib.Stations;
-using ILogger = Core.Logging.ILogger;
+﻿using ILogger = Core.Logging.ILogger;
 
 namespace TrainsLib
 {
@@ -18,14 +12,14 @@ namespace TrainsLib
             Logger = logger;
             Logger.Info?.Log($"{ModName}: Initializing mod...");
 
-            TrainsDataHandler.Initialize();
+            TrainsLibHookProvider.Initialize();
 
             Logger.Info?.Log($"{ModName}: Mod initialized successfully! 🚂");
         }
 
         public void Dispose() 
         {
-            TrainsDataHandler.Instance?.Dispose();
+            TrainsLibHookProvider.Instance?.Dispose();
         }
     }
 }
