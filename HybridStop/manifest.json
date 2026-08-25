@@ -20,6 +20,11 @@
       "ModId": "steam:3542712030",
       "ModTitle": "MonoMod.RuntimeDetour",
       "Version": "^25.3.0"
+    },
+    {
+      "ModId": "TrainsLIb",
+      "ModTitle": "TrainsLib",
+      "Version": "*"
     }
   ]
 }

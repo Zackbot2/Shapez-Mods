@@ -71,6 +71,11 @@
 			<HintPath>$(SPZ2_SHIFTER)</HintPath>
 			<Private>false</Private>
 		</Reference>
+		<Reference Include="TrainsLib">
+			<!--<HintPath>$(SPZ2_WORKSHOP_MOD_PATH)\3736598408\Shapez2ModConfig.dll</HintPath>-->
+			<HintPath>$(SPZ2_PERSISTENT)\mods\TrainsLib\TrainsLib.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
 
 		<!--Game assemblies-->
 		<Reference Include="SPZGameAssembly">

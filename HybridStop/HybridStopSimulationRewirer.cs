@@ -8,6 +8,8 @@ using ShapezShifter.Textures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TrainsLib.GameData;
+using TrainsLib.Stations;
 using UnityEngine;
 
 namespace HybridStop
@@ -26,38 +28,12 @@ namespace HybridStop
             _hybridStopGroupDefinitionId = hybridStopGroupId;
             _hybridStopIcon = FileTextureLoader.LoadTextureAsSprite(iconPath, out _);
 
-            // if you're following this as a sort of guide, make sure your mesh only has ONE material. this line will throw an error if you have more.
+            // if you're following this as a guide, make sure your mesh only has ONE material. this line will throw an error if you have more.
             _hybridStopMesh = FileMeshLoader.LoadSingleMeshFromFile(modFolderLocator.SubPath(baseMeshPath));
         }
 
         public void ModifySimulationSystems(ICollection<ISimulationSystem> simulationSystems, SimulationSystemsDependencies dependencies)
         {
-            TrainSystem? trainSystem = null;
-
-            // find the TrainSystem from the list of simulation systems that exist for this save
-            foreach (ISimulationSystem simSystem in simulationSystems)
-            {
-                if (simSystem is TrainSystem ts)
-                {
-                    trainSystem = ts;
-                    break;
-                }
-            }
-            if (trainSystem == null)
-            {
-                throw new Exception($"{HybridStopMod.ModName}: {nameof(TrainSystem)} not found — hybrid stop coordinator NOT registered.");
-            }
-
-            // using that, grab its TrainsSimulation.
-            // TrainSystem is the topmost manager of everything train related.
-            // TrainsSimulation manages the simulation side of things, as the name implies.
-            TrainsSimulation trainsSimulation = trainSystem.TrainsSimulation;
-            HybridStopDecider decider = new(trainsSimulation, trainsSimulation.TrainsWagonCargo, trainsSimulation.TrainSimulationTimeTracker, dependencies.Logger);
-
-            // trainsSimulation.BuiltInWagonStates is obsolete, and the new one is private. not sure what they want us to do here?
-            TrainStationCoordinator coordinator = new(_hybridStopIslandDefinitionId, trainsSimulation.BuiltInWagonStates.Moving, decider, decider);
-            // add a new coordinator for HybridStops that uses our custom decider
-            trainsSimulation.AddCustomNavigationCoordinatorAfter<TrainStationCoordinator, TrainStationCoordinator>(coordinator);
 
             PatchVisuals(dependencies);
         }
@@ -68,14 +44,13 @@ namespace HybridStop
 
             if (!islands.TryGetDefinition(_hybridStopIslandDefinitionId, out IIslandDefinition? rawHybridStopIsland))
             {
-                dependencies.Logger.Error?.Log($"{HybridStopMod.ModName}: Island definition with ID '" + _hybridStopIslandDefinitionId.Name + "' not found — visual patch skipped.");
+                dependencies.Logger.Warning?.Log($"{HybridStopMod.ModName}: Island definition with ID '" + _hybridStopIslandDefinitionId.Name + "' not found — visual patch skipped.");
                 return;
             }
 
             // yoink some of the data from the wait stop. we have our own model so we can handle that ourself.
-
-            IslandDefinition hybridStopIsland = (IslandDefinition)rawHybridStopIsland;
-            IslandDefinition waitStopIsland = (IslandDefinition)islands.Trains.Navigation.WaitStation;
+            IslandDefinition hybridStopIsland = (IslandDefinition)ModdedStopRegistry.GetStopByDefinitionId(_hybridStopIslandDefinitionId).Definition!;
+            IslandDefinition waitStopIsland = TrainIslandsData.WaitStationDefinition!;
 
             // grab the wait stop's IslandMeshDrawer.Data. we need this because it contains **materials**. we only want to replace the mesh, not the materials.
             if (waitStopIsland.CustomData.TryGet(out IslandMeshDrawer.Data meshData))
@@ -132,14 +107,9 @@ namespace HybridStop
             {
                 hybridStopIsland.CustomData.AttachOrReplace(railPred);
             }
-
             if (waitStopIsland.CustomData.TryGet(out ModularIslandMeshDrawer modularIslandMeshDrawer))
             {
                 hybridStopIsland.CustomData.AttachOrReplace(modularIslandMeshDrawer);
-            }
-            if (waitStopIsland.CustomData.TryGet(out IslandPresentationData presentationData))
-            {
-                //hybridStopIsland.CustomData.AttachOrReplace(presentationData);
             }
             if (waitStopIsland.CustomData.TryGet(out TrainStationMetadata stationMetadata))
             {
@@ -156,11 +126,11 @@ namespace HybridStop
 
 
             // patch the group's custom data
-            // (i'm still not sure what a group is)
+            // (i'm STILL not sure what a group is)
 
             IIslandDefinitionGroup waitStopGroup = islands.Groups.TrainWaitStationsGroup;
 
-            if (waitStopGroup.CustomData.TryGet(out IPresentationData waitGroupPres))
+            if (waitStopGroup.CustomData.TryGet(out IPresentationData waitStopGroupPresentationData))
             {
                 IslandDefinitionGroup hybridStopGroup = islands.AllDefinitionGroups
                     .OfType<IslandDefinitionGroup>()

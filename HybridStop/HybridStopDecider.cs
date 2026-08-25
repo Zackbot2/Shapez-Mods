@@ -4,6 +4,8 @@ using Game.Core.Coordinates;
 using Game.Core.Trains;
 using Game.Core.Trains.Stations;
 using System;
+using TrainsLib.GameData;
+using TrainsLib.Stations;
 
 namespace HybridStop
 {
@@ -13,20 +15,14 @@ namespace HybridStop
     /// <remarks>
     /// Only one instance of this class exists at a time during runtime, shared across all hybrid stops.
     /// </remarks>
-    public class HybridStopDecider : ITrainStopDecider, ITrainLeaveDecider
+    public class HybridStopDecider : IModdedTrainStopDecider
     {
-        private readonly TrainsSimulation Simulation;
-        private readonly TrainsWagonCargo CargoSimulator;
-        private readonly ISimulationTimeProvider TrainSimulationTimeProvider;
-        private readonly ILogger Logger;
+        private TrainsSimulation Simulation => SimulationSystemsData.TrainSystem!.TrainsSimulation;
+        private TrainsWagonCargo CargoSimulator => SimulationSystemsData.TrainSystem!.CargoSimulator;
+        private ISimulationTimeProvider TrainSimulationTimeProvider => Simulation.TrainSimulationTimeTracker;
+        private ILogger Logger => HybridStopMod.Logger;
 
-        public HybridStopDecider(TrainsSimulation simulation, TrainsWagonCargo cargoSimulator, ISimulationTimeProvider trainSimulationTimeProvider, ILogger logger)
-        {
-            Simulation = simulation;
-            CargoSimulator = cargoSimulator;
-            TrainSimulationTimeProvider = trainSimulationTimeProvider;
-            Logger = logger;
-        }
+        public HybridStopDecider() { }
 
         public bool ShouldTrainStop(TrainId trainId, TrainSimulationData trainSimulationData)
         {
