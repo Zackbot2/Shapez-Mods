@@ -75,7 +75,7 @@ namespace TrainsLib.Stations
         /// <exception cref="KeyNotFoundException"></exception>
         public static ModdedTrainStop GetStopByDefinition(IIslandDefinition definition)
         {
-            return RegisteredStops.FirstOrDefault(stop => stop.Definition == definition)
+            return RegisteredStops.FirstOrDefault(stop => stop.Definition != null && stop.Definition == definition)
                 ?? throw new KeyNotFoundException($"No {nameof(ModdedTrainStop)} found with the definition {definition}.");
         }
 
@@ -87,7 +87,7 @@ namespace TrainsLib.Stations
         /// <returns>Returns <c>true</c> if a modded train stop with the given definition was found; otherwise, <c>false</c>.</returns>
         public static bool TryGetStopByDefinition(IIslandDefinition definition, out ModdedTrainStop? moddedTrainStop)
         {
-            moddedTrainStop = RegisteredStops.FirstOrDefault(stop => stop.Definition == definition);
+            moddedTrainStop = RegisteredStops.FirstOrDefault(stop => stop.Definition != null && stop.Definition == definition);
             return moddedTrainStop != null;
         }
 

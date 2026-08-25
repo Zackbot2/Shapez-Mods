@@ -14,7 +14,7 @@ namespace TrainsLib.Rewirers
 
         public GameIslands ModifyGameIslands(IslandDefinitionFactory factory, AuthoringIslands metaIslands, GameIslands gameIslands)
         {
-            TrainsLibLogger.LogInfo($"Fetched rewirers.");
+            TrainsLibLogger.LogInfo($"Fetched GameIslands.");
             CurrentGameIslands = gameIslands;
 
             return gameIslands;

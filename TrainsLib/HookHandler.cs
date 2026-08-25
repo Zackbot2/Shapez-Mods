@@ -122,7 +122,16 @@ namespace TrainsLib
                 delegate (ITrainNavigationSimulationConfig trainNavigationConfiguration, TrainIslandCollection<IIslandDefinition> trainIslands, IEnumerable<IIslandDefinition> rails, IReadOnlyRailColorRegistry railColorRegistry)
                 {
                     // stop.Definition may be null, but i'd like to throw if it gets to this point and is still null
-                    rails.ToList().AddRange(ModdedStopRegistry.RegisteredStops.Select(stop => stop.Definition!));
+                    foreach(ModdedTrainStop stop in ModdedStopRegistry.RegisteredStops)
+                    {
+                        if (stop.Definition == null)
+                        {
+                            ModdedStopRegistry.UnregisterTrainStop(stop);
+                            TrainsLibLogger.LogError($"ModdedTrainStop {stop.DefinitionId} has a null Definition, which should not happen. Stop has been unregistered.");
+                        }
+                    }
+                    rails = rails.ToList().Union(ModdedStopRegistry.RegisteredStops.Select(stop => stop.Definition!));
+                    TrainsLibLogger.LogInfo($"Registered prediction coordinator for {ModdedStopRegistry.RegisteredStops.Count} modded train stop{(ModdedStopRegistry.RegisteredStops.Count == 1 ? "" : "s")}.");
                     return (trainNavigationConfiguration, trainIslands, rails, railColorRegistry);
                 }
                 ));
@@ -130,7 +139,7 @@ namespace TrainsLib
 
         private void RegisterRewirers()
         {
-            TrainsLibLogger.LogInfo("Registering rewiwers...");
+            TrainsLibLogger.LogInfo("Registering rewirers...");
 
             _rewirerHandles.Add(GameRewirers.AddRewirer(new TrainsSimulationSystemsRewirer()));
             _rewirerHandles.Add(GameRewirers.AddRewirer(new GameIslandsProvider()));
@@ -158,6 +167,7 @@ namespace TrainsLib
                             builtinSystems.Mode.Islands.Trains.Navigation.WaitStation.Id,
                         };
                     trainStops.AddRange(ModdedStopRegistry.RegisteredStops.Select(stop => stop.DefinitionId));
+                    TrainsLibLogger.LogInfo($"Registered shape preview systems for {ModdedStopRegistry.RegisteredStops.Count} modded train stop{(ModdedStopRegistry.RegisteredStops.Count == 1 ? "" : "s")}.");
 
                     ITrainSubStationSimulationSystem[] predictionSubSystems = builtinSystems.TrainStationPredictionSubSystems(shapeCargoType, fluidCargoType).ToArray();
 

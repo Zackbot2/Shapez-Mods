@@ -1,7 +1,7 @@
 {
-  "Version": "0.0.1",
+  "Version": "1.0.0",
   "Author": "Zackbot",
-  "Description": "TBA",
+  "Description": "A library for everything to do with trains.",
   "AffectsSaveGames": false,
   "DisablesAchievements": false,
   "GameVersionSupportRange": "~1.2",
@@ -14,6 +14,11 @@
       "ModId": "steam:3542611357",
       "ModTitle": "Shapez Shifter",
       "Version": "^1.1.0"
+    },
+    {
+      "ModId": "steam:3542712030",
+      "ModTitle": "MonoMod.RuntimeDetour",
+      "Version": "^25.3.0"
     }
   ]
 }
