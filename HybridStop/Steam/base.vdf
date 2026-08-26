@@ -8,5 +8,5 @@
 	"title"				"Hybrid Train Stop"
 	"changenote"		"[b]Mod version $VERSION[/b]
 
-Added the mod name to all logs."
+Refactor to use TrainsLib."
 }

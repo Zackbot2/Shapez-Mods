@@ -1,5 +1,4 @@
-﻿using TrainsLib;
-using Core.Localization;
+﻿using Core.Localization;
 using Game.Content.Trains;
 using Game.Content.Trains.Predictions;
 using Game.Core.Content.Islands;
@@ -7,7 +6,6 @@ using Game.Core.Coordinates;
 using Game.Core.Rails;
 using Game.Core.Trains;
 using Game.Core.Trains.Stations;
-using MonoMod.RuntimeDetour;
 using ShapezShifter.Flow;
 using ShapezShifter.Flow.Atomic;
 using ShapezShifter.Flow.Research;

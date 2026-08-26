@@ -17,8 +17,8 @@ namespace HybridStop
     /// </remarks>
     public class HybridStopDecider : IModdedTrainStopDecider
     {
-        private TrainsSimulation Simulation => SimulationSystemsData.TrainSystem!.TrainsSimulation;
-        private TrainsWagonCargo CargoSimulator => SimulationSystemsData.TrainSystem!.CargoSimulator;
+        private TrainsSimulation Simulation => TrainSimulationSystemsData.TrainSystem!.TrainsSimulation;
+        private TrainsWagonCargo CargoSimulator => TrainSimulationSystemsData.TrainSystem!.CargoSimulator;
         private ISimulationTimeProvider TrainSimulationTimeProvider => Simulation.TrainSimulationTimeTracker;
         private ILogger Logger => HybridStopMod.Logger;
 
