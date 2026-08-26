@@ -1,6 +1,7 @@
 "workshopitem"
 {
 	"appid"				"2162800"
+	"publishedfileid"	"3790179506"
 	"contentfolder"		"${CONTENT_PATH}"
 	"previewfile"		"${PREVIEW_IMG}"
 	"visibility"		"0"
