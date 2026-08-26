@@ -8,5 +8,5 @@
 	"title"				"TrainsLib"
 	"changenote"		"[b]Mod version $VERSION[/b]
 
-Initial release."
+Fixed a crash when a modded stop's definition can't be found during scenario loading."
 }

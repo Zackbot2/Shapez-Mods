@@ -41,6 +41,7 @@ namespace TrainsLib.Stations
             {
                 throw new InvalidOperationException($"The modded train stop {moddedTrainStop} is not registered and cannot be unregistered.");
             }
+            TrainsLibLogger.LogInfo($"Unregistered modded train stop {moddedTrainStop}. ({RegisteredStops.Count} remaining)");
         }
 
         /// <summary>
@@ -95,6 +96,14 @@ namespace TrainsLib.Stations
         {
             TrainsLibLogger.LogInfo($"Unregistering all modded train stops. (${RegisteredStops.Count})");
             RegisteredStops.Clear();
+        }
+
+        internal static void UnregisterTrainStops(IEnumerable<ModdedTrainStop> stopsToUnregister)
+        {
+            foreach(ModdedTrainStop stop in stopsToUnregister)
+            {
+                UnregisterTrainStop(stop);
+            }
         }
     }
 }

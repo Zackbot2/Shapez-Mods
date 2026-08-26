@@ -121,15 +121,19 @@ namespace TrainsLib
                 TrainNavigationPredictionCoordinators.CreateTrainPredictionCoordinators(trainNavigationConfiguration, trainIslands, rails, railColorRegistry),
                 delegate (ITrainNavigationSimulationConfig trainNavigationConfiguration, TrainIslandCollection<IIslandDefinition> trainIslands, IEnumerable<IIslandDefinition> rails, IReadOnlyRailColorRegistry railColorRegistry)
                 {
+                    List<ModdedTrainStop> stopsToUnregister = new();
                     // stop.Definition may be null, but i'd like to throw if it gets to this point and is still null
                     foreach(ModdedTrainStop stop in ModdedStopRegistry.RegisteredStops)
                     {
                         if (stop.Definition == null)
                         {
-                            ModdedStopRegistry.UnregisterTrainStop(stop);
-                            TrainsLibLogger.LogError($"ModdedTrainStop {stop.DefinitionId} has a null Definition, which should not happen. Stop has been unregistered.");
+                            stopsToUnregister.Add(stop);
+                            TrainsLibLogger.LogError($"ModdedTrainStop {stop.DefinitionId} has a null Definition, which should not happen.");
                         }
                     }
+
+                    ModdedStopRegistry.UnregisterTrainStops(stopsToUnregister);
+
                     rails = rails.ToList().Union(ModdedStopRegistry.RegisteredStops.Select(stop => stop.Definition!));
                     TrainsLibLogger.LogInfo($"Registered prediction coordinator for {ModdedStopRegistry.RegisteredStops.Count} modded train stop{(ModdedStopRegistry.RegisteredStops.Count == 1 ? "" : "s")}.");
                     return (trainNavigationConfiguration, trainIslands, rails, railColorRegistry);
