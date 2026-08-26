@@ -133,8 +133,8 @@
 			<HintPath>$(SPZ2_PATH)\Game.Core.Rendering.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="Game.Content.Trains">
-			<HintPath>$(SPZ2_PATH)\Game.Content.Trains.dll</HintPath>
+		<Reference Include="Game.Core.Blueprint">
+			<HintPath>$(SPZ2_PATH)\Game.Core.Blueprint.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 
