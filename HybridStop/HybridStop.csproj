@@ -155,5 +155,9 @@
 			<HintPath>$(SPZ2_PATH)\UnityEngine.CoreModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="UniTask">
+			<HintPath>$(SPZ2_PATH)\UniTask.dll</HintPath>
+			<Private>False</Private>
+		</Reference>		
 	</ItemGroup>
 </Project>

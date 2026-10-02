@@ -1,6 +1,9 @@
 {
   "en-US": {
     "HybridStopIsland.title": "Hybrid Stop",
-    "HybridStopIsland.description": "A hybrid between the <gl>Immediate Stop</gl> and the <gl>Wait Stop</gl>. Waits at a station until 1 floor of 1 wagon is completely finished exchanging."
+    "HybridStopIsland.description": "A hybrid between the <gl>Immediate Stop</gl> and the <gl>Wait Stop</gl>. Waits at a station until 1 floor of 1 wagon is completely finished exchanging.",
+
+    "research.HybridStop.title": "Hybrid Train Stop",
+    "research.HybridStop.description": "Unlocks a new <gl>Train Stop</gl>, where trains will always stop and only leave when 1 floor of 1 wagon is completely finished exchanging."
   }
 }

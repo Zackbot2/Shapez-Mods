@@ -34,7 +34,7 @@ namespace HybridStop
 
         public void ModifySimulationSystems(ICollection<ISimulationSystem> simulationSystems, SimulationSystemsDependencies dependencies)
         {
-
+            HybridStopMod.Logger.Info?.Log($"{HybridStopMod.ModName}: Patching visuals for the hybrid stop island...");
             PatchVisuals(dependencies);
         }
 
