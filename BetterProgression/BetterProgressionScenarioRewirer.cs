@@ -2,56 +2,62 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using static UISoundEffects;
 
 namespace BetterProgression
 {
     public class BetterProgressionScenarioRewirer : IGameScenarioRewirer
     {
-        private readonly Dictionary<string, List<ResearchPlayerLevelConfig.Reward>> playerLevelConfigsByScenario = new()
-        {
-            { 
-                "insane-scenario", new List<ResearchPlayerLevelConfig.Reward>
-                {
-                    new(new SerializedResearchPlayerLevelConfig.Reward()
-                    {
-                        MinimumLevel = 1,
-                        Rewards = new ISerializedResearchReward[]
-                        { 
-                            CreateSerializedReward(RewardType.ChunkLimit, 25),
-                            CreateSerializedReward(RewardType.BlueprintPoints, 5000),
-                            CreateSerializedReward(RewardType.ResearchPoints, 2)
-                        }
-                    }),
-                    new(new SerializedResearchPlayerLevelConfig.Reward()
-                    {
-                        MinimumLevel = 10,
-                        Rewards = new ISerializedResearchReward[]
-                        {
-                            CreateSerializedReward(RewardType.ChunkLimit, 50),
-                            CreateSerializedReward(RewardType.BlueprintPoints, 10000),
-                            CreateSerializedReward(RewardType.ResearchPoints, 5)
-                        }
-                    })
-                }
-            }
-        };
-
-        private ResearchPlayerLevelConfig.Reward CreateRewardForPlayerLevel(int playerLevel, RewardType rewardType, long rewardAmount)
-        {
-            return new ResearchPlayerLevelConfig.Reward(new SerializedResearchPlayerLevelConfig.Reward()
-            {
-                MinimumLevel = playerLevel,
-                Rewards = new ISerializedResearchReward[] { new SerializedResearchRewardChunkLimit() { Amount = playerLevel * 100 } }
-            });
-        }
-
         private enum RewardType
         {
             ResearchPoints,
             BlueprintPoints,
             ChunkLimit
+        }
+
+        private readonly Dictionary<string, List<SerializedResearchPlayerLevelConfig.Reward>> playerLevelConfigsByScenario = new()
+        {
+            {
+                "insane-scenario", new List<SerializedResearchPlayerLevelConfig.Reward>
+                // base reward multipliers: chunk limit = 300, blueprint points = 500
+                {
+                    CreateOperatorLevelReward(minimumLevel: 1, chunkLimitReward: 25, blueprintPointReward: 2000, researchPointReward: 2),
+                    CreateOperatorLevelReward(minimumLevel: 10, chunkLimitReward: 50, blueprintPointReward: 3500, researchPointReward: 5),
+                    CreateOperatorLevelReward(minimumLevel: 25, chunkLimitReward: 100, blueprintPointReward: 5000, researchPointReward: 10),
+                    CreateOperatorLevelReward(minimumLevel: 50, chunkLimitReward: 150, blueprintPointReward: 7500, researchPointReward: 20),
+                    CreateOperatorLevelReward(minimumLevel: 75, chunkLimitReward: 200, blueprintPointReward: 10000, researchPointReward: 30),
+                    CreateOperatorLevelReward(minimumLevel: 100, chunkLimitReward: 500, blueprintPointReward: 15000, researchPointReward: 50),
+                    CreateOperatorLevelReward(minimumLevel: 200, chunkLimitReward: 1000, blueprintPointReward: 25000, researchPointReward: 50),
+                    CreateOperatorLevelReward(minimumLevel: 500, chunkLimitReward: 2000, blueprintPointReward: 50000, researchPointReward: 150)
+                }
+            },
+            {
+                "converter-regular-scenario", new List<SerializedResearchPlayerLevelConfig.Reward>
+                // base reward multipliers: chunk limit = 250, blueprint points = 1000
+                {
+                    CreateOperatorLevelReward(minimumLevel: 1, chunkLimitReward: 25, blueprintPointReward: 2000, researchPointReward: 3),
+                    CreateOperatorLevelReward(minimumLevel: 10, chunkLimitReward: 50, blueprintPointReward: 3500, researchPointReward: 6),
+                    CreateOperatorLevelReward(minimumLevel: 25, chunkLimitReward: 100, blueprintPointReward: 5000, researchPointReward: 10),
+                    CreateOperatorLevelReward(minimumLevel: 50, chunkLimitReward: 150, blueprintPointReward: 7500, researchPointReward: 15),
+                    CreateOperatorLevelReward(minimumLevel: 75, chunkLimitReward: 250, blueprintPointReward: 10000, researchPointReward: 20),
+                    CreateOperatorLevelReward(minimumLevel: 100, chunkLimitReward: 500, blueprintPointReward: 15000, researchPointReward: 30),
+                    CreateOperatorLevelReward(minimumLevel: 200, chunkLimitReward: 1500, blueprintPointReward: 25000, researchPointReward: 50),
+                    CreateOperatorLevelReward(minimumLevel: 500, chunkLimitReward: 5000, blueprintPointReward: 50000, researchPointReward: 150)
+                }
+            }
+        };
+
+        private static SerializedResearchPlayerLevelConfig.Reward CreateOperatorLevelReward(int minimumLevel, long chunkLimitReward, long blueprintPointReward, long researchPointReward)
+        {
+            return new()
+            {
+                MinimumLevel = minimumLevel,
+                Rewards = new ISerializedResearchReward[]
+                {
+                    CreateSerializedReward(RewardType.ChunkLimit, chunkLimitReward),
+                    CreateSerializedReward(RewardType.BlueprintPoints, blueprintPointReward),
+                    CreateSerializedReward(RewardType.ResearchPoints, researchPointReward)
+                }
+            };
         }
 
         private static Type GetSerializedTypeForRewardType(RewardType rewardType)
@@ -80,13 +86,14 @@ namespace BetterProgression
         {
             PrintScenarioInfo(scenario);
 
-            IOrderedEnumerable<ResearchPlayerLevelConfig.Reward> orderedLevels = scenario.PlayerLevelConfig.Rewards.OrderBy(level => level.MinimumLevel);
+            BetterProgressionMod.Logger.Info?.Log($"Rewiring scenario {scenario.UniqueId.Id}...");
 
-            for (int i = 0; i < orderedLevels.Count(); i++)
+            if (playerLevelConfigsByScenario.TryGetValue(scenario.UniqueId.Id, out List<SerializedResearchPlayerLevelConfig.Reward> newRewards))
             {
-                ResearchPlayerLevelConfig.Reward level = orderedLevels.ElementAt(i);
-                
-            }
+                scenario.PlayerLevelConfig.Rewards = newRewards
+                .Select(r => new ResearchPlayerLevelConfig.Reward(r))
+                .ToList();
+            }            
 
             PrintScenarioInfo(scenario);
             return scenario;
@@ -108,7 +115,7 @@ namespace BetterProgression
             ResearchConfig researchConfig = scenario.ResearchConfig;
             ResearchPlayerLevelConfig playerLevelConfig = scenario.PlayerLevelConfig;
 
-            string scenarioString = $"Unique ID: {scenario.UniqueId.Id}\n" +
+            string scenarioString = $"Unique ID: {scenario.UniqueId}\n" +
                 $"RESEARCH CONFIG:\n" +
                 $"\tBaseChunkLimitMultiplier: {researchConfig.BaseChunkLimitMultiplier}\n" +
                 $"\tResearchLevelsAreProgressive: {researchConfig.ResearchLevelsAreProgressive}\n" +
