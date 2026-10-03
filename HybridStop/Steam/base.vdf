@@ -8,7 +8,5 @@
 	"title"				"Hybrid Train Stop"
 	"changenote"		"[b]Mod version $VERSION[/b]
 
-- Gave the hybrid stop its own custom shop upgrade! It costs 6000 research points to unlock.
-- Added MonoMod.RuntimeDetour as a dependency.
-- Fixed a bug where the game wouldn't load in manufacture regular or manufacture hard."
+Updated the manifest to include MonoMod.RuntimeDetour. Meant to include this in the last version, oops."
 }
