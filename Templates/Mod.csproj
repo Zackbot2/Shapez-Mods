@@ -35,6 +35,20 @@
 		<SPZ2_WORKSHOP_MOD_PATH Condition="'$(SPZ2_WORKSHOP_MOD_PATH)' == ''">$(SPZ2_SHIFTER)/../..</SPZ2_WORKSHOP_MOD_PATH>
 		<SteamFolder>$(MSBuildProjectDirectoryOutput)\Steam</SteamFolder>
 	</PropertyGroup>
+
+	<!--Package References-->
+	<ItemGroup>
+		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.0" />
+		<PackageReference Include="Krafs.Publicizer" Version="2.3.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<!--Publicized assemblies-->
+	<ItemGroup>
+		<!--<Publicize Include="SPZGameAssembly" />-->
+	</ItemGroup>
 	
 	<ItemGroup>
 		<!--Mod assemblies-->
@@ -43,12 +57,7 @@
 			<Private>false</Private>
 		</Reference>
 		
-		<!--Package References-->
-		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.0" />
-		<PackageReference Include="Krafs.Publicizer" Version="2.3.0">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
+
 
 		<!--Game assemblies-->
 		<Reference Include="SPZGameAssembly">
@@ -125,10 +134,5 @@
 			<HintPath>$(SPZ2_PATH)\UnityEngine.CoreModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-	</ItemGroup>
-
-	<!--Publicized assemblies-->
-	<ItemGroup>
-		<!--<Publicize Include="SPZGameAssembly"/>-->
 	</ItemGroup>
 </Project>
