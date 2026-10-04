@@ -11,9 +11,16 @@ namespace BetterProgression
             PrintScenarioInfo(scenario);
 
             ScenarioReplacement? modifiedScenario = ScenarioReplacementData.GetScenarioReplacement(scenario.UniqueId);
-            modifiedScenario?.ReplaceScenario(scenario);
-
-            PrintScenarioInfo(scenario);
+            if (modifiedScenario != null)
+            {
+                BetterProgressionMod.Logger.Info?.Log($"Modifying scenario {scenario.UniqueId}...");
+                modifiedScenario.ReplaceScenario(scenario);
+                PrintScenarioInfo(scenario);
+            }
+            else
+            {
+                BetterProgressionMod.Logger.Info?.Log($"Not modifying scenario {scenario.UniqueId}.");
+            }
             return scenario;
         }
 

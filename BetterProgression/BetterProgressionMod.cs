@@ -29,12 +29,13 @@ namespace BetterProgression
             _serializedGameScenarioRewirers.Add(new BetterProgressionSerializedScenarioRewirer());
 
             MethodInfo target = typeof(GameMode).GetMethod("From", BindingFlags.Static | BindingFlags.Public);
+            MethodInfo getRawScenario = typeof(IGameData).GetMethod("GetRawScenario", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             _serializedGameScenarioHook = new ILHook(
                 source: target,
                 context =>
                 {
                     ILCursor cursor = new(context);
-                    cursor.GotoNext(MoveType.After, instruction => instruction.MatchCall<IGameData>("GetRawScenario"));
+                    cursor.GotoNext(MoveType.After, instruction => instruction.MatchCallvirt<IGameData>("GetRawScenario"));
                     cursor.EmitDelegate<Func<SerializedGameScenario, SerializedGameScenario>>(ModifyScenario);
                 });
 

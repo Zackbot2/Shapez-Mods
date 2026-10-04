@@ -130,9 +130,4 @@
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
-
-	<!--Publicized assemblies-->
-	<ItemGroup>
-		<!--<Publicize Include="SPZGameAssembly"/>-->
-	</ItemGroup>
 </Project>

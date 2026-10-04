@@ -46,7 +46,9 @@ namespace BetterProgression
                         new SerializedBlueprintCurrencyShape()
                         {
                             Shape = "CuCuCuCu",
-                            Amount = 1
+                            Amount = 1,
+                            RequiredMechanicIds = Array.Empty<string>(),
+                            RequiredUpgradeIds = Array.Empty<string>()
                         }
                     }
                 },
