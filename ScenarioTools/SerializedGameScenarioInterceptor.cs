@@ -46,7 +46,6 @@ namespace ScenarioTools
 
         private SerializedGameScenario Postfix(SerializedGameScenario scenario)
         {
-            Logger.Info?.Log("Modifying serialized scenario");
             foreach (ISerializedGameScenarioRewirer rewirer in RewirerProvider.RewirersOfType<ISerializedGameScenarioRewirer>())
             {
                 scenario = rewirer.ModifySerializedGameScenario(scenario);
