@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BetterProgression
+namespace ScenarioTools
 {
     public class ResearchConfigReplacement
     {
@@ -24,15 +24,17 @@ namespace BetterProgression
         /// <summary>
         /// Apply this <see cref="ResearchConfigReplacement"/> to a <see cref="SerializedResearchConfig"/>, returning a new <see cref="SerializedResearchConfig"/> with the non-null values of this <see cref="ResearchConfigReplacement"/> applied."/>
         /// Does not modify the original <paramref name="config"/> object.
+        /// Any values that are null will instead be taken from <paramref name="config"/>.
         /// </summary>
         /// <param name="config"></param>
-        /// <returns></returns>
+        /// <returns>A new <see cref="SerializedResearchConfig"/> with the non-null values of this <see cref="ResearchConfigReplacement"/> applied, or null if <paramref name="config"/> is null.</returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public SerializedResearchConfig ApplyTo(SerializedResearchConfig config)
+        public SerializedResearchConfig? ApplyTo(SerializedResearchConfig config)
         {
             if (config == null)
             {
-                throw new ArgumentNullException(nameof(config));
+                ScenarioToolsMod.Logger.Error?.Log("Cannot apply ResearchConfigReplacement to null SerializedResearchConfig.");
+                return null;
             }
 
             return new SerializedResearchConfig()

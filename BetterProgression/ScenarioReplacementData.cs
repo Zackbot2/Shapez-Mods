@@ -6,20 +6,6 @@ namespace BetterProgression
 {
     public static class ScenarioReplacementData
     {
-        public static List<ScenarioReplacement> ScenarioReplacements { get; } = new();
-
-        public static ScenarioReplacement? GetScenarioReplacement(string scenarioId)
-        {
-            foreach (ScenarioReplacement replacement in ScenarioReplacements)
-            {
-                if (replacement.ScenarioId == scenarioId)
-                {
-                    return replacement;
-                }
-            }
-            return null;
-        }
-
         internal static void Initialize()
         {
             ScenarioReplacements.Add(new ScenarioReplacement(

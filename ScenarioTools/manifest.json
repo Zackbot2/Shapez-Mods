@@ -1,0 +1,24 @@
+{
+  "Version": "0.1.0",
+  "Author": "Zackbot",
+  "Description": "Mod library for modifying existing scenarios, both vanilla and modded.",
+  "AffectsSaveGames": false,
+  "DisablesAchievements": false,
+  "GameVersionSupportRange": "~1.2",
+  "Conflicts": [],
+  "Assemblies": [
+    "ScenarioTools.dll"
+  ],
+  "Dependencies": [
+    {
+      "ModId": "steam:3542611357",
+      "ModTitle": "Shapez Shifter",
+      "Version": "^1.1.0"
+    },
+    {
+      "ModId": "steam:3542712030",
+      "ModTitle": "MonoMod.RuntimeDetour",
+      "Version": "^25.3.0"
+    }
+  ]
+}

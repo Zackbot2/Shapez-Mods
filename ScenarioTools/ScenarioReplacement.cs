@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BetterProgression
+namespace ScenarioTools
 {
     public class ScenarioReplacement
     {
@@ -58,6 +58,17 @@ namespace BetterProgression
                 }
                 scenarioToReplace.PlayerLevelConfig.Rewards = serializedRewards.ToArray();
             }
+        }
+
+        public static long GetAmountForReward(SerializedGameScenario scenario, ISerializedResearchReward reward)
+        {
+            return reward switch
+            {
+                SerializedResearchRewardResearchPoints researchPoints => researchPoints.Amount,
+                SerializedResearchRewardBlueprintCurrency blueprintCurrency => scenario.ResearchConfig.BaseBlueprintRewardMultiplier * blueprintCurrency.Amount / 100,
+                SerializedResearchRewardChunkLimit chunkLimit => scenario.ResearchConfig.BaseChunkLimitMultiplier * chunkLimit.Amount,
+                _ => 0,
+            };
         }
     }
 }

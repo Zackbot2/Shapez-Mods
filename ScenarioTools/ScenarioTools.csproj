@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<!--Mod name-->
 	<PropertyGroup>
-		<ModName>CHANGE_ME</ModName>
+		<ModName>ScenarioTools</ModName>
 	</PropertyGroup>
-	
+
 	<!--Project specifications-->
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
@@ -16,13 +16,13 @@
 	<ItemGroup>
 		<Folder Include="Steam\" />
 	</ItemGroup>
-	
+
 	<!--Build specifications-->
 	<PropertyGroup>
 		<OutputPath>$(SPZ2_PERSISTENT)\mods\$(ModName)</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
-	
+
 	<ItemGroup>
 		<None Update="manifest.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -36,6 +36,10 @@
 		<SteamFolder>$(MSBuildProjectDirectoryOutput)\Steam</SteamFolder>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<PublicizerRuntimeStrategies>Unsafe</PublicizerRuntimeStrategies> <!--Removes conflict between MonoMod.Utils and Krafs.Publicizer-->
+	</PropertyGroup>
+
 	<!--Package References-->
 	<ItemGroup>
 		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.0" />
@@ -45,23 +49,17 @@
 		</PackageReference>
 	</ItemGroup>
 
-	<PropertyGroup>
-		<PublicizerRuntimeStrategies>Unsafe</PublicizerRuntimeStrategies> <!--Removes conflict between MonoMod.Utils and Krafs.Publicizer-->
-	</PropertyGroup>
-
 	<!--Publicized assemblies-->
 	<ItemGroup>
-		<!--<Publicize Include="SPZGameAssembly" />-->
+		<Publicize Include="ShapezShifter" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
 		<!--Mod assemblies-->
 		<Reference Include="ShapezShifter">
 			<HintPath>$(SPZ2_SHIFTER)</HintPath>
 			<Private>false</Private>
 		</Reference>
-		
-
 
 		<!--Game assemblies-->
 		<Reference Include="SPZGameAssembly">
@@ -120,7 +118,7 @@
 			<HintPath>$(SPZ2_PATH)\Game.Core.Rendering.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		
+
 		<!--Unity assemblies-->
 		<Reference Include="Core">
 			<HintPath>$(SPZ2_PATH)\Core.dll</HintPath>

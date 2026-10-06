@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BetterProgression
+namespace ScenarioTools
 {
     public class OperatorLevelReplacement
     {
@@ -51,7 +51,7 @@ namespace BetterProgression
             {
                 rewardList.Add(CreateSerializedReward(RewardType.ChunkLimit, chunkLimitReward));
             }
-            if (blueprintPointReward != 0) 
+            if (blueprintPointReward != 0)
             {
                 rewardList.Add(CreateSerializedReward(RewardType.BlueprintPoints, blueprintPointReward));
             }

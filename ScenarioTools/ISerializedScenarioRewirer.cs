@@ -1,6 +1,9 @@
 ﻿using ShapezShifter.Hijack;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace BetterProgression
+namespace ScenarioTools
 {
     public interface ISerializedGameScenarioRewirer : IRewirer
     {
