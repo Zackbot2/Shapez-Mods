@@ -34,7 +34,7 @@ namespace ScenarioTools
 
                 foreach (ISerializedResearchReward reward in rewardConfig.Rewards)
                 {
-                    scenarioString += $"\t\t\t- {reward.GetType().Name} -> {ScenarioReplacement.GetAmountForReward(scenario, reward)}\n";
+                    scenarioString += $"\t\t\t- {reward.GetType().Name} -> {ScenarioModification.GetAmountForReward(scenario, reward)}\n";
                 }
             }
 

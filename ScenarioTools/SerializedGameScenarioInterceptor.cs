@@ -28,7 +28,6 @@ namespace ScenarioTools
             Logger = logger;
 
             MethodInfo target = typeof(GameMode).GetMethod("From", BindingFlags.Static | BindingFlags.Public);
-            MethodInfo getRawScenario = typeof(IGameData).GetMethod("GetRawScenario", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             IlHook = new ILHook(
                 source: target!,
                 manip: context =>

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ScenarioTools
+namespace ScenarioTools.Research
 {
-    public class ResearchConfigReplacement
+    public class ResearchConfigModification
     {
         public int? BaseChunkLimitMultiplier;
         public int? BaseBlueprintRewardMultiplier;
@@ -19,15 +19,15 @@ namespace ScenarioTools
         public List<string>? InitiallyUnlockedUpgrades;
         public string? TutorialConfig;
 
-        public ResearchConfigReplacement() { }
+        public ResearchConfigModification() { }
 
         /// <summary>
-        /// Apply this <see cref="ResearchConfigReplacement"/> to a <see cref="SerializedResearchConfig"/>, returning a new <see cref="SerializedResearchConfig"/> with the non-null values of this <see cref="ResearchConfigReplacement"/> applied."/>
+        /// Apply this <see cref="ResearchConfigModification"/> to a <see cref="SerializedResearchConfig"/>, returning a new <see cref="SerializedResearchConfig"/> with the non-null values of this <see cref="ResearchConfigModification"/> applied."/>
         /// Does not modify the original <paramref name="config"/> object.
         /// Any values that are null will instead be taken from <paramref name="config"/>.
         /// </summary>
         /// <param name="config"></param>
-        /// <returns>A new <see cref="SerializedResearchConfig"/> with the non-null values of this <see cref="ResearchConfigReplacement"/> applied, or null if <paramref name="config"/> is null.</returns>
+        /// <returns>A new <see cref="SerializedResearchConfig"/> with the non-null values of this <see cref="ResearchConfigModification"/> applied, or null if <paramref name="config"/> is null.</returns>
         /// <exception cref="ArgumentNullException"></exception>
         public SerializedResearchConfig? ApplyTo(SerializedResearchConfig config)
         {

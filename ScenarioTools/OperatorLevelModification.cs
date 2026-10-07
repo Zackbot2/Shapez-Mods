@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ScenarioTools
 {
-    public class OperatorLevelReplacement
+    public class OperatorLevelModification
     {
         public enum RewardType
         {
@@ -16,13 +16,13 @@ namespace ScenarioTools
         public int MinimumLevel { get; private set; }
         public ISerializedResearchReward[] Rewards { get; private set; }
 
-        public OperatorLevelReplacement(int minimumLevel, ISerializedResearchReward[] rewards)
+        public OperatorLevelModification(int minimumLevel, ISerializedResearchReward[] rewards)
         {
             MinimumLevel = minimumLevel;
             Rewards = rewards;
         }
 
-        public OperatorLevelReplacement(int minimumLevel, long chunkLimitReward, long blueprintPointReward, long researchPointReward)
+        public OperatorLevelModification(int minimumLevel, long chunkLimitReward, long blueprintPointReward, long researchPointReward)
         {
             MinimumLevel = minimumLevel;
             Rewards = new ISerializedResearchReward[]

@@ -4,13 +4,13 @@ using System.Text;
 
 namespace ScenarioTools
 {
-    public static class ScenarioReplacementRegistry
+    public static class ScenarioModificationRegistry
     {
-        public static List<ScenarioReplacement> ScenarioReplacements { get; } = new();
+        public static List<ScenarioModification> ScenarioReplacements { get; } = new();
 
-        public static ScenarioReplacement? GetScenarioReplacement(string scenarioId)
+        public static ScenarioModification? GetScenarioReplacement(string scenarioId)
         {
-            foreach (ScenarioReplacement replacement in ScenarioReplacements)
+            foreach (ScenarioModification replacement in ScenarioReplacements)
             {
                 if (replacement.ScenarioId == scenarioId)
                 {
@@ -20,7 +20,7 @@ namespace ScenarioTools
             return null;
         }
 
-        public static bool TryAddScenarioReplacement(ScenarioReplacement replacement)
+        public static bool TryAddScenarioReplacement(ScenarioModification replacement)
         {
             if (replacement == null || string.IsNullOrWhiteSpace(replacement.ScenarioId) || GetScenarioReplacement(replacement.ScenarioId) != null)
             {

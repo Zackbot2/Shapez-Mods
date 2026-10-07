@@ -11,7 +11,7 @@ namespace ScenarioTools
         {
             PrintUtils.PrintSerializedScenarioInfo(scenario, ScenarioToolsMod.Logger);
 
-            ScenarioReplacement? modifiedScenario = ScenarioReplacementRegistry.GetScenarioReplacement(scenario.UniqueId);
+            ScenarioModification? modifiedScenario = ScenarioModificationRegistry.GetScenarioReplacement(scenario.UniqueId);
             if (modifiedScenario != null)
             {
                 ScenarioToolsMod.Logger.Info?.Log($"Modifying scenario {scenario.UniqueId}...");

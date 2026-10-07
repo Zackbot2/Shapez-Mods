@@ -1,4 +1,5 @@
-﻿using ShapezShifter.Kit;
+﻿using ScenarioTools.Research;
+using ShapezShifter.Kit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,16 +7,16 @@ using System.Text;
 
 namespace ScenarioTools
 {
-    public class ScenarioReplacement
+    public class ScenarioModification
     {
         public string ScenarioId { get; private set; }
-        public List<OperatorLevelReplacement> OperatorLevelReplacements { get; private set; } = new();
-        public ResearchConfigReplacement ResearchConfig { get; } = new();
+        public List<OperatorLevelModification> OperatorLevelReplacements { get; private set; } = new();
+        public ResearchConfigModification ResearchConfig { get; } = new();
 
-        public ScenarioReplacement(
+        public ScenarioModification(
             string scenarioId,
-            ResearchConfigReplacement? researchConfig = null,
-            List<OperatorLevelReplacement>? operatorLevelReplacements = null)
+            ResearchConfigModification? researchConfig = null,
+            List<OperatorLevelModification>? operatorLevelReplacements = null)
         {
             ScenarioId = scenarioId;
 
@@ -34,7 +35,7 @@ namespace ScenarioTools
         /// 
         /// </summary>
         /// <param name="scenarioToReplace"></param>
-        /// <returns>Returns a new <see cref="SerializedGameScenario"/> based off of <paramref name="scenarioToReplace"/>, with non-null values depending on this <see cref="ScenarioReplacement"/>.</returns>
+        /// <returns>Returns a new <see cref="SerializedGameScenario"/> based off of <paramref name="scenarioToReplace"/>, with non-null values depending on this <see cref="ScenarioModification"/>.</returns>
         /// <exception cref="ArgumentException"></exception>
         public void ReplaceScenario(SerializedGameScenario scenarioToReplace)
         {
@@ -52,7 +53,7 @@ namespace ScenarioTools
             if (OperatorLevelReplacements.Count > 0)
             {
                 List<SerializedResearchPlayerLevelConfig.Reward> serializedRewards = new();
-                foreach (OperatorLevelReplacement replacement in OperatorLevelReplacements)
+                foreach (OperatorLevelModification replacement in OperatorLevelReplacements)
                 {
                     serializedRewards.Add(replacement.ToSerializedResearchPlayerLevelConfigReward());
                 }
