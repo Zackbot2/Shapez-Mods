@@ -150,10 +150,84 @@ namespace ScenarioTools.Data
                 return BlueprintCurrencyShapes.Where(bp => bp.Shape == shapeCode).ToArray();
             }
 
+            /// <summary>
+            /// Set the values of a blueprint shape, found by its shape code. Null paramaters will not replace the original.
+            /// </summary>
+            /// <param name="shapeCode"></param>
+            /// <param name="newAmount"></param>
+            /// <param name="newRequiredUpgradeIds"></param>
+            /// <param name="newRequiredMechanicIds"></param>
+            /// <returns>Returns true if successful, false otherwise.</returns>
+            public bool SetByCode(string shapeCode, string? newShapeCode = null, int? newAmount = null, string[]? newRequiredUpgradeIds = null, string[]? newRequiredMechanicIds = null)
+            {
+                if (string.IsNullOrWhiteSpace(shapeCode)) return false;
+
+                SerializedBlueprintCurrencyShape? shapeInArray = BlueprintCurrencyShapes.FirstOrDefault(bp => bp.Shape == shapeCode);
+                if (shapeInArray == null)
+                {
+                    return false;
+                }
+
+                int index = Array.IndexOf(BlueprintCurrencyShapes, shapeInArray);
+                if (newShapeCode != null)
+                {
+                    shapeInArray.Shape = newShapeCode;
+                }
+                if (newAmount != null)
+                {
+                    shapeInArray.Amount = newAmount.Value;
+                }
+                if (newRequiredUpgradeIds != null)
+                {
+                    shapeInArray.RequiredUpgradeIds = newRequiredUpgradeIds;
+                }
+                if (newRequiredMechanicIds != null)
+                {
+                    shapeInArray.RequiredMechanicIds = newRequiredMechanicIds;
+                }
+                return true;
+            }
+
             // replace by amount
             public SerializedBlueprintCurrencyShape[] GetByAmount(int amount)
             {
                 return BlueprintCurrencyShapes.Where(bp => bp.Amount == amount).ToArray();
+            }
+
+            /// <summary>
+            /// Set the values of a blueprint shape, found by its amount. Null paramaters will not replace the original.
+            /// </summary>
+            /// <param name="shapeCode"></param>
+            /// <param name="amount"></param>
+            /// <param name="newRequiredUpgradeIds"></param>
+            /// <param name="newRequiredMechanicIds"></param>
+            /// <returns>Returns true if successful, false otherwise.</returns>
+            public bool SetByAmount(int amount, string? newShapeCode = null, int? newAmount = null, string[]? newRequiredUpgradeIds = null, string[]? newRequiredMechanicIds = null)
+            {
+                SerializedBlueprintCurrencyShape? shapeInArray = BlueprintCurrencyShapes.FirstOrDefault(bp => bp.Amount == amount);
+                if (shapeInArray == null)
+                {
+                    return false;
+                }
+
+                int index = Array.IndexOf(BlueprintCurrencyShapes, shapeInArray);
+                if (newShapeCode != null)
+                {
+                    shapeInArray.Shape = newShapeCode;
+                }
+                if (newAmount != null)
+                {
+                    shapeInArray.Amount = newAmount.Value;
+                }
+                if (newRequiredUpgradeIds != null)
+                {
+                    shapeInArray.RequiredUpgradeIds = newRequiredUpgradeIds;
+                }
+                if (newRequiredMechanicIds != null)
+                {
+                    shapeInArray.RequiredMechanicIds = newRequiredMechanicIds;
+                }
+                return true;
             }
 
             // replace by required mechanics
@@ -162,10 +236,156 @@ namespace ScenarioTools.Data
                 return BlueprintCurrencyShapes.Where(bp => bp.RequiredMechanicIds != null && bp.RequiredMechanicIds.SequenceEqual(requiredMechanics)).ToArray();
             }
 
+            /// <summary>
+            /// Set the values of a blueprint shape, found by its required mechanics. Null paramaters will not replace the originals.
+            /// The required mechanics must match exactly for this to match.
+            /// </summary>
+            /// <param name="requiredMechanicIds"></param>
+            /// <param name="newShapeCode"></param>
+            /// <param name="newAmount"></param>
+            /// <param name="newRequiredUpgradeIds"></param>
+            /// <param name="newRequiredMechanicIds"></param>
+            /// <returns>Returns true if successful, false otherwise.</returns>
+            public bool SetByAllRequiredMechanics(IEnumerable<string> requiredMechanicIds, string? newShapeCode = null, int? newAmount = null, string[]? newRequiredUpgradeIds = null, string[]? newRequiredMechanicIds = null)
+            {
+                SerializedBlueprintCurrencyShape? shapeInArray = BlueprintCurrencyShapes.FirstOrDefault(bp => bp.RequiredMechanicIds != null && bp.RequiredMechanicIds.SequenceEqual(requiredMechanicIds));
+                if (shapeInArray == null)
+                {
+                    return false;
+                }
+                int index = Array.IndexOf(BlueprintCurrencyShapes, shapeInArray);
+                if (newShapeCode != null)
+                {
+                    shapeInArray.Shape = newShapeCode;
+                }
+                if (newAmount != null)
+                {
+                    shapeInArray.Amount = newAmount.Value;
+                }
+                if (newRequiredUpgradeIds != null)
+                {
+                    shapeInArray.RequiredUpgradeIds = newRequiredUpgradeIds;
+                }
+                if (newRequiredMechanicIds != null)
+                {
+                    shapeInArray.RequiredMechanicIds = newRequiredMechanicIds;
+                }
+                return true;
+            }
+
+            /// <summary>
+            /// Set the values of a blueprint shape, found by one of its required mechanics. Null paramaters will not replace the originals.
+            /// </summary>
+            /// <param name="requiredMechanicId"></param>
+            /// <param name="newShapeCode"></param>
+            /// <param name="newAmount"></param>
+            /// <param name="newRequiredUpgradeIds"></param>
+            /// <param name="newRequiredMechanicIds"></param>
+            /// <returns>Returns true if successful, false otherwise.</returns>
+            public bool SetByOneRequiredMechanic(string requiredMechanicId, string? newShapeCode = null, int? newAmount = null, string[]? newRequiredUpgradeIds = null, string[]? newRequiredMechanicIds = null)
+            {
+                SerializedBlueprintCurrencyShape? shapeInArray = BlueprintCurrencyShapes.FirstOrDefault(bp => bp.RequiredMechanicIds != null && bp.RequiredMechanicIds.Contains(requiredMechanicId));
+                if (shapeInArray == null)
+                {
+                    return false;
+                }
+                int index = Array.IndexOf(BlueprintCurrencyShapes, shapeInArray);
+                if (newShapeCode != null)
+                {
+                    shapeInArray.Shape = newShapeCode;
+                }
+                if (newAmount != null)
+                {
+                    shapeInArray.Amount = newAmount.Value;
+                }
+                if (newRequiredUpgradeIds != null)
+                {
+                    shapeInArray.RequiredUpgradeIds = newRequiredUpgradeIds;
+                }
+                if (newRequiredMechanicIds != null)
+                {
+                    shapeInArray.RequiredMechanicIds = newRequiredMechanicIds;
+                }
+                return true;
+            }
+
             // replace by required upgrades
-            public SerializedBlueprintCurrencyShape[] GetByRequiredUpgrades(List<string> requiredUpgrades)
+            public SerializedBlueprintCurrencyShape[] GetByRequiredUpgrades(IEnumerable<string> requiredUpgrades)
             {
                 return BlueprintCurrencyShapes.Where(bp => bp.RequiredUpgradeIds != null && bp.RequiredUpgradeIds.SequenceEqual(requiredUpgrades)).ToArray();
+            }
+
+            /// <summary>
+            /// Set the values of a blueprint shape, found by its required upgrades. Null paramaters will not replace the originals.
+            /// The required upgrades must match exactly for this to match.
+            /// </summary>
+            /// <param name="requiredUpgradeIds"></param>
+            /// <param name="newShapeCode"></param>
+            /// <param name="newAmount"></param>
+            /// <param name="newRequiredUpgradeIds"></param>
+            /// <param name="newRequiredMechanicIds"></param>
+            /// <returns>Returns true if successful, false otherwise.</returns>
+            public bool SetByAllRequiredUpgrades(IEnumerable<string> requiredUpgradeIds, string? newShapeCode = null, int? newAmount = null, string[]? newRequiredUpgradeIds = null, string[]? newRequiredMechanicIds = null)
+            {
+                SerializedBlueprintCurrencyShape? shapeInArray = BlueprintCurrencyShapes.FirstOrDefault(bp => bp.RequiredUpgradeIds != null && bp.RequiredUpgradeIds.SequenceEqual(requiredUpgradeIds));
+                if (shapeInArray == null)
+                {
+                    return false;
+                }
+                int index = Array.IndexOf(BlueprintCurrencyShapes, shapeInArray);
+                if (newShapeCode != null)
+                {
+                    shapeInArray.Shape = newShapeCode;
+                }
+                if (newAmount != null)
+                {
+                    shapeInArray.Amount = newAmount.Value;
+                }
+                if (newRequiredUpgradeIds != null)
+                {
+                    shapeInArray.RequiredUpgradeIds = newRequiredUpgradeIds;
+                }
+                if (newRequiredMechanicIds != null)
+                {
+                    shapeInArray.RequiredMechanicIds = newRequiredMechanicIds;
+                }
+                return true;
+            }
+
+            /// <summary>
+            /// Set the values of a blueprint shape, found by one of its required upgrades. Null paramaters will not replace the originals.
+            /// </summary>
+            /// <param name="requiredUpgradeId"></param>
+            /// <param name="newShapeCode"></param>
+            /// <param name="newAmount"></param>
+            /// <param name="newRequiredUpgradeIds"></param>
+            /// <param name="newRequiredMechanicIds"></param>
+            /// <returns>Returns true if successful, false otherwise.</returns>
+            public bool SetByOneRequiredUpgrade(string requiredUpgradeId, string? newShapeCode = null, int? newAmount = null, string[]? newRequiredUpgradeIds = null, string[]? newRequiredMechanicIds = null)
+            {
+                SerializedBlueprintCurrencyShape? shapeInArray = BlueprintCurrencyShapes.FirstOrDefault(bp => bp.RequiredUpgradeIds != null && bp.RequiredUpgradeIds.Contains(requiredUpgradeId));
+                if (shapeInArray == null)
+                {
+                    return false;
+                }
+                int index = Array.IndexOf(BlueprintCurrencyShapes, shapeInArray);
+                if (newShapeCode != null)
+                {
+                    shapeInArray.Shape = newShapeCode;
+                }
+                if (newAmount != null)
+                {
+                    shapeInArray.Amount = newAmount.Value;
+                }
+                if (newRequiredUpgradeIds != null)
+                {
+                    shapeInArray.RequiredUpgradeIds = newRequiredUpgradeIds;
+                }
+                if (newRequiredMechanicIds != null)
+                {
+                    shapeInArray.RequiredMechanicIds = newRequiredMechanicIds;
+                }
+                return true;
             }
         }
     }

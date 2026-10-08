@@ -17,7 +17,6 @@ namespace ScenarioTools.Data
         public int IconicLevelShapeInterval { get => OperatorLevelConfig.IconicLevelShapeInterval; set => OperatorLevelConfig.IconicLevelShapeInterval = value; }
         public float RankDifficultyMultiplier { get => OperatorLevelConfig.RankDifficultyMultiplier; set => OperatorLevelConfig.RankDifficultyMultiplier = value; }
 
-
         protected ScenarioData scenarioData;
 
         public OperatorLevelData(ScenarioData scenarioData_)
@@ -43,6 +42,71 @@ namespace ScenarioTools.Data
                 operatorLevelData = operatorLevelData_;
             }
 
+            public static SerializedResearchPlayerLevelConfig.Reward CreateLevelRewards(int minimumLevel, int chunkLimitReward, long blueprintPointReward, int researchPointReward)
+            {
+                return new()
+                {
+                    MinimumLevel = minimumLevel,
+                    Rewards = CreateRewards(chunkLimitReward, blueprintPointReward, researchPointReward)
+                };
+            }
+
+            public static ISerializedResearchReward[] CreateRewards(int chunkLimitReward, long blueprintPointReward, int researchPointReward)
+            {
+                List<ISerializedResearchReward> rewardList = new();
+
+                // only add rewards that aren't 0, so they don't show up as just "0" in-game.
+                if (chunkLimitReward != 0)
+                {
+                    rewardList.Add(new SerializedResearchRewardChunkLimit() { Amount = chunkLimitReward });
+                }
+                if (blueprintPointReward != 0)
+                {
+                    rewardList.Add(new SerializedResearchRewardBlueprintCurrency() { Amount = blueprintPointReward });
+                }
+                if (researchPointReward != 0)
+                {
+                    rewardList.Add(new SerializedResearchRewardResearchPoints() { Amount = researchPointReward });
+                }
+
+                return rewardList.ToArray();
+            }
+
+            public static bool LevelRewardsEqual(SerializedResearchPlayerLevelConfig.Reward a, SerializedResearchPlayerLevelConfig.Reward b)
+            {
+                if (a == null && b == null) return true;
+                if (a == null || b == null) return false;
+                if (a.MinimumLevel != b.MinimumLevel) return false;
+                if (a.Rewards.Length != b.Rewards.Length) return false;
+                for (int i = 0; i < a.Rewards.Length; i++)
+                {
+                    if (!RewardsEqual(a.Rewards[i], b.Rewards[i]))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            public static bool RewardsEqual(ISerializedResearchReward a, ISerializedResearchReward b)
+            {
+                if (a == null && b == null) return true;
+                if (a == null || b == null) return false;
+                if (a.GetType() != b.GetType()) return false;
+                return GetAmountForReward(a) == GetAmountForReward(b);
+            }
+
+            public static long GetAmountForReward(ISerializedResearchReward reward)
+            {
+                return reward switch
+                {
+                    SerializedResearchRewardResearchPoints researchPoints => researchPoints.Amount,
+                    SerializedResearchRewardBlueprintCurrency blueprintPoints => blueprintPoints.Amount,
+                    SerializedResearchRewardChunkLimit chunkLimit => chunkLimit.Amount,
+                    _ => 0
+                };
+            }
+
             public void ReplaceAllWith(IEnumerable<SerializedResearchPlayerLevelConfig.Reward> rewards)
             {
                 Rewards = rewards.ToArray();
@@ -59,16 +123,51 @@ namespace ScenarioTools.Data
                 return false;
             }
 
+            /// <summary>
+            /// Set the rewards for a given level. If rewards for that level don't exist, it will be added.
+            /// </summary>
+            /// <param name="minimumLevel"></param>
+            /// <param name="chunkLimitReward"></param>
+            /// <param name="blueprintPointReward"></param>
+            /// <param name="researchPointReward"></param>
+            public void SetRewardsForLevel(int minimumLevel, int chunkLimitReward, long blueprintPointReward, int researchPointReward)
+            {
+                SerializedResearchPlayerLevelConfig.Reward newRewards = new()
+                {
+                    MinimumLevel = minimumLevel,
+                    Rewards = CreateRewards(chunkLimitReward, blueprintPointReward, researchPointReward)
+                };
+
+                if (!AddLevelRewards(newRewards))
+                {
+                    ReplaceLevelRewards(GetLevelRewards(minimumLevel), newRewards);
+                }
+            }
+
             public bool AddLevelRewards(SerializedResearchPlayerLevelConfig.Reward levelRewards)
             {
-                if (Rewards.Contains(levelRewards))
+                if (Rewards.Any(r => r.MinimumLevel == levelRewards.MinimumLevel))
                 {
                     return false;
                 }
                 Rewards = Rewards.Append(levelRewards).ToArray();
                 return true;
             }
-            
+
+            public bool AddLevelRewards(int minimumLevel, ISerializedResearchReward[] rewards)
+            {
+                if (Rewards.Any(r => r.MinimumLevel == minimumLevel))
+                {
+                    return false;
+                }
+                Rewards = Rewards.Append(new SerializedResearchPlayerLevelConfig.Reward()
+                {
+                    MinimumLevel = minimumLevel,
+                    Rewards = rewards
+                }).ToArray();
+                return true;
+            }
+
             public bool AddLevelRewards(int minimumLevel, int chunkLimitReward, long blueprintPointReward, int researchPointReward)
             {
                 if (Rewards.Any(r => r.MinimumLevel == minimumLevel))
@@ -76,27 +175,16 @@ namespace ScenarioTools.Data
                     return false;
                 }
 
-                List<ISerializedResearchReward> rewardList = new();
-
-                // only add rewards that aren't 0, so they don't show up as just "0" in-game.
-                if (chunkLimitReward != 0)
-                {
-                    rewardList.Add(new SerializedResearchRewardChunkLimit() { Amount = chunkLimitReward});
-                }
-                if (blueprintPointReward != 0)
-                {
-                    rewardList.Add(new SerializedResearchRewardBlueprintCurrency() { Amount = blueprintPointReward});
-                }
-                if (researchPointReward != 0)
-                {
-                    rewardList.Add(new SerializedResearchRewardChunkLimit() { Amount = researchPointReward });
-                }
-
                 return AddLevelRewards(new SerializedResearchPlayerLevelConfig.Reward()
                 {
                     MinimumLevel = minimumLevel,
-                    Rewards = rewardList.ToArray()
+                    Rewards = CreateRewards(chunkLimitReward, blueprintPointReward, researchPointReward)
                 });
+            }
+
+            public SerializedResearchPlayerLevelConfig.Reward GetLevelRewards(int minimumLevel)
+            {
+                return Rewards.FirstOrDefault(r => r.MinimumLevel == minimumLevel);
             }
 
             public bool RemoveRewardsAtLevel(int minimumLevel)
@@ -111,11 +199,11 @@ namespace ScenarioTools.Data
 
             public bool RemoveLevelRewards(SerializedResearchPlayerLevelConfig.Reward levelRewards)
             {
-                if (!Rewards.Contains(levelRewards))
+                if (!Rewards.Any(r => LevelRewardsEqual(r, levelRewards)))
                 {
                     return false;
                 }
-                Rewards = Rewards.Where(r => r != levelRewards).ToArray();
+                Rewards = Rewards.Where(r => !LevelRewardsEqual(r, levelRewards)).ToArray();
                 return true;
             }
         }

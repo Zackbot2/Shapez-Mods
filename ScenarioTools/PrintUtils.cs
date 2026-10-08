@@ -51,7 +51,7 @@ namespace ScenarioTools
             return reward switch
             {
                 SerializedResearchRewardResearchPoints researchPoints => researchPoints.Amount,
-                SerializedResearchRewardBlueprintCurrency blueprintPoints => blueprintPoints.Amount * scenario.ResearchConfig.BaseBlueprintRewardMultiplier,
+                SerializedResearchRewardBlueprintCurrency blueprintPoints => blueprintPoints.Amount * scenario.ResearchConfig.BaseBlueprintRewardMultiplier / 100,
                 SerializedResearchRewardChunkLimit chunkLimit => chunkLimit.Amount * scenario.ResearchConfig.BaseChunkLimitMultiplier,
                 _ => 0
             };
