@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using static ScenarioTools.OperatorLevelModification;
 
-namespace ScenarioTools.ScenarioData
+namespace ScenarioTools.Data
 {
     /// <summary>
     /// Corresponds to <see cref="SerializedResearchPlayerLevelConfig"/>.

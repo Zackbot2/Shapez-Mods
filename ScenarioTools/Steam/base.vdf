@@ -7,5 +7,5 @@
 	"title"				"Scenario Tools"
 	"changenote"		"[b]Mod version $VERSION[/b]
 
-Initial private release."
+Redo of the entire library. Now uses ScenarioData instead of ScenarioModification."
 }

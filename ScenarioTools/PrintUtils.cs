@@ -34,11 +34,38 @@ namespace ScenarioTools
 
                 foreach (ISerializedResearchReward reward in rewardConfig.Rewards)
                 {
-                    scenarioString += $"\t\t\t- {reward.GetType().Name} -> {ScenarioModification.GetAmountForReward(scenario, reward)}\n";
+                    scenarioString += $"\t\t\t- {reward.GetType().Name} -> {GetAmountForReward(scenario, reward)}\n";
                 }
             }
 
             logger.Info?.Log($"Serialized scenario info:\n{scenarioString}");
+        }
+
+        public static long GetAmountForReward(SerializedGameScenario scenario, ISerializedResearchReward reward)
+        {
+            if (scenario == null)
+            {
+                return GetAmountForRewardUnmultiplied(reward);
+            }
+
+            return reward switch
+            {
+                SerializedResearchRewardResearchPoints researchPoints => researchPoints.Amount,
+                SerializedResearchRewardBlueprintCurrency blueprintPoints => blueprintPoints.Amount * scenario.ResearchConfig.BaseBlueprintRewardMultiplier,
+                SerializedResearchRewardChunkLimit chunkLimit => chunkLimit.Amount * scenario.ResearchConfig.BaseChunkLimitMultiplier,
+                _ => 0
+            };
+        }
+
+        public static long GetAmountForRewardUnmultiplied(ISerializedResearchReward reward)
+        {
+            return reward switch
+            {
+                SerializedResearchRewardResearchPoints researchPoints => researchPoints.Amount,
+                SerializedResearchRewardBlueprintCurrency blueprintPoints => blueprintPoints.Amount,
+                SerializedResearchRewardChunkLimit chunkLimit => chunkLimit.Amount,
+                _ => 0
+            };
         }
     }
 }

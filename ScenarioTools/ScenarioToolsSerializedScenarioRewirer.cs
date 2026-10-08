@@ -1,5 +1,5 @@
 ﻿using ScenarioTools;
-using ScenarioTools.ScenarioData;
+using ScenarioTools.Data;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,9 +12,19 @@ namespace ScenarioTools
         {
             PrintUtils.PrintSerializedScenarioInfo(scenario, ScenarioToolsMod.Logger);
 
-            ScenarioData.ScenarioData scenarioData = new(scenario);
+            ScenarioData scenarioData = new(scenario);
 
+            if (DataHandlers.Handlers.Count > 0)
+            {
+                ScenarioToolsMod.Logger.Info?.Log($"Modifying scenario data ({DataHandlers.Handlers.Count} handler{(DataHandlers.Handlers.Count != 1 ? "s" : "")})");
 
+                foreach (IScenarioDataHandler handler in DataHandlers.Handlers)
+                {
+                    scenarioData = handler.ModifyScenarioData(scenarioData);
+                }
+
+                PrintUtils.PrintSerializedScenarioInfo(scenarioData.gameScenario, ScenarioToolsMod.Logger);
+            }                
 
             return scenarioData.gameScenario;
         }
