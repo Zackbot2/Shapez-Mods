@@ -3,6 +3,7 @@ using Game.Core.Content.Buildings;
 using Game.Core.Content.Islands;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
+using ScenarioTools.Data;
 using ShapezShifter.Hijack;
 using ShapezShifter.SharpDetour;
 using System;
@@ -16,24 +17,19 @@ namespace BetterProgression
         internal static ILogger Logger { get; private set; } = null!;
         public static string ModName => nameof(BetterProgressionMod);
 
-        // hooks and rewirers
-        private readonly RewirerHandle? _scenarioRewirer;
-        private ILHook? _serializedGameScenarioHook;
+        private readonly BetterProgressionScenarioDataHandler _scenarioDataHandler;
 
         public BetterProgressionMod(ILogger logger)
         {
             Logger = logger;
 
-            _scenarioRewirer = GameRewirers.AddRewirer(new BetterProgressionScenarioRewirer());
-
-            ScenarioReplacementData.Initialize();
+            _scenarioDataHandler = new();
+            DataHandlers.AddDataHandler(_scenarioDataHandler);
         }
 
         public void Dispose()
         {
-            if (_scenarioRewirer != null) GameRewirers.RemoveRewirer(_scenarioRewirer.Value);
-            _serializedGameScenarioHook?.Dispose();
-            _serializedGameScenarioHook = null;
+            DataHandlers.RemoveDataHandler(_scenarioDataHandler);
         }
     }
 }

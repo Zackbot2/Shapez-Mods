@@ -37,10 +37,18 @@
 		<SteamFolder>$(MSBuildProjectDirectoryOutput)\Steam</SteamFolder>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<PublicizerRuntimeStrategies>Unsafe</PublicizerRuntimeStrategies> <!--Removes conflict between MonoMod.Utils and Krafs.Publicizer-->
+	</PropertyGroup>
+
 	<ItemGroup>
 		<!--Mod assemblies-->
 		<Reference Include="ShapezShifter">
 			<HintPath>$(SPZ2_SHIFTER)</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="ScenarioTools">
+			<HintPath>$(SPZ2_WORKSHOP_MOD_PATH)\3814498586\ScenarioTools.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 
