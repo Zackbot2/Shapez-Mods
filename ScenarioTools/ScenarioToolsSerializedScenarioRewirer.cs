@@ -1,4 +1,5 @@
 ﻿using ScenarioTools;
+using ScenarioTools.ScenarioData;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,18 +12,11 @@ namespace ScenarioTools
         {
             PrintUtils.PrintSerializedScenarioInfo(scenario, ScenarioToolsMod.Logger);
 
-            ScenarioModification? modifiedScenario = ScenarioModificationRegistry.GetScenarioReplacement(scenario.UniqueId);
-            if (modifiedScenario != null)
-            {
-                ScenarioToolsMod.Logger.Info?.Log($"Modifying scenario {scenario.UniqueId}...");
-                modifiedScenario.ReplaceScenario(scenario);
-                PrintUtils.PrintSerializedScenarioInfo(scenario, ScenarioToolsMod.Logger);
-            }
-            else
-            {
-                ScenarioToolsMod.Logger.Info?.Log($"Not modifying scenario {scenario.UniqueId}.");
-            }
-            return scenario;
+            ScenarioData.ScenarioData scenarioData = new(scenario);
+
+
+
+            return scenarioData.gameScenario;
         }
     }
 }
