@@ -1,5 +1,5 @@
 {
-  "Version": "0.2.0",
+  "Version": "0.2.1",
   "Author": "Zackbot",
   "Description": "Mod library for modifying existing scenarios, both vanilla and modded.",
   "AffectsSaveGames": false,
