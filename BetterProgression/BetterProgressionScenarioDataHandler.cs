@@ -58,5 +58,38 @@ namespace BetterProgression
             });
             return scenarioData;
         }
+
+        private ScenarioData ModifyManufactureRegularScenario(ScenarioData scenarioData)
+        {
+            if (scenarioData == null)
+            {
+                throw new ArgumentNullException(nameof(scenarioData));
+            }
+
+            if (scenarioData.ScenarioId != MANUFACTURE_REGULAR_SCENARIO_ID)
+            {
+                BetterProgressionMod.Logger.Warning?.Log($"Attempted to modify {MANUFACTURE_REGULAR_SCENARIO_ID} when passed {nameof(scenarioData)} had ID {scenarioData.ScenarioId}");
+                return scenarioData;
+            }
+
+            // operator levels
+            scenarioData.OperatorLevels.Rewards.SetRewardsForLevel(minimumLevel: 1, chunkLimitReward: 25, blueprintPointReward: 2000, researchPointReward: 3);
+            scenarioData.OperatorLevels.Rewards.SetRewardsForLevel(minimumLevel: 10, chunkLimitReward: 50, blueprintPointReward: 3500, researchPointReward: 6);
+            scenarioData.OperatorLevels.Rewards.SetRewardsForLevel(minimumLevel: 25, chunkLimitReward: 100, blueprintPointReward: 5000, researchPointReward: 10);
+            scenarioData.OperatorLevels.Rewards.SetRewardsForLevel(minimumLevel: 50, chunkLimitReward: 150, blueprintPointReward: 7500, researchPointReward: 15);
+            scenarioData.OperatorLevels.Rewards.SetRewardsForLevel(minimumLevel: 75, chunkLimitReward: 250, blueprintPointReward: 10000, researchPointReward: 20);
+            scenarioData.OperatorLevels.Rewards.SetRewardsForLevel(minimumLevel: 100, chunkLimitReward: 500, blueprintPointReward: 15000, researchPointReward: 30);
+            scenarioData.OperatorLevels.Rewards.SetRewardsForLevel(minimumLevel: 200, chunkLimitReward: 1500, blueprintPointReward: 25000, researchPointReward: 50);
+            scenarioData.OperatorLevels.Rewards.SetRewardsForLevel(minimumLevel: 500, chunkLimitReward: 5000, blueprintPointReward: 50000, researchPointReward: 150);
+
+            // blueprint shapes
+            scenarioData.Research.BlueprintProgression.SetByCode("WuWuXuXu", newShapeCode: "CuXuCuXu");
+            scenarioData.Research.BlueprintProgression.SetByCode("RrRrRrRr:CuCuCuCu", newShapeCode: "CbXbCbRb:CuCuCuCu", newRequiredUpgradeIds: new string[] { "ConverterMilestoneTier3" });
+            scenarioData.Research.BlueprintProgression.SetByCode("WwWwWwWw:CrCyCrCy:Sy--Sy--", newShapeCode: "CbXgCbRg:CwSwCwCw");
+            scenarioData.Research.BlueprintProgression.SetByCode("WrWwWrWw:P-P-P-P-:CwCwCwCw", newShapeCode: "CbP-CbRw:XcSwXcP-:Cw--CwCw");
+            scenarioData.Research.BlueprintProgression.SetByCode("crcrcrcr:WucgSucg:CwCwCwCw", newShapeCode: "cbSwcbRw:Wc--Wc--:Xw--XwCw");
+
+            return scenarioData;
+        }
     }
 }
