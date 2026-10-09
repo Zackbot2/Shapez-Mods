@@ -52,6 +52,7 @@
 	<!--Publicized assemblies-->
 	<ItemGroup>
 		<Publicize Include="ShapezShifter" />
+		<Publicize Include="SPZGameAssembly" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -14,10 +14,9 @@ namespace ScenarioTools
 
             string scenarioString = $"Unique ID: {scenario.UniqueId}\n" +
                 $"RESEARCH CONFIG:\n" +
-                $"\tBaseChunkLimitMultiplier: {researchConfig.BaseChunkLimitMultiplier}\n" +
-                $"\tResearchLevelsAreProgressive: {researchConfig.ResearchLevelsAreProgressive}\n" +
                 $"\tBaseBlueprintRewardMultiplier: {researchConfig.BaseBlueprintRewardMultiplier}\n" +
                 $"\tBaseChunkLimitMultiplier: {researchConfig.BaseChunkLimitMultiplier}\n" +
+                $"\tResearchLevelsAreProgressive: {researchConfig.ResearchLevelsAreProgressive}\n" +
                 $"\tBlueprintCurrencyShapes:\n";
 
             foreach (SerializedBlueprintCurrencyShape shape in researchConfig.BlueprintCurrencyShapes)
@@ -30,12 +29,20 @@ namespace ScenarioTools
 
             foreach (SerializedResearchPlayerLevelConfig.Reward rewardConfig in playerLevelConfig.Rewards)
             {
-                scenarioString += $"\t\t- level {rewardConfig.MinimumLevel}:\n";
+                scenarioString += $"\t\tlevel {rewardConfig.MinimumLevel}:\n";
 
                 foreach (ISerializedResearchReward reward in rewardConfig.Rewards)
                 {
-                    scenarioString += $"\t\t\t- {reward.GetType().Name} -> {GetAmountForReward(scenario, reward)}\n";
+                    scenarioString += $"\t\t\t{reward.GetType().Name} -> {GetAmountForReward(scenario, reward)}\n";
                 }
+            }
+
+            scenarioString += "RESEARCH STATION CONFIG:\n" +
+                "\tRecipes:\n";
+
+            foreach (KeyValuePair<string, string> recipe in scenario.ResearchStationConfig.Recipes)
+            {
+                scenarioString += $"\t\t{recipe.Key} -> {recipe.Value}\n";
             }
 
             logger.Info?.Log($"Serialized scenario info:\n{scenarioString}");
@@ -52,7 +59,7 @@ namespace ScenarioTools
             {
                 SerializedResearchRewardResearchPoints researchPoints => researchPoints.Amount,
                 SerializedResearchRewardBlueprintCurrency blueprintPoints => blueprintPoints.Amount * scenario.ResearchConfig.BaseBlueprintRewardMultiplier / 100,
-                SerializedResearchRewardChunkLimit chunkLimit => chunkLimit.Amount * scenario.ResearchConfig.BaseChunkLimitMultiplier,
+                SerializedResearchRewardChunkLimit chunkLimit => chunkLimit.Amount * scenario.ResearchConfig.BaseChunkLimitMultiplier / 200,
                 _ => 0
             };
         }

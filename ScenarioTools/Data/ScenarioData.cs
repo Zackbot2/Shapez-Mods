@@ -10,6 +10,7 @@ namespace ScenarioTools.Data
         public SerializedGameScenario gameScenario;
         public ResearchConfigData Research { get; private set; }
         public OperatorLevelData OperatorLevels { get; private set; }
+        public ResearchStationConfigData ResearchStationConfig { get; private set; }
         public string ScenarioId => gameScenario.UniqueId;
 
         public ScenarioData(SerializedGameScenario scenario)
@@ -21,6 +22,7 @@ namespace ScenarioTools.Data
             gameScenario = scenario;
             Research = new ResearchConfigData(this);
             OperatorLevels = new OperatorLevelData(this);
+            ResearchStationConfig = new ResearchStationConfigData(this);
         }
     }
 }

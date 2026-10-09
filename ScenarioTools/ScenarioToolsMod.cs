@@ -1,8 +1,11 @@
 ﻿using Core.Logging;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using ShapezShifter.Hijack;
 using ShapezShifter.SharpDetour;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace ScenarioTools
@@ -15,6 +18,11 @@ namespace ScenarioTools
         private readonly SerializedGameScenarioInterceptor? _gameScenarioInterceptor;
         private readonly IRewirerProvider _whatTheFuckRewirerProvider;
 
+        private List<ShapeId>? _blueprintShapes;
+
+        private Hook _addShapeStoredHooksHook;
+        private ILHook _tryAddShapeForStorageHook;
+
         public ScenarioToolsMod(ILogger logger)
         {
             Logger = logger;
@@ -23,11 +31,55 @@ namespace ScenarioTools
             _gameScenarioInterceptor = new SerializedGameScenarioInterceptor(_whatTheFuckRewirerProvider, logger);
 
             GameRewirers.AddRewirer(new ScenarioToolsSerializedGameScenarioRewirer());
+
+            _addShapeStoredHooksHook = DetourHelper.CreatePrefixHook(
+                original: (currencyManager) => currencyManager.AddShapeStoredHooks(),
+                prefix: delegate (BlueprintCurrencyManager currencyManager)
+                {
+                    _blueprintShapes = new List<ShapeId>();
+
+                    foreach(BlueprintCurrencyShape bpShape in currencyManager.Mode.ResearchConfig.BlueprintCurrencyShapes)
+                    {
+                        ShapeId bpShapeId = currencyManager.ShapeIdManager.Resolve(bpShape.ShapeHash);
+                        _blueprintShapes.Add(bpShapeId);
+                        Logger.Info?.Log($"[{MOD_NAME}] Added blueprint shape: {bpShape.ShapeHash} ({bpShapeId})");
+                    }
+                });
+
+            MethodInfo tryAddShapeForStorageMethod = typeof(ResearchManager).GetMethod("TryAddShapeForStorage", BindingFlags.Instance | BindingFlags.Public);
+            _tryAddShapeForStorageHook = new ILHook(
+                source: tryAddShapeForStorageMethod,
+                manip: context =>
+                {
+                    ILCursor cursor = new(context);
+
+                    // find the call to ResearchPlayerLevelGoalManager.IsPlayerLevelShape and move right after it
+                    if (!cursor.TryGotoNext(MoveType.After, instruction => instruction.MatchCallvirt<ResearchPlayerLevelGoalManager>(nameof(ResearchPlayerLevelGoalManager.IsPlayerLevelShape))))
+                    {
+                        Logger.Error?.Log($"[{MOD_NAME}] Failed to find the call to IsPlayerLevelShape in TryAddShapeForStorage. Custom blueprint shapes will not work in manufacture scenarios.");
+                        return;
+                    }
+
+                    cursor.Emit(OpCodes.Ldarg_2);   // load argument 2, which is shapeId
+
+                    // emit the new check. it receives the output from the old one as its input
+                    cursor.EmitDelegate<Func<bool, ShapeId, bool>>(
+                        (isPlayerLevelShape, shapeId) => IsAcceptedShape(isPlayerLevelShape, shapeId)
+                        );
+                });
+
         }
 
         public void Dispose()
         {
             _gameScenarioInterceptor?.Dispose();
+            _addShapeStoredHooksHook.Dispose();
+            _tryAddShapeForStorageHook.Dispose();
+        }
+
+        private bool IsAcceptedShape(bool isPlayerLevelShape, ShapeId shapeid)
+        {
+            return isPlayerLevelShape || (_blueprintShapes != null && _blueprintShapes.Contains(shapeid));
         }
     }
 }
