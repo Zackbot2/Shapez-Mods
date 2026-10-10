@@ -8,10 +8,7 @@
 	"title"				"Scenario Tools"
 	"changenote"		"[b]Mod version $VERSION[/b]
 
-- Added many more helper methods to OperatorLevelRewardData and BlueprintProgression. It's now much easier to modify members
-- Added DataHandlers.RemoveDataHandler method
-- Fixed a bug where the same SerializedGameScenario could be modified multiple times
-- Fixed a bug where operator level rewards couldn't be removed even if their data matched
-- Fixed a bug where operator level research point rewards would instead get added as chunk limit rewards
-- Fixed a bug where PrintSerializedScenarioInfo wasn't printing blueprint shape amounts by the value they'd show in-game"
+- Blueprint shapes now function in all scenarios, including manufacture.
+- Added the ability to add research station recipes.
+- Fixed some incorrect values in PrintUtils."
 }

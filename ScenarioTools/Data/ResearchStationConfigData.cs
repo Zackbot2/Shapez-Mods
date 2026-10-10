@@ -23,7 +23,16 @@ namespace ScenarioTools.Data
             {
                 return false;
             }
-            string[] shapeRotations = GetRotationsForShape(input);
+
+            string[] shapeRotations;
+            if (scenarioData.gameScenario.ResearchConfig.ShapesConfigurationId == "DefaultShapesQuadConfiguration")
+            {
+                shapeRotations = ShapeUtils.GetRotationsForQuadShape(input);
+            }
+            else
+            {
+                shapeRotations = new string[] { input };
+            }
 
             if (Recipes.Keys.All(k => shapeRotations.Contains(k)))
             {
@@ -49,7 +58,7 @@ namespace ScenarioTools.Data
             {
                 return false;
             }
-            string[] shapeRotations = GetRotationsForShape(input);
+            string[] shapeRotations = ShapeUtils.GetRotationsForQuadShape(input);
 
             foreach (string shape in shapeRotations)
             {
@@ -64,38 +73,6 @@ namespace ScenarioTools.Data
             }
 
             return true;
-        }
-
-        private static string RotateShape(string shapeCode)
-        {
-            string newCode = "";
-            string[] layers = shapeCode.Split(':');
-
-            foreach (string layer in layers)
-            {
-                string newLayer = "";
-                string lastTwoChars = layer[^2..];
-                newLayer += lastTwoChars;
-                newLayer += layer[..^2];
-                newCode += newLayer + ":";
-            }
-            return newCode.TrimEnd(':');
-        }
-
-        private static string[] GetRotationsForShape(string shapeCode)
-        {
-            string[] rotations = new string[4];
-            rotations[0] = shapeCode;
-            string? lastShape = null;
-            for (int i = 1; i < 4; i++)
-            {
-                string rotatedShape = RotateShape(lastShape ?? shapeCode);
-
-                if (rotations.Contains(rotatedShape)) break;
-
-                rotations[i] = rotatedShape;
-            }
-            return rotations;
         }
     }
 }

@@ -33,7 +33,7 @@ namespace ScenarioTools
 
                 foreach (ISerializedResearchReward reward in rewardConfig.Rewards)
                 {
-                    scenarioString += $"\t\t\t{reward.GetType().Name} -> {GetAmountForReward(scenario, reward)}\n";
+                    scenarioString += $"\t\t\t{reward.GetType().Name} -> {GetAmountForReward(scenario, reward)} ({GetAmountForRewardUnmultiplied(reward)})\n";
                 }
             }
 
@@ -59,7 +59,7 @@ namespace ScenarioTools
             {
                 SerializedResearchRewardResearchPoints researchPoints => researchPoints.Amount,
                 SerializedResearchRewardBlueprintCurrency blueprintPoints => blueprintPoints.Amount * scenario.ResearchConfig.BaseBlueprintRewardMultiplier / 100,
-                SerializedResearchRewardChunkLimit chunkLimit => chunkLimit.Amount * scenario.ResearchConfig.BaseChunkLimitMultiplier / 200,
+                SerializedResearchRewardChunkLimit chunkLimit => chunkLimit.Amount * scenario.ResearchConfig.BaseChunkLimitMultiplier / 100,
                 _ => 0
             };
         }

@@ -40,9 +40,13 @@ namespace ScenarioTools
 
                     foreach(BlueprintCurrencyShape bpShape in currencyManager.Mode.ResearchConfig.BlueprintCurrencyShapes)
                     {
-                        ShapeId bpShapeId = currencyManager.ShapeIdManager.Resolve(bpShape.ShapeHash);
-                        _blueprintShapes.Add(bpShapeId);
-                        Logger.Info?.Log($"[{MOD_NAME}] Added blueprint shape: {bpShape.ShapeHash} ({bpShapeId})");
+                        foreach (string? shapeRotation in ShapeUtils.GetRotationsForQuadShape(bpShape.ShapeHash))
+                        {
+                            if (shapeRotation == null) break;
+                            ShapeId bpShapeId = currencyManager.ShapeIdManager.Resolve(shapeRotation);
+                            _blueprintShapes.Add(bpShapeId);
+                            Logger.Info?.Log($"Resolved blueprint ShapeId for {shapeRotation}: {bpShapeId}");
+                        }
                     }
                 });
 
@@ -64,8 +68,7 @@ namespace ScenarioTools
 
                     // emit the new check. it receives the output from the old one as its input
                     cursor.EmitDelegate<Func<bool, ShapeId, bool>>(
-                        (isPlayerLevelShape, shapeId) => IsAcceptedShape(isPlayerLevelShape, shapeId)
-                        );
+                        (isPlayerLevelShape, shapeId) => IsAcceptedShape(isPlayerLevelShape, shapeId));
                 });
 
         }
