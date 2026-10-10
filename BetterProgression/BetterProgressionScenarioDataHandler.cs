@@ -19,6 +19,7 @@ namespace BetterProgression
             return scenarioData.ScenarioId switch
             {
                 CLASSIC_INSANE_SCENARIO_ID => ModifyInsaneScenario(scenarioData),
+                MANUFACTURE_REGULAR_SCENARIO_ID => ModifyManufactureRegularScenario(scenarioData),
                 _ => scenarioData
             };
         }
@@ -84,10 +85,10 @@ namespace BetterProgression
 
             // blueprint shapes
             scenarioData.Research.BlueprintProgression.SetByCode("WuWuXuXu", newShapeCode: "CuXuCuXu");
-            scenarioData.Research.BlueprintProgression.SetByCode("RrRrRrRr:CuCuCuCu", newShapeCode: "CbXbCbRb:CuCuCuCu", newRequiredUpgradeIds: new string[] { "ConverterMilestoneTier3" });
-            scenarioData.Research.BlueprintProgression.SetByCode("WwWwWwWw:CrCyCrCy:Sy--Sy--", newShapeCode: "CbXgCbRg:CwSwCwCw");
-            scenarioData.Research.BlueprintProgression.SetByCode("WrWwWrWw:P-P-P-P-:CwCwCwCw", newShapeCode: "CbP-CbRw:XcSwXcP-:Cw--CwCw");
-            scenarioData.Research.BlueprintProgression.SetByCode("crcrcrcr:WucgSucg:CwCwCwCw", newShapeCode: "cbSwcbRw:Wc--Wc--:Xw--XwCw");
+            scenarioData.Research.BlueprintProgression.SetByCode("RrRrRrRr:CuCuCuCu", newShapeCode: "RbXrRbXr:Cr--Cr--", newRequiredUpgradeIds: new string[] { "ConverterMilestoneTier3" });
+            scenarioData.Research.BlueprintProgression.SetByCode("WwWwWwWw:CrCyCrCy:Sy--Sy--", newShapeCode: "RrXyRr--:Wy--WyXy");
+            scenarioData.Research.BlueprintProgression.SetByCode("WrWwWrWw:P-P-P-P-:CwCwCwCw", newShapeCode: "RrXmRrCw:SmP-SmP-:P-SwP-Xm:Wr--Wr--");
+            scenarioData.Research.BlueprintProgression.SetByCode("crcrcrcr:WucgSucg:CwCwCwCw", newShapeCode: "RrcwRrcw:SwXwSwcr:P-SwP-Xw:Wr--Wr--");
 
             return scenarioData;
         }
