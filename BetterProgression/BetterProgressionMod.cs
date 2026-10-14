@@ -110,6 +110,12 @@ namespace BetterProgression
         private static ResearchLinearUpgrade PatchRenderUpgrades(ResearchLinearUpgrade upgrade, HUDResearchSideUpgradesDisplay upgradesDisplay)
         {
             Logger.Info?.Log($"Should render upgrade {upgrade.Id}? {upgradesDisplay.ShouldRenderUpgrade(upgrade)}");
+            for (int i=0; i < upgrade._Levels.Count; i++)
+            {
+                ResearchLinearUpgrade.LevelData level = upgrade._Levels[i];
+                Logger.Info?.Log($"Level {level.Level} has chunk limit {level.Value}");
+                upgrade._Levels[i] = new ResearchLinearUpgrade.LevelData(level.Level, ApplyGameParametersToChunkLimitCurrency(upgradesDisplay.Mode, level.Value), level.NextCost, ApplyGameParametersToChunkLimitCurrency(upgradesDisplay.Mode, level.NextValue));
+            }
 
             return upgrade;
         }
