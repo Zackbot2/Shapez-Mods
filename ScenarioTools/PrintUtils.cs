@@ -59,7 +59,7 @@ namespace ScenarioTools
             {
                 SerializedResearchRewardResearchPoints researchPoints => researchPoints.Amount,
                 SerializedResearchRewardBlueprintCurrency blueprintPoints => blueprintPoints.Amount * scenario.ResearchConfig.BaseBlueprintRewardMultiplier / 100,
-                SerializedResearchRewardChunkLimit chunkLimit => chunkLimit.Amount * scenario.ResearchConfig.BaseChunkLimitMultiplier / 100,
+                SerializedResearchRewardChunkLimit chunkLimit => chunkLimit.Amount * scenario.ResearchConfig.BaseChunkLimitMultiplier / 200,
                 _ => 0
             };
         }
