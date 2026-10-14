@@ -17,12 +17,13 @@ namespace BetterProgression
 {
     public class BetterProgressionMod : IMod
     {
+        public const string MOD_NAME = nameof(BetterProgressionMod);
+
         internal static ILogger Logger { get; private set; } = null!;
-        public static string ModName => nameof(BetterProgressionMod);
 
         private readonly BetterProgressionScenarioDataHandler _scenarioDataHandler;
-
         private ILHook? _computeCurrentChunkLimitHook;
+        private ILHook? _renderUpgradesHook;
         private ILHook? _rebuildViewHook;
         private ILHook? _upgradeSetterHook;
         private ILHook? _rewardsSetterHook;
@@ -69,45 +70,31 @@ namespace BetterProgression
                 }
             );
 
-            // method to hook
-            MethodInfo collectCurrencyRewardsMethod = typeof(HUDResearchRewardHelpers).GetMethod("CollectCurrencyRewards", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-            MethodInfo replacementMethod = typeof(BetterProgressionMod).GetMethod("CollectCurrencyRewardsWithMode", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            MethodInfo renderUpgradesMethod = typeof(HUDResearchSideUpgradesDisplay)
+                .GetMethod(nameof(HUDResearchSideUpgradesDisplay.RenderUpgrades), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            _renderUpgradesHook = new ILHook(
+                source: renderUpgradesMethod,
+                manip: context =>
+                {
+                    ILCursor cursor = new(context);
 
-            // call sites
-            MethodInfo rebuildViewMethod = typeof(HUDResearchUnlockSummary).GetMethod("RebuildView", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            MethodInfo upgradeSetter = typeof(HUDResearchRewardsDisplay)
-                .GetProperty("Upgrade", BindingFlags.Instance | BindingFlags.Public)?
-                .GetSetMethod(nonPublic: true)
-                ?? throw new MissingMethodException("Upgrade setter not found.");
-            MethodInfo rewardsSetter = typeof(HUDResearchRewardsDisplay)
-                .GetProperty("Rewards", BindingFlags.Instance | BindingFlags.Public)?
-                .GetSetMethod(nonPublic: true)
-                ?? throw new MissingMethodException("Rewards setter not found.");
+                    if (!cursor.TryGotoNext(MoveType.Before, x => x.MatchCall<HUDResearchSideUpgradesDisplay>(nameof(HUDResearchSideUpgradesDisplay.ShouldRenderUpgrade))))
+                    {
+                        throw new InvalidOperationException($"Could not find {nameof(HUDResearchSideUpgradesDisplay.ShouldRenderUpgrade)} call in {nameof(HUDResearchSideUpgradesDisplay)}");
+                    }
+                    cursor.EmitLdarg0();
+                    cursor.EmitDelegate<Func<ResearchLinearUpgrade, HUDResearchSideUpgradesDisplay, ResearchLinearUpgrade>>(PatchRenderUpgrades);
+                    //cursor.EmitLdloc(13);
+                });
 
-            // mode fields
-            FieldInfo summaryModeField = typeof(HUDResearchUnlockSummary).GetField("Mode", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            FieldInfo displayModeField = typeof(HUDResearchRewardsDisplay).GetField("Mode", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            
-
-            _rebuildViewHook = new ILHook(
-                source: rebuildViewMethod,
-                manip: context => PatchCurrencyRewards(context, summaryModeField, collectCurrencyRewardsMethod, replacementMethod)
-            );
-
-            _upgradeSetterHook = new ILHook(
-                source: upgradeSetter,
-                manip: context => PatchCurrencyRewards(context, displayModeField, collectCurrencyRewardsMethod, replacementMethod)
-            );
-
-            _rewardsSetterHook = new ILHook(
-                source: rewardsSetter,
-                manip: context => PatchCurrencyRewards(context, displayModeField, collectCurrencyRewardsMethod, replacementMethod)
-            );
+            Logger.Info?.Log($"{MOD_NAME} initialized successfully!");
         }
 
         public void Dispose()
         {
             DataHandlers.RemoveDataHandler(_scenarioDataHandler);
+            _computeCurrentChunkLimitHook?.Dispose();
+            _renderUpgradesHook?.Dispose();
             _rebuildViewHook?.Dispose();
             _rewardsSetterHook?.Dispose();
             _upgradeSetterHook?.Dispose();
@@ -116,68 +103,15 @@ namespace BetterProgression
         private static int ApplyGameParametersToChunkLimitCurrency(GameMode mode, int input)
         {
             Logger.Info?.Log($"Applying game parameters to chunk limit currency: input={input}, multiplier={mode.Parameters.DifficultyParameters.ChunkLimitMultiplier}. Output will be {input * mode.Parameters.DifficultyParameters.ChunkLimitMultiplier / 100}");
-            Logger.Info?.Log(Environment.StackTrace);
+            //Logger.Info?.Log(Environment.StackTrace);
             return input * mode.Parameters.DifficultyParameters.ChunkLimitMultiplier / 100;
         }
 
-        private static void PatchCurrencyRewards(ILContext context, FieldInfo modeField, MethodInfo originalMethod, MethodInfo replacementMethod)
+        private static ResearchLinearUpgrade PatchRenderUpgrades(ResearchLinearUpgrade upgrade, HUDResearchSideUpgradesDisplay upgradesDisplay)
         {
-            ILCursor cursor = new(context);
+            Logger.Info?.Log($"Should render upgrade {upgrade.Id}? {upgradesDisplay.ShouldRenderUpgrade(upgrade)}");
 
-            if (!cursor.TryGotoNext(MoveType.Before, x => x.MatchCall(originalMethod)))
-            {
-                throw new InvalidOperationException("Could not find CollectCurrencyRewards call in HUDResearchUnlockSummary.RebuildView");
-            }
-
-            if (cursor.Next == null || cursor.Next.OpCode != OpCodes.Call)
-            {
-                throw new InvalidOperationException("Expected a call instruction after the CollectCurrencyRewards call");
-            }
-            cursor.Next!.Operand = replacementMethod;
-            
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Ldfld, modeField);
-        }
-
-        private static void CollectCurrencyRewardsWithMode(List<IResearchReward> rewards, GameIcons icons, List<HUDResearchRewardHelpers.RewardDisplayEntry> results, GameMode mode)
-        {
-            int startIndex = results.Count;
-
-            HUDResearchRewardHelpers.CollectCurrencyRewards(rewards, icons, results);
-
-            int rewardIndex = 0;
-
-            for (int i = startIndex; i < results.Count; i++)
-            {
-                HUDResearchRewardHelpers.RewardDisplayEntry result = results[i];
-
-                if (result.Icon == icons.RewardChunkLimit)
-                {
-                    while (rewardIndex < rewards.Count && rewards[rewardIndex] is not ResearchRewardChunkLimit)
-                    {
-                        rewardIndex++;
-                    }
-
-                    if (rewardIndex >= rewards.Count)
-                    {
-                        Logger.Error?.Log($"Could not find ResearchRewardChunkLimit matching result entry.");
-                        continue;
-                    }
-
-                    ResearchRewardChunkLimit reward = (ResearchRewardChunkLimit)rewards[rewardIndex++];
-                    ResearchRewardChunkLimit scaledAmount = new(new ChunkLimitCurrency(ApplyGameParametersToChunkLimitCurrency(mode, reward.Amount.Amount)));
-                    
-                    IText title = "research.reward-chunk-limit".T().Bind("amount", scaledAmount.Amount.Format());
-                    results[i] = new HUDResearchRewardHelpers.RewardDisplayEntry(
-                        title,
-                        scaledAmount.Amount.Format(),
-                        result.Icon,
-                        title,
-                        result.TooltipDescription
-                    );
-
-                }
-            }
+            return upgrade;
         }
     }
 }
