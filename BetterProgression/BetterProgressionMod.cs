@@ -11,6 +11,7 @@ using ShapezShifter.SharpDetour;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using ILogger = Core.Logging.ILogger;
 
 namespace BetterProgression
 {
@@ -21,6 +22,7 @@ namespace BetterProgression
 
         private readonly BetterProgressionScenarioDataHandler _scenarioDataHandler;
 
+        private ILHook? _computeCurrentChunkLimitHook;
         private ILHook? _rebuildViewHook;
         private ILHook? _upgradeSetterHook;
         private ILHook? _rewardsSetterHook;
@@ -31,6 +33,41 @@ namespace BetterProgression
 
             _scenarioDataHandler = new();
             DataHandlers.AddDataHandler(_scenarioDataHandler);
+
+            MethodInfo computeCurrentChunkLimitMethod = typeof(ResearchChunkLimitManager).GetMethod(nameof(ResearchChunkLimitManager.ComputeCurrentChunkLimit), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+            _computeCurrentChunkLimitHook = new ILHook(
+                source: computeCurrentChunkLimitMethod,
+                manip: context =>
+                {
+                    ILCursor cursor = new(context);
+
+                    if (!cursor.TryGotoNext(MoveType.After, x => x.MatchCallvirt<IResearchLinearUpgrades>(nameof(IResearchLinearUpgrades.GetCurrentLevel))))
+                    {
+                        throw new InvalidOperationException($"Could not find call to IResearchLinearUpgrades.GetCurrentLevel in {nameof(ResearchChunkLimitManager)}.{nameof(ResearchChunkLimitManager.ComputeCurrentChunkLimit)}");
+                    }
+
+                    if (!cursor.TryGotoNext(MoveType.Before, x => x.MatchLdloc1()))
+                    {
+                        throw new InvalidOperationException($"Could not find load local variable 1 after call to IResearchLinearUpgrades.GetCurrentLevel in {nameof(ResearchChunkLimitManager)}.{nameof(ResearchChunkLimitManager.ComputeCurrentChunkLimit)}");
+                    }
+
+                    // load argument 0 onto the stack. argument 0 is "this", aka the ResearchChunkLimitManager instance.
+                    cursor.EmitLdarg0();
+
+                    // using the instance we just pushed to the stack, load the Mode field and push it onto the stack.
+                    cursor.EmitLdfld(typeof(ResearchChunkLimitManager).GetField("Mode", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public));
+
+                    if (!cursor.TryGotoNext(MoveType.Before, x => x.MatchAdd()))
+                    {
+                        throw new InvalidOperationException($"Could not find add instruction after call to IResearchLinearUpgrades.GetCurrentLevel in {nameof(ResearchChunkLimitManager)}.{nameof(ResearchChunkLimitManager.ComputeCurrentChunkLimit)}");
+                    }
+
+                    // just before the add, there are 2 important values on the stack: the mode and the current level value.
+                    // read the chunk limit, multiply it using the GameMode, and push it back onto the stack.
+                    cursor.EmitDelegate<Func<GameMode, int, int>>(ApplyGameParametersToChunkLimitCurrency);
+                }
+            );
 
             // method to hook
             MethodInfo collectCurrencyRewardsMethod = typeof(HUDResearchRewardHelpers).GetMethod("CollectCurrencyRewards", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
@@ -74,6 +111,13 @@ namespace BetterProgression
             _rebuildViewHook?.Dispose();
             _rewardsSetterHook?.Dispose();
             _upgradeSetterHook?.Dispose();
+        }
+
+        private static int ApplyGameParametersToChunkLimitCurrency(GameMode mode, int input)
+        {
+            Logger.Info?.Log($"Applying game parameters to chunk limit currency: input={input}, multiplier={mode.Parameters.DifficultyParameters.ChunkLimitMultiplier}. Output will be {input * mode.Parameters.DifficultyParameters.ChunkLimitMultiplier / 100}");
+            Logger.Info?.Log(Environment.StackTrace);
+            return input * mode.Parameters.DifficultyParameters.ChunkLimitMultiplier / 100;
         }
 
         private static void PatchCurrencyRewards(ILContext context, FieldInfo modeField, MethodInfo originalMethod, MethodInfo replacementMethod)
@@ -121,7 +165,7 @@ namespace BetterProgression
                     }
 
                     ResearchRewardChunkLimit reward = (ResearchRewardChunkLimit)rewards[rewardIndex++];
-                    ResearchRewardChunkLimit scaledAmount = new(new ChunkLimitCurrency(reward.Amount.Amount * mode.Parameters.DifficultyParameters.ChunkLimitMultiplier));
+                    ResearchRewardChunkLimit scaledAmount = new(new ChunkLimitCurrency(ApplyGameParametersToChunkLimitCurrency(mode, reward.Amount.Amount)));
                     
                     IText title = "research.reward-chunk-limit".T().Bind("amount", scaledAmount.Amount.Format());
                     results[i] = new HUDResearchRewardHelpers.RewardDisplayEntry(
