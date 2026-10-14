@@ -40,6 +40,11 @@
 		<PublicizerRuntimeStrategies>Unsafe</PublicizerRuntimeStrategies> <!--Removes conflict between MonoMod.Utils and Krafs.Publicizer-->
 	</PropertyGroup>
 
+	<!--Publicized assemblies-->
+	<ItemGroup>
+		<Publicize Include="SPZGameAssembly" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<!--Mod assemblies-->
 		<Reference Include="ShapezShifter">
