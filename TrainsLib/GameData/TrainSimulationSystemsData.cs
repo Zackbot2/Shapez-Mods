@@ -10,7 +10,7 @@ namespace TrainsLib.GameData
     /// </summary>
     public static class TrainSimulationSystemsData
     {
-        public static TrainSystem? TrainSystem {get; internal set; }
+        public static TrainSystem? TrainSystem { get; internal set; }
         public static TrainsSimulation? Simulation => TrainSystem?.TrainsSimulation;
     }
 }

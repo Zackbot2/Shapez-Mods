@@ -76,7 +76,7 @@ namespace TrainsLib
 
             // TrainStationCoordinator.TrainStopController.ShouldHaltTrain hook
             _hooks.Add(DetourHelper.CreatePostfixHook(
-                (TrainStationCoordinator.TrainStopController controller, TrainId trainId, TrainSimulationData train) => controller.ShouldHaltTrain(trainId, train),
+                (controller, trainId, train) => controller.ShouldHaltTrain(trainId, train),
                 delegate (TrainStationCoordinator.TrainStopController controller, TrainId trainId, TrainSimulationData train, bool __result)
                 {
                     if (__result)
