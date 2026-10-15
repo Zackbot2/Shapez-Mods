@@ -36,19 +36,31 @@
 		<SteamFolder>$(MSBuildProjectDirectoryOutput)\Steam</SteamFolder>
 	</PropertyGroup>
 
+	<!--Package References-->
+	<ItemGroup>
+		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.0" />
+		<PackageReference Include="Krafs.Publicizer" Version="2.3.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<PropertyGroup>
+		<PublicizerRuntimeStrategies>Unsafe</PublicizerRuntimeStrategies>
+		<!--Removes conflict between MonoMod.Utils and Krafs.Publicizer-->
+	</PropertyGroup>
+
+	<!--Publicized assemblies-->
+	<ItemGroup>
+		<Publicize Include="SPZGameAssembly" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<!--Mod assemblies-->
 		<Reference Include="ShapezShifter">
 			<HintPath>$(SPZ2_SHIFTER)</HintPath>
 			<Private>false</Private>
 		</Reference>
-
-		<!---->
-		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.0" />
-		<PackageReference Include="Krafs.Publicizer" Version="2.3.0">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 
 		<!--Game assemblies-->
 		<Reference Include="SPZGameAssembly">
@@ -103,6 +115,10 @@
 			<HintPath>$(SPZ2_PATH)\Game.Interaction.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="Game.Core.Rendering">
+			<HintPath>$(SPZ2_PATH)\Game.Core.Rendering.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 
 		<!--Unity assemblies-->
 		<Reference Include="Core">
@@ -122,5 +138,4 @@
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
-
 </Project>

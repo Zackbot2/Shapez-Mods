@@ -1,10 +1,12 @@
 ﻿using Core.Factory;
 using Game.Core.Content.Islands;
+using Game.Core.GameMode;
 using Game.Core.Modding;
 using Game.Core.Research;
 using MonoMod.RuntimeDetour;
 using ShapezShifter.SharpDetour;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using ILogger = Core.Logging.ILogger;
 
@@ -23,23 +25,21 @@ namespace TestMod
         internal static ILogger Logger = null!;
 
         private Hook? _tryAddShapeForStorageHook;
+        private Hook? _processRewardsHook;
 
         public TestModMod(ILogger logger)
         {
             Logger = logger;
 
-            MethodInfo target = typeof(ResearchManager).GetMethod("TryAddShapeForStorage", BindingFlags.Instance | BindingFlags.Public)!;
-            //_tryAddShapeForStorageHook = DetourHelper.CreatePrefixHook<ResearchManager, ShapeCollectorProcessing, ShapeId, ulong, UnifiedShapeId>(
-            //    original: (manager, processing, shapeId, totalAmount, unifiedShapeId) => manager.TryAddShapeForStorage(processing, shapeId, totalAmount, out unifiedShapeId),
-            //    static delegate (ResearchManager manager, ShapeCollectorProcessing processing, ShapeId shapeId, ulong totalAmount, UnifiedShapeId unifiedShapeId)
-            //    {
-            //        Logger.Info?.Log($"[TestMod] TryAddShapeForStorage called with processing={processing}, shapeId={shapeId}, totalAmount={totalAmount}, unifiedShapeId={unifiedShapeId}");
+            //MethodInfo tryAddShapeForStorageMethod = typeof(ResearchManager).GetMethod("TryAddShapeForStorage", BindingFlags.Instance | BindingFlags.Public)!;
+            //_tryAddShapeForStorageHook = new Hook(
+            //    source: tryAddShapeForStorageMethod!,
+            //    target: (TryAddShapeForStorageHook)TryAddShapeForStoragePatch);
 
-            //        return (processing, shapeId, totalAmount, unifiedShapeId);
-            //    });
-            _tryAddShapeForStorageHook = new Hook(
-                source: target!,
-                target: (TryAddShapeForStorageHook)TryAddShapeForStoragePatch);
+            MethodInfo processRewardsMethod = typeof(ResearchProgressionBalancer).GetMethod("ProcessRewards", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            _processRewardsHook = new Hook(
+                source: processRewardsMethod!,
+                target: (ProcessRewardsHook)ProcessRewardsPatch);
         }
 
         delegate bool TryAddShapeForStorageOrig(ResearchManager manager, ShapeCollectorProcessing processing, ShapeId shapeId, ulong totalAmount, out UnifiedShapeId unifiedShapeId);
@@ -54,9 +54,20 @@ namespace TestMod
             return result;
         }
 
+        delegate List<IResearchReward> ProcessRewardsOrig(ResearchProgressionBalancer balancer, List<IResearchReward> rewards);
+        delegate List<IResearchReward> ProcessRewardsHook(ProcessRewardsOrig orig, ResearchProgressionBalancer balancer, List<IResearchReward> rewards);
+
+        static List<IResearchReward> ProcessRewardsPatch(ProcessRewardsOrig orig, ResearchProgressionBalancer balancer, List<IResearchReward> rewards)
+        {
+            Logger.Info?.Log($"ResearchProgressionBalancer data: BlueprintCostMultiplier={balancer.BlueprintCostMultiplier}; BlueprintRewardMultiplier={balancer.BlueprintRewardMultiplier}; ChunkLimitMultiplier={balancer.ChunkLimitMultiplier}; ResearchShapeCostMultiplier={balancer.ResearchShapeCostMultiplier}");
+
+            return orig(balancer, rewards);
+        }
+
         public void Dispose()
         {
             _tryAddShapeForStorageHook?.Dispose();
+            _processRewardsHook?.Dispose();
         }
     }
 }
