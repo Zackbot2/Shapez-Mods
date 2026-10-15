@@ -122,7 +122,7 @@ namespace BetterProgression
             scenarioData.Research.BlueprintProgression.SetByCode("RrRrRrRr:CuCuCuCu", newShapeCode: "RbXrRbXr:Cr--Cr--", newRequiredUpgradeIds: new string[] { "ConverterMilestoneTier3" });
             scenarioData.Research.BlueprintProgression.SetByCode("WwWwWwWw:CrCyCrCy:Sy--Sy--", newShapeCode: "RrXyRr--:Wy--WyXy");
             scenarioData.Research.BlueprintProgression.SetByCode("WrWwWrWw:P-P-P-P-:CwCwCwCw", newShapeCode: "RrXmRrCw:SmP-SmP-:P-SwP-Xm:Wr--Wr--");
-            scenarioData.Research.BlueprintProgression.SetByCode("crcrcrcr:WucgSucg:CwCwCwCw", newShapeCode: "RrcwRrcw:SwXwSwcr:P-SwP-Xw:Wr--Wr--");
+            scenarioData.Research.BlueprintProgression.SetByCode("crcrcrcr:WucgSucg:CwCwCwCw", newShapeCode: "RccwRccw:SwXwSwcc:P-SwP-Xw:Wc--Wc--");
 
             return scenarioData;
         }
