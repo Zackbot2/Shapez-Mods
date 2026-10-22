@@ -31,6 +31,9 @@ namespace ScenarioTools.Data
         /// </summary>
         public class OperatorLevelRewardData
         {
+            /// <summary>
+            /// For this to function in-game, ensure the this is sorted by minimum level, highest to lowest.
+            /// </summary>
             public SerializedResearchPlayerLevelConfig.Reward[] Rewards { get => operatorLevelData.OperatorLevelConfig.Rewards; set => operatorLevelData.OperatorLevelConfig.Rewards = value; }
 
             protected ScenarioData scenarioData;
@@ -109,7 +112,7 @@ namespace ScenarioTools.Data
 
             public void ReplaceAllWith(IEnumerable<SerializedResearchPlayerLevelConfig.Reward> rewards)
             {
-                Rewards = rewards.ToArray();
+                Rewards = rewards.OrderByDescending(r => r.MinimumLevel).ToArray();
             }
 
             public bool ReplaceLevelRewards(SerializedResearchPlayerLevelConfig.Reward from, SerializedResearchPlayerLevelConfig.Reward to)
@@ -118,6 +121,7 @@ namespace ScenarioTools.Data
                 if (index >= 0)
                 {
                     Rewards[index] = to;
+                    Rewards = Rewards.OrderByDescending(r => r.MinimumLevel).ToArray();
                     return true;
                 }
                 return false;
@@ -150,7 +154,7 @@ namespace ScenarioTools.Data
                 {
                     return false;
                 }
-                Rewards = Rewards.Append(levelRewards).ToArray();
+                Rewards = Rewards.Append(levelRewards).OrderByDescending(r => r.MinimumLevel).ToArray();
                 return true;
             }
 
@@ -164,7 +168,7 @@ namespace ScenarioTools.Data
                 {
                     MinimumLevel = minimumLevel,
                     Rewards = rewards
-                }).ToArray();
+                }).OrderByDescending(r => r.MinimumLevel).ToArray();
                 return true;
             }
 
@@ -203,7 +207,7 @@ namespace ScenarioTools.Data
                 {
                     return false;
                 }
-                Rewards = Rewards.Where(r => !LevelRewardsEqual(r, levelRewards)).ToArray();
+                Rewards = Rewards.Where(r => !LevelRewardsEqual(r, levelRewards)).OrderByDescending(r => r.MinimumLevel).ToArray();
                 return true;
             }
         }

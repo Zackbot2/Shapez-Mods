@@ -45,9 +45,10 @@ namespace ScenarioTools
                             if (shapeRotation == null) break;
                             ShapeId bpShapeId = currencyManager.ShapeIdManager.Resolve(shapeRotation);
                             _blueprintShapes.Add(bpShapeId);
-                            Logger.Info?.Log($"Resolved blueprint ShapeId for {shapeRotation}: {bpShapeId}");
+                            //Logger.Info?.Log($"Resolved blueprint ShapeId for {shapeRotation}: {bpShapeId}");
                         }
                     }
+                    Logger.Info?.Log($"[{MOD_NAME}] Resolved ShapeIds for {_blueprintShapes.Count} blueprint shapes.");
                 });
 
             MethodInfo tryAddShapeForStorageMethod = typeof(ResearchManager).GetMethod("TryAddShapeForStorage", BindingFlags.Instance | BindingFlags.Public);
@@ -67,10 +68,8 @@ namespace ScenarioTools
                     cursor.Emit(OpCodes.Ldarg_2);   // load argument 2, which is shapeId
 
                     // emit the new check. it receives the output from the old one as its input
-                    cursor.EmitDelegate<Func<bool, ShapeId, bool>>(
-                        (isPlayerLevelShape, shapeId) => IsAcceptedShape(isPlayerLevelShape, shapeId));
+                    cursor.EmitDelegate<Func<bool, ShapeId, bool>>((isPlayerLevelShape, shapeId) => IsAcceptedShape(isPlayerLevelShape, shapeId));
                 });
-
         }
 
         public void Dispose()

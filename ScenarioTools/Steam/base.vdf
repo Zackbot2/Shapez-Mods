@@ -7,5 +7,5 @@
 	"title"				"Scenario Tools"
 	"changenote"		"[b]Mod version $VERSION[/b]
 
-Initial public release."
+Fixed a bug that caused new operator levels to never be used in-game."
 }
