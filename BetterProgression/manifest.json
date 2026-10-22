@@ -1,7 +1,7 @@
 {
-  "Version": "0.0.1",
+  "Version": "1.0.0",
   "Author": "Zackbot",
-  "Description": "Modifies the vanilla scenarios to provide a more rounded experience with things like improved blueprint shapes, balanced operator levels, etc. Does NOT make the game easier in any way!",
+  "Description": "Modifies the vanilla scenarios to provide a more rounded experience with things like improved blueprint shapes, balanced operator levels, and more. Does NOT make the game easier!",
   "AffectsSaveGames": false,
   "DisablesAchievements": false,
   "GameVersionSupportRange": "~1.2",
@@ -13,12 +13,17 @@
     {
       "ModId": "steam:3542611357",
       "ModTitle": "Shapez Shifter",
-      "Version": "^1.1.0"
+      "Version": "^1.2.0"
+    },
+    {
+      "ModId": "steam:3542712030",
+      "ModTitle": "MonoMod.RuntimeDetour",
+      "Version": "^25.3.0"
     },
     {
       "ModId": "steam:3814498586",
       "ModTitle": "Scenario Tools",
-      "Version": "~1.0.0"
+      "Version": "^1.0.0"
     }
   ]
 }
