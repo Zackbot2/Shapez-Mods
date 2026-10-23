@@ -18,7 +18,7 @@ namespace ScenarioTools
         private readonly SerializedGameScenarioInterceptor? _gameScenarioInterceptor;
         private readonly IRewirerProvider _whatTheFuckRewirerProvider;
 
-        private List<ShapeId>? _blueprintShapes;
+        private Dictionary<ShapeId, BlueprintCurrencyShape>? _bpCurrencyShapesByShapeId;
 
         private Hook _addShapeStoredHooksHook;
         private ILHook _tryAddShapeForStorageHook;
@@ -36,19 +36,28 @@ namespace ScenarioTools
                 original: (currencyManager) => currencyManager.AddShapeStoredHooks(),
                 prefix: delegate (BlueprintCurrencyManager currencyManager)
                 {
-                    _blueprintShapes = new List<ShapeId>();
+                    _bpCurrencyShapesByShapeId = new Dictionary<ShapeId, BlueprintCurrencyShape>();
 
                     foreach(BlueprintCurrencyShape bpShape in currencyManager.Mode.ResearchConfig.BlueprintCurrencyShapes)
                     {
                         foreach (string? shapeRotation in ShapeUtils.GetRotationsForQuadShape(bpShape.ShapeHash))
                         {
                             if (shapeRotation == null) break;
-                            ShapeId bpShapeId = currencyManager.ShapeIdManager.Resolve(shapeRotation);
-                            _blueprintShapes.Add(bpShapeId);
-                            //Logger.Info?.Log($"Resolved blueprint ShapeId for {shapeRotation}: {bpShapeId}");
+
+                            ShapeId bpShapeId;
+                            try
+                            {
+                                bpShapeId = currencyManager.ShapeIdManager.Resolve(shapeRotation);
+                            }
+                            catch
+                            {
+                                Logger.Error?.Log($"[{MOD_NAME}] Failed to resolve ShapeId for blueprint shape {bpShape.ShapeHash} with rotation {shapeRotation}. This blueprint shape will not be available in manufacture scenarios.");
+                                continue;
+                            }
+                            _bpCurrencyShapesByShapeId.TryAdd(bpShapeId, bpShape);
                         }
                     }
-                    Logger.Info?.Log($"[{MOD_NAME}] Resolved ShapeIds for {_blueprintShapes.Count} blueprint shapes.");
+                    Logger.Info?.Log($"[{MOD_NAME}] Resolved ShapeIds for {_bpCurrencyShapesByShapeId.Count} blueprint shapes.");
                 });
 
             MethodInfo tryAddShapeForStorageMethod = typeof(ResearchManager).GetMethod("TryAddShapeForStorage", BindingFlags.Instance | BindingFlags.Public);
@@ -65,10 +74,12 @@ namespace ScenarioTools
                         return;
                     }
 
-                    cursor.Emit(OpCodes.Ldarg_2);   // load argument 2, which is shapeId
+                    cursor.EmitLdarg2();    // load argument 2, which is shapeId
+
+                    cursor.EmitLdarg0();    // load argument 0, which is always "this". in this case, that's the ResearchManager instance.
 
                     // emit the new check. it receives the output from the old one as its input
-                    cursor.EmitDelegate<Func<bool, ShapeId, bool>>((isPlayerLevelShape, shapeId) => IsAcceptedShape(isPlayerLevelShape, shapeId));
+                    cursor.EmitDelegate<Func<bool, ShapeId, ResearchManager, bool>>((isPlayerLevelShape, shapeId, researchManager) => IsAcceptedShape(isPlayerLevelShape, shapeId, researchManager));
                 });
         }
 
@@ -79,9 +90,19 @@ namespace ScenarioTools
             _tryAddShapeForStorageHook.Dispose();
         }
 
-        private bool IsAcceptedShape(bool isPlayerLevelShape, ShapeId shapeid)
+        private bool IsAcceptedShape(bool isPlayerLevelShape, ShapeId shapeid, ResearchManager researchManager)
         {
-            return isPlayerLevelShape || (_blueprintShapes != null && _blueprintShapes.Contains(shapeid));
+            return isPlayerLevelShape || (_bpCurrencyShapesByShapeId != null && _bpCurrencyShapesByShapeId.ContainsKey(shapeid) && !IsBlueprintShapeLocked(_bpCurrencyShapesByShapeId[shapeid], researchManager));
+        }
+
+        public static bool IsBlueprintShapeLocked(BlueprintCurrencyShape bpShape, ResearchUnlockManager unlockManager)
+        {
+            return unlockManager.IsLocked(bpShape);
+        }
+
+        public static bool IsBlueprintShapeLocked(BlueprintCurrencyShape bpShape, ResearchManager researchManager)
+        {
+            return IsBlueprintShapeLocked(bpShape, researchManager.UnlockManager);
         }
     }
 }

@@ -6,6 +6,8 @@
 	"visibility"		"0"
 	"title"				"Scenario Tools"
 	"changenote"		"[b]Mod version $VERSION[/b]
-
-Fixed a bug that caused new operator levels to never be used in-game."
+	
+- Delivering blueprint shapes no longer adds blueprint points if the shape isn't unlocked
+- Made blueprint shape detection more resistant to errors
+- Replaced the mod thumbnail"
 }
