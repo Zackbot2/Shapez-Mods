@@ -191,7 +191,7 @@ namespace BetterProgression
             });
 
             // trades
-            scenarioData.ResearchStationConfig.AddRecipe("XuXu----", "WrSuWrSu");
+            scenarioData.ResearchStationConfig.AddRecipe("XkXk----", "WrSuWrSu");
             scenarioData.ResearchStationConfig.AddRecipe("RuCuXuCu", "Yb--Yb--");
             scenarioData.ResearchStationConfig.AddRecipe("RuCuXbCu:RbCbYbCb", "Yc--Yc--");
             scenarioData.ResearchStationConfig.AddRecipe("RwCwXcCw:RcCcYcCc", "Yw--Yw--");

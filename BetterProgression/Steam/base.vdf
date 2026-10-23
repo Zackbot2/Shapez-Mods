@@ -8,5 +8,5 @@
 	"title"				"Better Progression"
 	"changenote"		"[b]Mod version $VERSION[/b]
 
-Updated the blueprint shapes in manufacture hard mode to what they were just before being removed."
+Fixed a bug where the trade for the first blueprint shape in manufacture hard mode was configured incorrectly."
 }
