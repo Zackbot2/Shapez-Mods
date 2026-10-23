@@ -148,9 +148,16 @@ namespace BetterProgression
             {
                 new()
                 {
-                    Shape = "RuCuXkCu",
-                    Amount = 8,
+                    Shape = "XkXk----",
+                    Amount = 2,
                     RequiredUpgradeIds = new[] { "ConverterMilestoneTier_Initial" },
+                    RequiredMechanicIds = Array.Empty<string>()
+                },
+                new()
+                {
+                    Shape = "RuCuXuCu",
+                    Amount = 8,
+                    RequiredUpgradeIds = new[] { "ConverterMilestoneTier1" },
                     RequiredMechanicIds = Array.Empty<string>()
                 },
                 new()
@@ -170,7 +177,7 @@ namespace BetterProgression
                 new()
                 {
                     Shape = "RwCwXwCw:cccccccc:RwCwYwCw",
-                    Amount = 96,
+                    Amount = 128,
                     RequiredUpgradeIds = new[] { "ConverterMilestoneTier8" },
                     RequiredMechanicIds = Array.Empty<string>()
                 },
@@ -184,7 +191,8 @@ namespace BetterProgression
             });
 
             // trades
-            scenarioData.ResearchStationConfig.AddRecipe("RuCuXkCu", "Yb--Yb--");
+            scenarioData.ResearchStationConfig.AddRecipe("XuXu----", "WrSuWrSu");
+            scenarioData.ResearchStationConfig.AddRecipe("RuCuXuCu", "Yb--Yb--");
             scenarioData.ResearchStationConfig.AddRecipe("RuCuXbCu:RbCbYbCb", "Yc--Yc--");
             scenarioData.ResearchStationConfig.AddRecipe("RwCwXcCw:RcCcYcCc", "Yw--Yw--");
             scenarioData.ResearchStationConfig.AddRecipe("RwCwXwCw:cccccccc:RwCwYwCw", "Xk--Xk--");

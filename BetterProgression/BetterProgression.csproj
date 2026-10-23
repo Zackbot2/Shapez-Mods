@@ -53,6 +53,7 @@
 		</Reference>
 		<Reference Include="ScenarioTools">
 			<HintPath>$(SPZ2_WORKSHOP_MOD_PATH)\3814498586\ScenarioTools.dll</HintPath>
+			<!--<HintPath>$(SPZ2_PERSISTENT)\mods\ScenarioTools\ScenarioTools.dll</HintPath>-->
 			<Private>false</Private>
 		</Reference>
 

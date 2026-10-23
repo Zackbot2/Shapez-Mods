@@ -1,5 +1,5 @@
 {
-  "Version": "1.0.0",
+  "Version": "1.1.0",
   "Author": "Zackbot",
   "Description": "Modifies the vanilla scenarios to provide a more rounded experience with things like improved blueprint shapes, balanced operator levels, and more. Does NOT make the game easier!",
   "AffectsSaveGames": false,
@@ -22,6 +22,7 @@
     },
     {
       "ModId": "steam:3814498586",
+      //"ModId": "local:ScenarioTools",
       "ModTitle": "Scenario Tools",
       "Version": "^1.0.0"
     }

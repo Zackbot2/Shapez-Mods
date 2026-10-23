@@ -20,6 +20,8 @@ using ILogger = Core.Logging.ILogger;
 
 namespace BetterProgression
 {
+    // (vanilla?) bug: blueprint reward from milestones is twice as much as it says in the milestone menu
+
     public class BetterProgressionMod : IMod
     {
         public const string MOD_NAME = nameof(BetterProgressionMod);
