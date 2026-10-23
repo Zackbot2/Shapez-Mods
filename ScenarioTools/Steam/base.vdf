@@ -2,12 +2,11 @@
 {
 	"appid"				"2162800"
 	"publishedfileid"	"3814498586"
+	"previewfile"		"${PREVIEW_IMG}"
 	"contentfolder"		"${CONTENT_PATH}"
 	"visibility"		"0"
 	"title"				"Scenario Tools"
 	"changenote"		"[b]Mod version $VERSION[/b]
 	
-- Delivering blueprint shapes no longer adds blueprint points if the shape isn't unlocked
-- Made blueprint shape detection more resistant to errors
-- Replaced the mod thumbnail"
+Replaced the mod thumbnail."
 }
