@@ -138,5 +138,9 @@
 			<HintPath>$(SPZ2_PATH)\UnityEngine.CoreModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="Unity.Mathematics">
+			<HintPath>$(SPZ2_PATH)\Unity.Mathematics.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 </Project>
