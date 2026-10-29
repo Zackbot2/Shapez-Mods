@@ -17,11 +17,16 @@ namespace BiggerCameraZoomOut
 
         // in vanilla, this is 20000f
         private const float MAX_ZOOM = 40000f;
+        // in vanilla, this is 35000f
+        private const float MAX_RENDER_DISTANCE = 70000f;
+        // in vanilla, this is 1000
+        private const int MAX_DRAWN_SUPER_CHUNKS = 10000;
 
         private Hook? _zoomCameraHook;
         private Hook? _convertZoomToPercentageHook;
         private ILHook? _update_ApplyAngleAndZoomHook;
         private ILHook? _processPanelsForCollapsingHook;
+        private ILHook? _createMapSubDrawersHook;
 
         public BiggerCameraZoomOutMod(ILogger logger)
         {
@@ -50,17 +55,18 @@ namespace BiggerCameraZoomOut
                 manip: context =>
                 {
                     ILCursor cursor = new(context);
-                    if(!cursor.TryGotoNext(MoveType.Before, x => x.MatchCall(get_MaxZoom)) || cursor.Next == null)
+                    if (!cursor.TryGotoNext(MoveType.Before, x => x.MatchCall(get_MaxZoom)) || cursor.Next == null)
                     {
                         AbortInitialization("Failed to hook Update_ApplyAngleAndZoom");
                         return;
                     }
-                    
+
                     cursor.Next.OpCode = Opcodes.Ldc_R4;
                     cursor.Next.Operand = MAX_ZOOM;
                 }
             );
 
+            // i'm unsure if this hook is even needed. from the code, it seems like it's using the old max zoom value except hardcoded, but i haven't actually tested map markers with/without the hook active.
             MethodInfo processPanelsForCollapsingMethod = typeof(HUDWaypointsVisualization).GetMethod("ProcessPanelsForCollapsing", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             _processPanelsForCollapsingHook = new ILHook(
                 source: processPanelsForCollapsingMethod,
@@ -68,13 +74,38 @@ namespace BiggerCameraZoomOut
                 {
                     ILCursor cursor = new(context);
 
-                    if(!cursor.TryGotoNext(MoveType.Before, x => x.MatchLdcR4(20000f)) || cursor.Next == null)
+                    if (!cursor.TryGotoNext(MoveType.Before, x => x.MatchLdcR4(20000f)) || cursor.Next == null)
                     {
                         AbortInitialization("Failed to hook ProcessPanelsForCollapsing");
                         return;
                     }
-                    
+
                     cursor.Next.Operand = MAX_ZOOM;
+                }
+            );
+
+            MethodInfo createMapSubDrawersMethod = typeof(GameSessionOrchestrator).GetMethod("CreateMapSubDrawers", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            _createMapSubDrawersHook = new ILHook(
+                source: createMapSubDrawersMethod,
+                manip: context =>
+                {
+                    ILCursor cursor = new(context);
+
+                    if (!cursor.TryGotoNext(MoveType.Before, x => x.MatchLdcI4(1000)) || cursor.Next == null)
+                    {
+                        AbortInitialization("Failed to hook ProcessPanelsForCollapsing");
+                        return;
+                    }
+
+                    cursor.Next.Operand = MAX_DRAWN_SUPER_CHUNKS;
+
+                    if (!cursor.TryGotoNext(MoveType.Before, x => x.MatchLdcR4(35000f)) || cursor.Next == null)
+                    {
+                        AbortInitialization("Failed to hook ProcessPanelsForCollapsing");
+                        return;
+                    }
+
+                    cursor.Next.Operand = MAX_RENDER_DISTANCE;
                 }
             );
 
@@ -87,6 +118,7 @@ namespace BiggerCameraZoomOut
             _zoomCameraHook?.Dispose();
             _convertZoomToPercentageHook?.Dispose();
             _processPanelsForCollapsingHook?.Dispose();
+            _createMapSubDrawersHook?.Dispose();
             Logger = null;
         }
 
